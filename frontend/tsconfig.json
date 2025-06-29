@@ -1,7 +1,58 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "compilerOptions": {
+    // Target JavaScript version for emitted code. ES2020 is a good modern choice.
+    "target": "ES2020",
+    // Emit 'use strict' in JavaScript files; recommended for modern JS.
+    "useDefineForClassFields": true,
+    // Specify libraries to be included in the compilation.
+    // ES2020: Standard JavaScript features.
+    // DOM: DOM APIs for browser environments.
+    // DOM.Iterable: Enables iteration protocols for DOM collections.
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    // Specify module code generation: ESNext for modern module systems.
+    "module": "ESNext",
+    // Skip type checking of declaration files (*.d.ts). Good for external libraries.
+    "skipLibCheck": true,
+
+    /* Bundler-specific config */
+    // Enables 'allowSyntheticDefaultImports' for modules without default exports.
+    // Used with moduleResolution: "node" for better interoperability.
+    "esModuleInterop": true,
+    // Determines how modules are resolved. "node" mimics Node.js module resolution.
+    "moduleResolution": "node",
+    // Allows importing .json files as modules.
+    "resolveJsonModule": true,
+    // Ensures each file can be safely transpiled without relying on other files.
+    // Crucial for tools like Vite or Babel.
+    "isolatedModules": true,
+    // Do not emit outputs (like .js files) from the compilation.
+    // Vite handles the transpilation and bundling.
+    "noEmit": true,
+    // Specify JSX factory: "react-jsx" for React 17+ new JSX transform.
+    "jsx": "react-jsx",
+
+    /* Linting/Type Checking */
+    // Enable all strict type-checking options. Highly recommended for robust code.
+    "strict": true,
+    // Report errors on unused locals (variables, functions, etc. within a scope).
+    "noUnusedLocals": true,
+    // Report errors on unused parameters in functions.
+    "noUnusedParameters": true,
+    // Report errors for fallthrough cases in switch statements.
+    "noFallthroughCasesInSwitch": true
+  },
+  // 'include' specifies an array of filenames or patterns to include in the program.
+  // "src" will include all .ts, .tsx, .js, .jsx files in the src directory.
+  "include": ["src"],
+  // 'references' is for TypeScript Project References. If you're not using them,
+  // this array should be empty or omitted.
+  // If you intend to use project references in the future, you'd define them like:
+  // "references": [{ "path": "./tsconfig.node.json" }]
+  // For now, I've commented out the original paths as they were part of the malformed 'references' array.
+  // It's common to have a tsconfig.node.json for Node.js specific configurations,
+  // and reference it here if your project has a distinct Node.js part.
+  // "references": [
+  //   { "path": "./tsconfig.node.json" }
+  // ]
 }
+
