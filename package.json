@@ -4,7 +4,9 @@
   "description": "A dual-focus habit tracker that assists users in kicking bad habits and forming healthy ones. As you change your daily behaviours, you can track resistance days for bad habits, streaks for good habits, and unlock accomplishments.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "test": "jest --detectOpenHandles",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -15,5 +17,10 @@
   "bugs": {
     "url": "https://github.com/PhiLouGii/habitarium/issues"
   },
-  "homepage": "https://github.com/PhiLouGii/habitarium#readme"
+  "homepage": "https://github.com/PhiLouGii/habitarium#readme",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "jest": "^30.0.3",
+    "supertest": "^7.1.1"
+  }
 }
