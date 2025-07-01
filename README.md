@@ -1,6 +1,9 @@
 # Habitarium: Build Good, Break Bad
 A dual-focus habit tracker that assists users in kicking bad habits and forming healthy ones. As you change your daily behaviours, you can track resistance days for bad habits, streaks for good habits, and unlock accomplishments.
 
+## CI Status
+[![Node.js CI](https://github.com/PhiLouGii/habitarium/actions/workflows/ci.yml/badge.svg)](https://github.com/PhiLouGii/habitarium/actions/workflows/ci.yml)
+
 ## Features ✨
 - **User authentication** with secure JWT tokens
 - **Dual-habit tracking** building good habits and breaking bad habits
