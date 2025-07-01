@@ -1,53 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import HabitItem from '../components/habits/HabitItem';
 import StreakCounter from '../components/habits/StreakCounter';
 import styles from './Dashboard.module.css';
+import api from '../services/api';
+
+// Add interface for Habit
+interface Habit {
+  id: string;
+  name: string;
+  type: 'good' | 'bad';
+  streak: number;
+}
 
 const Dashboard: React.FC = () => {
-  const [habits, setHabits] = useState({
-    goodHabits: [
-      { id: 1, name: 'Morning Meditation', streak: 7 },
-      { id: 2, name: '30-min Exercise', streak: 3 }
-    ],
-    badHabits: [
-      { id: 3, name: 'No Soda', streak: 5 },
-      { id: 4, name: 'No Late-Night Snacking', streak: 2 }
-    ]
-  });
+  const { user, logout } = useAuth();
+  const [habits, setHabits] = useState<{
+    goodHabits: Habit[];
+    badHabits: Habit[];
+  }>({ goodHabits: [], badHabits: [] });
+  const [loading, setLoading] = useState(true);
 
-  const handleLog = (id: number, status: 'done' | 'resisted' | 'slipped') => {
-    setHabits(prev => {
-      const updatedHabits = { ...prev };
-      
-      // Find habit in both good and bad arrays
-      const allHabits = [...prev.goodHabits, ...prev.badHabits];
-      const habit = allHabits.find(h => h.id === id);
-      if (!habit) return prev;
-      
-      // Update streak based on status
-      const updatedStreak = 
-        (status === 'done' || status === 'resisted') 
-          ? habit.streak + 1 
-          : 0;
-          
-      // Update in the correct array
-      const habitType = prev.goodHabits.some(h => h.id === id) ? 'goodHabits' : 'badHabits';
-      updatedHabits[habitType] = updatedHabits[habitType].map(h => 
-        h.id === id ? { ...h, streak: updatedStreak } : h
-      );
-      
-      return updatedHabits;
-    });
+  useEffect(() => {
+    const fetchHabits = async () => {
+      try {
+        const response = await api.get('/habits');
+        setHabits(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Failed to fetch habits', error);
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchHabits();
+    }
+  }, [user]);
+
+  const handleLog = async (id: string, status: 'done' | 'resisted' | 'slipped') => {
+    try {
+      const response = await api.post(`/habits/${id}/log`, { status });
+      setHabits(response.data);
+    } catch (error) {
+      console.error('Failed to log habit', error);
+    }
   };
 
   const totalGoodStreak = habits.goodHabits.reduce((sum, h) => sum + h.streak, 0);
   const totalBadStreak = habits.badHabits.reduce((sum, h) => sum + h.streak, 0);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl">Loading dashboard...</div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.dashboard}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Habitarium</h1>
-        <p className={styles.subtitle}>Build good habits, break bad ones</p>
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h1 className={styles.title}>Habitarium</h1>
+            <p className={styles.subtitle}>Welcome back, {user?.name}!</p>
+          </div>
+          <button 
+            onClick={logout}
+            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+          >
+            Logout
+          </button>
+        </div>
       </header>
 
       <div className={styles.streaksContainer}>
