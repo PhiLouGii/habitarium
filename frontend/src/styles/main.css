@@ -1,0 +1,74 @@
+:root {
+  --color-good: #10B981;
+  --color-good-light: #D1FAE5;
+  --color-bad: #3B82F6;
+  --color-bad-light: #DBEAFE;
+  --color-neutral: #6B7280;
+  --color-neutral-light: #F9FAFB;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+  line-height: 1.6;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  transform: scale(1.03);
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.buttonGood {
+  background-color: var(--color-good);
+  color: white;
+}
+
+.buttonBad {
+  background-color: var(--color-bad);
+  color: white;
+}
+
+.buttonNeutral {
+  background-color: var(--color-neutral-light);
+  color: var(--color-neutral);
+}
