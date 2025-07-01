@@ -35,7 +35,7 @@ const SignupForm: React.FC = () => {
         </div>
       )}
       
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="w-full flex flex-col items-center">
         <div className="form-group">
           <label htmlFor="name" className="form-label">Name</label>
           <input
@@ -90,12 +90,13 @@ const SignupForm: React.FC = () => {
         
         <button
           type="submit"
-          className="btn btn-primary"
+          className="btn btn-primary mt-4"
+          style={{ maxWidth: '320px' }}
         >
           Create Account
         </button>
         
-        <div className="form-footer">
+        <div className="form-footer mt-6">
           <p>
             Already have an account?{' '}
             <Link to="/login" className="form-link">Log in</Link>
