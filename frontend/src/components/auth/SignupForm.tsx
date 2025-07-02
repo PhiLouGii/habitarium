@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const SignupForm: React.FC = () => {
   const [name, setName] = useState('');
@@ -8,15 +8,15 @@ const SignupForm: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false); // Add loading state
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { signup } = useAuth();
+  const navigate = useNavigate(); // Added here
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
-    setIsSubmitting(true); // Start loading
+    setIsSubmitting(true);
 
-    // Client-side validation
     if (!name || !email || !password || !confirmPassword) {
       setErrorMessage('All fields are required');
       setIsSubmitting(false);
@@ -37,7 +37,7 @@ const SignupForm: React.FC = () => {
     
     try {
       await signup(name, email, password);
-      // Navigation is handled in AuthContext after successful signup
+      navigate('/dashboard'); // Navigate here after successful signup
     } catch (error: any) {
       if (error.response) {
         setErrorMessage(error.response.data.message || 'Signup failed');
@@ -47,7 +47,7 @@ const SignupForm: React.FC = () => {
         setErrorMessage('An unexpected error occurred');
       }
     } finally {
-      setIsSubmitting(false); // End loading
+      setIsSubmitting(false);
     }
   };
 
