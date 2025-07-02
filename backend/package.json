@@ -11,14 +11,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.0.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.16.1"
+    "mongoose": "^8.16.1",
+    "path-to-regexp": "^1.8.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -29,8 +29,11 @@
     "@types/node": "^24.0.10",
     "@typescript-eslint/eslint-plugin": "^8.35.0",
     "@typescript-eslint/parser": "^8.35.0",
-    "eslint": "^9.30.0",
+    "eslint": "^9.30.1",
+    "jest": "^30.0.3",
+    "supertest": "^7.1.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
-  }
+  },
+  "description": ""
 }
