@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useGuest } from '../../context/GuestContext';
+import { Link, useNavigate } from 'react-router-dom';
 
 const SignupForm: React.FC = () => {
   const [name, setName] = useState('');
@@ -8,22 +9,47 @@ const SignupForm: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { signup } = useAuth();
-  const navigate = useNavigate();
+  const { loginAsGuest } = useGuest();
+  const navigate = useNavigate(); // Added here
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setErrorMessage('');
+    setIsSubmitting(true);
+
+    if (!name || !email || !password || !confirmPassword) {
+      setErrorMessage('All fields are required');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setErrorMessage('Password must be at least 6 characters');
+      setIsSubmitting(false);
+      return;
+    }
+
     if (password !== confirmPassword) {
       setErrorMessage('Passwords do not match');
+      setIsSubmitting(false);
       return;
     }
     
     try {
       await signup(name, email, password);
-      navigate('/dashboard');
-    } catch (error) {
-      setErrorMessage('Error creating account. Please try again.');
+      navigate('/dashboard'); // Navigate here after successful signup
+    } catch (error: any) {
+      if (error.response) {
+        setErrorMessage(error.response.data.message || 'Signup failed');
+      } else if (error.message) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('An unexpected error occurred');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -92,9 +118,21 @@ const SignupForm: React.FC = () => {
           type="submit"
           className="btn btn-primary mt-4"
           style={{ maxWidth: '320px' }}
+          disabled={isSubmitting} // Disable during submission
         >
-          Create Account
+          {isSubmitting ? 'Creating Account...' : 'Create Account'}
         </button>
+        <button
+  type="button"
+  className="btn btn-secondary mt-4"
+  style={{ maxWidth: '320px' }}
+  onClick={() => {
+    loginAsGuest();
+    navigate('/dashboard');
+  }}
+>
+  Continue as Guest
+</button>
         
         <div className="form-footer mt-6">
           <p>

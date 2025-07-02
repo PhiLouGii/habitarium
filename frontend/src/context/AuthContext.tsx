@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import api from '../services/api';
 
 interface User {
@@ -10,86 +10,12 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
-  isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
-
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const initializeAuth = async () => {
-      const storedToken = localStorage.getItem('habitarium_token');
-      const storedUser = localStorage.getItem('habitarium_user');
-      
-      if (storedToken && storedUser) {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-        api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-      }
-      setLoading(false);
-    };
-
-    initializeAuth();
-  }, []);
-
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await api.post('/auth/login', { email, password });
-      const { token, user } = response.data;
-      
-      localStorage.setItem('habitarium_token', token);
-      localStorage.setItem('habitarium_user', JSON.stringify(user));
-      
-      setToken(token);
-      setUser(user);
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    } catch (error) {
-      console.error('Login failed', error);
-      throw error;
-    }
-  };
-
-  const signup = async (name: string, email: string, password: string) => {
-    try {
-      const response = await api.post('/auth/signup', { name, email, password });
-      const { token, user } = response.data;
-      
-      localStorage.setItem('habitarium_token', token);
-      localStorage.setItem('habitarium_user', JSON.stringify(user));
-      
-      setToken(token);
-      setUser(user);
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    } catch (error) {
-      console.error('Signup failed', error);
-      throw error;
-    }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('habitarium_token');
-    localStorage.removeItem('habitarium_user');
-    setToken(null);
-    setUser(null);
-    delete api.defaults.headers.common['Authorization'];
-  };
-
-  const isAuthenticated = !!token;
-
-  return (
-    <AuthContext.Provider value={{ user, token, login, signup, logout, isAuthenticated }}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
-};
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -97,4 +23,60 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+};
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+
+  // Initialize user from localStorage
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const signup = async (name: string, email: string, password: string) => {
+    try {
+      const response = await api.post('/auth/signup', { name, email, password });
+      const { user, token } = response.data;
+      
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', token);
+      setUser(user);
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      throw error;
+    }
+  };
+
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await api.post('/auth/login', { email, password });
+      const { user, token } = response.data;
+      
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', token);
+      setUser(user);
+    } catch (error: any) {
+      console.error('Login error:', error);
+
+      if (error.message.includes('Network Error')) {
+      throw new Error('Cannot connect to server. Please check your connection.');
+    }
+      throw error;
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, signup, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

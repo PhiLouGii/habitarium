@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useGuest } from '../../context/GuestContext';
 import { useNavigate, Link } from 'react-router-dom';
 
 const LoginForm: React.FC = () => {
@@ -7,13 +8,14 @@ const LoginForm: React.FC = () => {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const { login } = useAuth();
+  const { loginAsGuest } = useGuest();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await login(email, password);
-      navigate('/dashboard');
+      navigate('/dashboard'); // Navigation stays here
     } catch (error) {
       setErrorMessage('Invalid email or password');
     }
@@ -61,6 +63,17 @@ const LoginForm: React.FC = () => {
         >
           Login
         </button>
+        <button
+  type="button"
+  className="btn btn-secondary mt-4"
+  style={{ maxWidth: '320px' }}
+  onClick={() => {
+    loginAsGuest();
+    navigate('/dashboard');
+  }}
+>
+  Continue as Guest
+</button>
         
         <div className="form-footer mt-6">
           <p>
