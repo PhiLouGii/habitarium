@@ -1,6 +1,8 @@
 {
   "dependencies": {
-    "mongodb": "^6.17.0"
+    "express": "^5.1.0",
+    "mongodb": "^6.17.0",
+    "supertest": "^7.1.1"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
