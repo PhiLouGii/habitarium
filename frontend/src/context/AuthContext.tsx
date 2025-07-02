@@ -1,6 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom'; // Add this import
 import api from '../services/api';
 
 interface User {
@@ -28,7 +27,6 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const navigate = useNavigate(); // Add this hook
 
   // Initialize user from localStorage
   useEffect(() => {
@@ -46,8 +44,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('token', token);
       setUser(user);
-      navigate('/dashboard'); // Navigate after successful signup
-    } catch (error: any) { // Add type annotation
+      // Navigation removed from here
+    } catch (error: any) {
       console.error('Signup error:', error);
       throw error;
     }
@@ -61,8 +59,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('token', token);
       setUser(user);
-      navigate('/dashboard'); // Navigate after successful login
-    } catch (error: any) { // Add type annotation
+      // Navigation removed from here
+    } catch (error: any) {
       console.error('Login error:', error);
       throw error;
     }
@@ -72,7 +70,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     setUser(null);
-    navigate('/login'); // Navigate to login after logout
+    // Navigation removed from here
   };
 
   return (

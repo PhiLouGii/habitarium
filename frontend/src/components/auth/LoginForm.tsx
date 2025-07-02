@@ -13,7 +13,7 @@ const LoginForm: React.FC = () => {
     e.preventDefault();
     try {
       await login(email, password);
-      navigate('/dashboard');
+      navigate('/dashboard'); // Navigation stays here
     } catch (error) {
       setErrorMessage('Invalid email or password');
     }
