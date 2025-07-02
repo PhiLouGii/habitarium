@@ -93,3 +93,5 @@ My GitHub Actions pipeline:
 3. Continuous Deployment pipeline
 4. Achievement system implementation
 5. Habit replacement suggestions
+
+## Contributions
