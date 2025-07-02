@@ -1,30 +1,57 @@
 # Habitarium: Build Good, Break Bad
-A dual-focus habit tracker that assists users in kicking bad habits and forming healthy ones. As you change your daily behaviours, you can track resistance days for bad habits, streaks for good habits, and unlock accomplishments.
+*Take control of your habits, build positive routines, and track your progress towards a better you.*
 
-## Features ✨
-- **User authentication** with secure JWT tokens
-- **Dual-habit tracking** building good habits and breaking bad habits
-- **Streak visualization** with resistance tracking
-- **Daily habit logging** (done/resisted/slipped)
-- **Dashboard analytics** with progress insights
-- **Achievement system** for milestone celebrations
+## 📖 Overview
+Habitarium is a comprehensive web application designed to empower individuals in transforming their daily routines. It provides a dual-focus approach, assisting users in both kicking undesirable habits and forming healthy, positive ones. With Habitarium, you can meticulously track your journey, monitor "resistance days" for bad habits, celebrate "streaks" for good habits, and unlock rewarding "accomplishments" as you progress. Our goal is to provide a clear, motivating, and insightful platform for sustainable personal growth.
 
-## Tech Stack 🛠️
-| Area              | Technologies                          |
-|-------------------|---------------------------------------|
-| **Frontend**      | React 18, TypeScript, Vite, Tailwind CSS |
-| **Backend**       | Node.js, Express, TypeScript, MongoDB |
-| **DevOps**        | GitHub Actions, Docker  |
-| **Testing**       | Vitest, React Testing Library, Supertest |
+## ✨ Key Features
+- **Secure authentication** - Robust user registration and login system with JWT-based security.
+- **Dual-habit tracking** - Comprehensive system for building good habits and breaking bad ones. 
+- **Streak visualisation** - Intuitive display of good habit streaks and resistance tracking for bad habits.
+- **Daily habit logging** - Simple interface to log habit status (done/resisted/slipped).
+- **Dashboard analytics** - Real-time insights into your progress and habit patterns.
+- **Achievement system** - Gamified milestones and rewards for consistent effort and goal attainment. 
 
-## Local Setup 💻
+## 🏗️ Architecture & Technology Stack
+Habitarium is built with a modern, scalable architecture, leveraging the following technologies:
 
-### Prerequisites
-- Node.js v18+
-- MongoDB Atlas account or local MongoDB
-- Git
+Backend Infrastructure
+- Runtime: Node.js with Express.js framework
+- Language: TypeScript
+- Database: MongoDB (via MongoDB Atlas for cloud, Mongoose ODM)
+- Authentication: JSON Web Tokens (JWT) for secure session management (Planned)
+- Security: bcryptjs for advanced password hashing (Planned)
 
-### 1. Clone Repository
+Frontend Experience
+- Framework: React.js (v18)
+- Build Tool: Vite
+- Language: TypeScript
+- Styling: Vanilla CSS for utility-first styling and responsive design
+- HTTP Client: Fetch API (or Axios for future enhancements)
+
+DevOps & Deployment
+- Containerization: Docker for consistent development and deployment environments (Planned)
+- CI/CD: GitHub Actions for automated testing and deployment pipelines
+- Cloud Infrastructure: AWS deployment architecture (in development)
+
+Testing
+- Backend: Jest with Supertest for API integration testing.
+- Frontend: Vitest with React Testing Library and JSDOM for component testing.
+
+## 🔧 Prerequisites
+Ensure your development environment includes the following: 
+| Technology | Version   | Purpose                                     |
+|------------|-----------|---------------------------------------------|
+| Node.js    | v18.0+    | JavaScript runtime                          |
+| MongoDB    | N/A       | Database system (Atlas account or local)    |
+| Git        | Latest    | Version control                             |
+| npm        | Latest    | Package management     
+
+## 🚀 Quick Start Guide
+Follow these steps to get Habitarium running on your local machine
+
+### Step 1: Repository Setup
+Clone the repository to your local machine and navigate into the project directory.
 ```bash
 git clone https://github.com/PhiLouGii/habitarium.git
 cd habitarium
