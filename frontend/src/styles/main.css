@@ -9,6 +9,8 @@
   --text-medium: #4A5568;
   --text-light: #718096;
   --error-red: #E53E3E;
+  --shadow-light: rgba(0, 0, 0, 0.08);
+  --shadow-medium: rgba(0, 0, 0, 0.15);
 }
 
 * {
@@ -24,6 +26,9 @@ body {
   color: var(--text-dark);
   min-height: 100vh;
   line-height: 1.6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
