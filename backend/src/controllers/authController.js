@@ -41,9 +41,20 @@ exports.signup = async (req, res) => {
       },
       token
     });
+
+  console.log('Signup request received:', { name, email });
     
   } catch (error) {
     console.error('Signup error:', error);
+    
+    // Send more specific errors
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: error.message });
+    }
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'Email already exists' });
+    }
+    
     res.status(500).json({ message: 'Server error' });
   }
 };

@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api',
+  baseURL: 'http://localhost:5000/api',
+  timeout: 10000,
 });
 
 // Add request interceptor for token injection
@@ -11,20 +12,22 @@ api.interceptors.request.use(config => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
+}, error => {
+  console.error('Request error:', error);
+  return Promise.reject(error);
 });
 
 // Add response interceptor to handle token expiration
-api.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response && error.response.status === 401) {
-      // Handle token expiration
-      localStorage.removeItem('habitarium_token');
-      localStorage.removeItem('habitarium_user');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
+api.interceptors.response.use(response => response, error => {
+  if (error.code === 'ECONNABORTED') {
+    return Promise.reject(new Error('Request timed out. Please try again.'));
   }
-);
+  
+  if (!error.response) {
+    return Promise.reject(new Error('Network error. Please check your connection.'));
+  }
+  
+  return Promise.reject(error);
+});
 
 export default api;
