@@ -4,7 +4,7 @@ import { useGuest } from '../context/GuestContext';
 import HabitItem from '../components/habits/HabitItem';
 import StreakCounter from '../components/habits/StreakCounter';
 import api from '../services/api';
-import styles from './Dashboard.module.css';
+import './Dashboard.css';
 
 interface Habit {
   id: string;
@@ -90,26 +90,26 @@ const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#EDECDE] to-[#CDE0C9]">
-        <div className="text-xl text-[#3c6e78]">Loading your dashboard...</div>
+      <div className="dashboard-loading">
+        <div className="loading-message">Loading your dashboard...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#EDECDE] to-[#CDE0C9] font-inter">
+    <div className="dashboard-container">
       {/* Header */}
-      <header className="bg-white bg-opacity-90 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
-        <div className="flex justify-between items-center py-4 px-6 border-b border-[#CDE0C9]">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-[#3c6e78]">Habitarium</h1>
-            <p className="text-[#68B2A0] text-sm md:text-base mt-1">
+      <header className="dashboard-header">
+        <div className="header-content">
+          <div className="header-left">
+            <h1 className="app-title">Habitarium</h1>
+            <p className="app-subtitle">
               {isGuest ? "Guest View - See what's possible" : `Welcome back, ${user?.name}!`}
             </p>
           </div>
           <button
             onClick={isGuest ? logoutGuest : logout}
-            className="px-4 py-2 bg-gradient-to-r from-[#3c6e78] to-[#68B2A0] text-white rounded-full text-sm md:text-base hover:from-[#245c68] hover:to-[#5d9e8d] transition-all shadow-lg"
+            className="logout-button"
           >
             {isGuest ? 'Exit Guest Mode' : 'Logout'}
           </button>
@@ -117,45 +117,43 @@ const Dashboard: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="dashboard-main">
         {isGuest ? (
           <>
             {/* Inspiration Section */}
-            <section className="text-center mb-12">
-              <h1 className="text-4xl md:text-5xl font-bold text-[#2D3748] mb-6">
-                Real People, <span className="text-[#3c6e78]">Remarkable Habits</span>
+            <section className="inspiration-section">
+              <h1 className="inspiration-title">
+                Real People, <span className="highlight">Remarkable Habits</span>
               </h1>
-              <p className="text-lg text-[#4A5568] max-w-3xl mx-auto mb-8">
+              <p className="inspiration-description">
                 See what our community has accomplished. Join Habitarium today and start your own transformation journey.
               </p>
             </section>
 
             {/* Achievements */}
-            <div className="mb-16">
+            <div className="achievements-container">
               {achievements.map((achievement) => (
-                <div key={achievement.id} className="mb-8">
-                  <div className="border-t border-[#3c6e78] mb-6"></div>
-                  <div className="px-4">
-                    <h3 className="text-xl font-bold text-[#2D3748]">{achievement.name}</h3>
-                    <p className="text-[#68B2A0] text-sm mt-1">Habitarium Member</p>
-                    <p className="mt-3 text-[#4A5568]">{achievement.accomplishment}</p>
-                    <div className="mt-3 flex items-center">
-                      <span className="text-[#4A5568]">Current streak: </span>
-                      <span className="ml-2 font-bold text-[#3c6e78]">{achievement.streak} days</span>
-                      <span className="ml-2 text-[#FF6347]">🔥</span>
+                <div key={achievement.id} className="achievement-item">
+                  <div className="achievement-divider"></div>
+                  <div className="achievement-content">
+                    <h3 className="achievement-name">{achievement.name}</h3>
+                    <p className="achievement-role">Habitarium Member</p>
+                    <p className="achievement-accomplishment">{achievement.accomplishment}</p>
+                    <div className="achievement-streak">
+                      <span>Current streak: </span>
+                      <span className="streak-count">{achievement.streak} days</span>
+                      <span className="streak-icon">🔥</span>
                     </div>
                   </div>
                 </div>
               ))}
-              <div className="border-t border-[#3c6e78]"></div>
+              <div className="achievement-divider"></div>
             </div>
 
             {/* CTA Section */}
-            <div className="text-center mb-16">
-              <h2 className="text-2xl md:text-3xl font-bold text-[#2D3748] mb-4">
-                Ready to Transform Your Habits?
-              </h2>
-              <p className="text-lg text-[#4A5568] max-w-3xl mx-auto mb-8">
+            <div className="cta-section">
+              <h2 className="cta-title">Ready to Transform Your Habits?</h2>
+              <p className="cta-description">
                 Join thousands who've built better routines, broken bad habits, and transformed their lives with Habitarium.
               </p>
               <button
@@ -163,45 +161,43 @@ const Dashboard: React.FC = () => {
                   logoutGuest();
                   window.location.href = '/signup';
                 }}
-                className="px-8 py-3 bg-gradient-to-r from-[#3c6e78] to-[#68B2A0] text-white font-bold rounded-full hover:from-[#245c68] hover:to-[#5d9e8d] transition-all shadow-lg"
+                className="cta-button"
               >
                 Start Your Journey – It's Free!
               </button>
             </div>
 
             {/* Features */}
-            <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h3 className="text-xl font-bold text-center text-[#3c6e78] mb-6">
-                Personalized Tracking
-              </h3>
-              <ul className="space-y-4 text-center">
-                <li className="text-lg font-medium text-[#2D3748]">Daily Motivation</li>
-                <li className="text-lg font-medium text-[#2D3748]">Progress Analytics</li>
-                <li className="text-lg font-medium text-[#2D3748]">Achievement Badges</li>
+            <div className="features-section">
+              <h3 className="features-title">Personalized Tracking</h3>
+              <ul className="features-list">
+                <li className="feature-item">Daily Motivation</li>
+                <li className="feature-item">Progress Analytics</li>
+                <li className="feature-item">Achievement Badges</li>
               </ul>
             </div>
           </>
         ) : (
-          <div className={styles.dashboard}>
-            <div className="mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold text-[#2D3748] mb-2">Your Habit Journey</h2>
-              <p className="text-[#4A5568]">
+          <div className="authenticated-view">
+            <div className="journey-header">
+              <h2 className="journey-title">Your Habit Journey</h2>
+              <p className="journey-subtitle">
                 Track your progress and celebrate your milestones
               </p>
             </div>
             
-            <div className={styles.streaksContainer}>
+            <div className="streaks-container">
               <StreakCounter type="good" count={totalGoodStreak} />
               <StreakCounter type="bad" count={totalBadStreak} />
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-              <section className={`${styles.section} ${styles.goodSection}`}>
-                <div className={styles.sectionTitle}>
-                  <h2 className={styles.goodTitle}>Build Good Habits</h2>
-                  <span className={styles.countBadge}>{habits.goodHabits.length} habits</span>
+            <div className="habits-grid">
+              <section className="habits-section good-habits">
+                <div className="section-header">
+                  <h2 className="section-title good-title">Build Good Habits</h2>
+                  <span className="habit-count">{habits.goodHabits.length} habits</span>
                 </div>
-                <div className="space-y-4">
+                <div className="habits-list">
                   {habits.goodHabits.map(habit => (
                     <HabitItem 
                       key={habit.id} 
@@ -210,9 +206,9 @@ const Dashboard: React.FC = () => {
                     />
                   ))}
                   {habits.goodHabits.length === 0 && (
-                    <div className="text-center py-8 text-[#4A5568]">
-                      <p className="mb-3">You haven't added any good habits yet</p>
-                      <button className="px-4 py-2 bg-[#68B2A0] text-white rounded-full text-sm">
+                    <div className="empty-state">
+                      <p>You haven't added any good habits yet</p>
+                      <button className="add-button good">
                         + Add Good Habit
                       </button>
                     </div>
@@ -220,12 +216,12 @@ const Dashboard: React.FC = () => {
                 </div>
               </section>
               
-              <section className={`${styles.section} ${styles.badSection}`}>
-                <div className={styles.sectionTitle}>
-                  <h2 className={styles.badTitle}>Break Bad Habits</h2>
-                  <span className={styles.countBadge}>{habits.badHabits.length} habits</span>
+              <section className="habits-section bad-habits">
+                <div className="section-header">
+                  <h2 className="section-title bad-title">Break Bad Habits</h2>
+                  <span className="habit-count">{habits.badHabits.length} habits</span>
                 </div>
-                <div className="space-y-4">
+                <div className="habits-list">
                   {habits.badHabits.map(habit => (
                     <HabitItem 
                       key={habit.id} 
@@ -234,9 +230,9 @@ const Dashboard: React.FC = () => {
                     />
                   ))}
                   {habits.badHabits.length === 0 && (
-                    <div className="text-center py-8 text-[#4A5568]">
-                      <p className="mb-3">You haven't added any bad habits to break</p>
-                      <button className="px-4 py-2 bg-[#E53E3E] text-white rounded-full text-sm">
+                    <div className="empty-state">
+                      <p>You haven't added any bad habits to break</p>
+                      <button className="add-button bad">
                         + Add Bad Habit
                       </button>
                     </div>
@@ -246,37 +242,37 @@ const Dashboard: React.FC = () => {
             </div>
             
             {/* Community Inspiration */}
-            <div className="bg-gradient-to-r from-[#EDECDE] to-[#CDE0C9] rounded-2xl p-8">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-[#2D3748] mb-2">Community Inspiration</h2>
-                <p className="text-[#4A5568]">
+            <div className="community-section">
+              <div className="community-header">
+                <h2 className="community-title">Community Inspiration</h2>
+                <p className="community-description">
                   See what others in the Habitarium community are accomplishing
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="community-grid">
                 {achievements.slice(0, 2).map((achievement) => (
                   <div 
                     key={achievement.id}
-                    className="bg-white rounded-2xl shadow-lg p-5"
+                    className="community-card"
                   >
-                    <div className="flex items-center mb-3">
+                    <div className="card-header">
                       <div 
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3"
+                        className="avatar"
                         style={{ backgroundColor: achievement.avatarColor }}
                       >
                         {achievement.name.charAt(0)}
                       </div>
                       <div>
-                        <h3 className="font-bold text-[#2D3748]">{achievement.name}</h3>
-                        <p className="text-[#68B2A0] text-sm">Habitarium Member</p>
+                        <h3 className="card-name">{achievement.name}</h3>
+                        <p className="card-role">Habitarium Member</p>
                       </div>
                     </div>
-                    <p className="text-[#4A5568] mt-2">{achievement.accomplishment}</p>
-                    <div className="mt-3 flex items-center">
-                      <span className="text-[#4A5568]">Current streak: </span>
-                      <span className="ml-2 font-bold text-[#3c6e78]">{achievement.streak} days</span>
-                      <span className="ml-2 text-[#FF6347]">🔥</span>
+                    <p className="card-accomplishment">{achievement.accomplishment}</p>
+                    <div className="card-streak">
+                      <span>Current streak: </span>
+                      <span className="streak-value">{achievement.streak} days</span>
+                      <span className="streak-icon">🔥</span>
                     </div>
                   </div>
                 ))}
@@ -287,9 +283,9 @@ const Dashboard: React.FC = () => {
       </main>
       
       {/* Footer */}
-      <footer className="bg-[#3c6e78] text-[#CDE0C9] py-6 text-center">
-        <p className="text-sm">© {new Date().getFullYear()} Habitarium. All rights reserved.</p>
-        <p className="mt-1 text-xs">Your journey to better habits starts with a single step</p>
+      <footer className="dashboard-footer">
+        <p>© {new Date().getFullYear()} Habitarium. All rights reserved.</p>
+        <p className="footer-sub">Your journey to better habits starts with a single step</p>
       </footer>
     </div>
   );
