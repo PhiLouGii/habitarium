@@ -32,13 +32,13 @@ jobs:
         working-directory: frontend/
 
       - name: Install Backend Dependencies
-        run: npm install
-        working-directory: backend/
+        run: npm ci
+        working-directory: ./backend
 
-      - name: Run Backend Lint
+      - name: Lint backend code
         run: npm run lint
-        working-directory: backend/
+        working-directory: ./backend
 
       - name: Run Backend Tests
-        run: npm test -- --ci
-        working-directory: backend/
+        run: npm test
+        working-directory: ./backend
