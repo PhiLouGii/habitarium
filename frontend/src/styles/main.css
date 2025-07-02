@@ -1,4 +1,4 @@
-
+@import '@fortawesome/fontawesome-free/css/all.css';
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
@@ -184,4 +184,37 @@ body {
   bottom: 100px;
   right: 30px;
   background: rgba(104, 178, 160, 0.3);
+}
+
+.guest-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.public-achievements {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.achievement-card {
+  padding: 1.5rem;
+  border-radius: 12px;
+  background-color: var(--light-beige);
+  border: 1px solid var(--medium-teal);
+}
+
+.achievement-card h3 {
+  font-weight: 600;
+  color: var(--dark-teal);
+  margin-bottom: 0.5rem;
+}
+
+.achievement-card p {
+  color: var(--text-medium);
 }

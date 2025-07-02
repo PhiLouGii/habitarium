@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useGuest } from '../../context/GuestContext';
 import { Link, useNavigate } from 'react-router-dom';
 
 const SignupForm: React.FC = () => {
@@ -10,6 +11,7 @@ const SignupForm: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { signup } = useAuth();
+  const { loginAsGuest } = useGuest();
   const navigate = useNavigate(); // Added here
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -120,6 +122,17 @@ const SignupForm: React.FC = () => {
         >
           {isSubmitting ? 'Creating Account...' : 'Create Account'}
         </button>
+        <button
+  type="button"
+  className="btn btn-secondary mt-4"
+  style={{ maxWidth: '320px' }}
+  onClick={() => {
+    loginAsGuest();
+    navigate('/dashboard');
+  }}
+>
+  Continue as Guest
+</button>
         
         <div className="form-footer mt-6">
           <p>
