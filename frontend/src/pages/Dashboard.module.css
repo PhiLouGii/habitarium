@@ -5,7 +5,6 @@
   flex-direction: column;
 }
 
-/* Header styles */
 .header {
   position: sticky;
   top: 0;
@@ -13,60 +12,59 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* Card hover effects */
-.bg-white {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.bg-white:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* Streak counter container */
 .streaksContainer {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 
-/* Section styles */
 .section {
   background: white;
   border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  padding: 1.75rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.section:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
 }
 
 .goodSection {
-  border-top: 4px solid #68B2A0;
+  border-top: 5px solid #68B2A0;
 }
 
 .badSection {
-  border-top: 4px solid #E53E3E;
+  border-top: 5px solid #E53E3E;
 }
 
 .sectionTitle {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #EDECDE;
 }
 
 .goodTitle {
   color: #3c6e78;
   font-weight: 700;
+  font-size: 1.35rem;
 }
 
 .badTitle {
   color: #c53030;
   font-weight: 700;
+  font-size: 1.35rem;
 }
 
 .countBadge {
   background-color: #EDECDE;
   color: #2D3748;
   border-radius: 9999px;
-  padding: 0.25rem 0.75rem;
-  font-weight: 600;
+  padding: 0.3rem 0.9rem;
+  font-weight: 700;
+  font-size: 0.9rem;
 }
