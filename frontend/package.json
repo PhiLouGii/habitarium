@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "test": "vitest",
+    "test": "react-scripts test",
     "lint": "eslint src --ext .ts,.tsx",
     "preview": "vite preview"
   },
