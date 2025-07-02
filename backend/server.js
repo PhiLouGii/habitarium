@@ -8,7 +8,12 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(express.json());
+app.use(cors({
+  origin: 'http://localhost:3001', // Match your frontend URL
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Database connection
 mongoose.connect(process.env.MONGO_URI, {

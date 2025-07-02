@@ -1,3 +1,6 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 :root {
   --dark-teal: #3c6e78;
   --medium-teal: #68B2A0;
@@ -25,8 +28,6 @@ body {
   min-height: 100vh;
   line-height: 1.6;
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 .auth-container {
   display: flex;

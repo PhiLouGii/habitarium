@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const SignupForm: React.FC = () => {
   const [name, setName] = useState('');
@@ -8,22 +8,46 @@ const SignupForm: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false); // Add loading state
   const { signup } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setErrorMessage('');
+    setIsSubmitting(true); // Start loading
+
+    // Client-side validation
+    if (!name || !email || !password || !confirmPassword) {
+      setErrorMessage('All fields are required');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setErrorMessage('Password must be at least 6 characters');
+      setIsSubmitting(false);
+      return;
+    }
+
     if (password !== confirmPassword) {
       setErrorMessage('Passwords do not match');
+      setIsSubmitting(false);
       return;
     }
     
     try {
       await signup(name, email, password);
-      navigate('/dashboard');
-    } catch (error) {
-      setErrorMessage('Error creating account. Please try again.');
+      // Navigation is handled in AuthContext after successful signup
+    } catch (error: any) {
+      if (error.response) {
+        setErrorMessage(error.response.data.message || 'Signup failed');
+      } else if (error.message) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('An unexpected error occurred');
+      }
+    } finally {
+      setIsSubmitting(false); // End loading
     }
   };
 
@@ -92,8 +116,9 @@ const SignupForm: React.FC = () => {
           type="submit"
           className="btn btn-primary mt-4"
           style={{ maxWidth: '320px' }}
+          disabled={isSubmitting} // Disable during submission
         >
-          Create Account
+          {isSubmitting ? 'Creating Account...' : 'Create Account'}
         </button>
         
         <div className="form-footer mt-6">
