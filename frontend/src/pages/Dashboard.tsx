@@ -136,19 +136,30 @@ const Dashboard: React.FC = () => {
                 <div key={achievement.id} className="achievement-item">
                   <div className="achievement-divider"></div>
                   <div className="achievement-content">
-                    <h3 className="achievement-name">{achievement.name}</h3>
-                    <p className="achievement-role">Habitarium Member</p>
+                    <div className="achievement-header">
+                      <div 
+                        className="achievement-avatar"
+                        style={{ backgroundColor: achievement.avatarColor }}
+                      >
+                        <span className="avatar-initial">{achievement.name.charAt(0)}</span>
+                      </div>
+                      <div>
+                        <h3 className="achievement-name">{achievement.name}</h3>
+                        <p className="achievement-role">Habitarium Member</p>
+                      </div>
+                    </div>
                     <p className="achievement-accomplishment">{achievement.accomplishment}</p>
                     <div className="achievement-streak">
                       <span>Current streak: </span>
                       <span className="streak-count">{achievement.streak} days</span>
-                      <span className="streak-icon">🔥</span>
+                      <div className="streak-icon">●</div>
                     </div>
                   </div>
                 </div>
               ))}
               <div className="achievement-divider"></div>
             </div>
+
 
             {/* CTA Section */}
             <div className="cta-section">
@@ -171,9 +182,18 @@ const Dashboard: React.FC = () => {
             <div className="features-section">
               <h3 className="features-title">Personalized Tracking</h3>
               <ul className="features-list">
-                <li className="feature-item">Daily Motivation</li>
-                <li className="feature-item">Progress Analytics</li>
-                <li className="feature-item">Achievement Badges</li>
+                <li className="feature-item">
+                  <div className="feature-icon">●</div>
+                  Daily Motivation
+                </li>
+                <li className="feature-item">
+                  <div className="feature-icon">●</div>
+                  Progress Analytics
+                </li>
+                <li className="feature-item">
+                  <div className="feature-icon">●</div>
+                  Achievement Badges
+                </li>
               </ul>
             </div>
           </>
@@ -258,10 +278,10 @@ const Dashboard: React.FC = () => {
                   >
                     <div className="card-header">
                       <div 
-                        className="avatar"
+                        className="card-avatar"
                         style={{ backgroundColor: achievement.avatarColor }}
                       >
-                        {achievement.name.charAt(0)}
+                        <span className="avatar-initial">{achievement.name.charAt(0)}</span>
                       </div>
                       <div>
                         <h3 className="card-name">{achievement.name}</h3>
@@ -272,7 +292,7 @@ const Dashboard: React.FC = () => {
                     <div className="card-streak">
                       <span>Current streak: </span>
                       <span className="streak-value">{achievement.streak} days</span>
-                      <span className="streak-icon">🔥</span>
+                      <div className="streak-icon">●</div>
                     </div>
                   </div>
                 ))}
