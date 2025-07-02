@@ -44,7 +44,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('token', token);
       setUser(user);
-      // Navigation removed from here
     } catch (error: any) {
       console.error('Signup error:', error);
       throw error;
@@ -59,9 +58,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('token', token);
       setUser(user);
-      // Navigation removed from here
     } catch (error: any) {
       console.error('Login error:', error);
+
+      if (error.message.includes('Network Error')) {
+      throw new Error('Cannot connect to server. Please check your connection.');
+    }
       throw error;
     }
   };
@@ -70,7 +72,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     setUser(null);
-    // Navigation removed from here
   };
 
   return (
