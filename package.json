@@ -1,5 +1,10 @@
 {
   "dependencies": {
     "mongodb": "^6.17.0"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/user-event": "^14.6.1",
+    "jest": "^30.0.3"
   }
 }
