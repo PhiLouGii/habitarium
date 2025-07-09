@@ -1,0 +1,96 @@
+.container {
+  padding: 2rem;
+  background-color: #FB7DA8;
+  font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+  border: 5px solid black;
+  box-shadow: 12px 12px 0px black;
+  max-width: 1000px;
+  margin: 2rem auto;
+  border-radius: 20px;
+}
+
+.title {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #552CB7;
+  text-shadow: 3px 3px black;
+  margin-bottom: 2rem;
+}
+
+.panels {
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.panelGood, .panelBad {
+  flex: 1;
+  border: 4px solid black;
+  padding: 1rem;
+  border-radius: 16px;
+  background-color: #FFC567;
+  box-shadow: 6px 6px 0px black;
+}
+
+.panelBad {
+  background-color: #FD5A46;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px black;
+}
+
+.card {
+  background-color: white;
+  border: 3px solid black;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: black;
+  box-shadow: 4px 4px 0px black;
+}
+
+.bottomSection {
+  display: flex;
+  margin-top: 2rem;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.achievements, .suggestions {
+  flex: 1;
+  border: 4px solid black;
+  border-radius: 16px;
+  padding: 1rem;
+  background-color: #058CD7;
+  box-shadow: 6px 6px 0 black;
+}
+
+.badgeList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.badge {
+  background-color: #00995E;
+  color: white;
+  padding: 0.5rem;
+  border: 3px solid black;
+  border-radius: 10px;
+  margin: 0.5rem 0;
+  box-shadow: 3px 3px 0 black;
+}
+
+.swapCard {
+  background-color: #FFF;
+  border: 3px dashed black;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 4px 4px 0 black;
+  font-size: 0.95rem;
+}
