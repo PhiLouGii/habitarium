@@ -2,6 +2,7 @@ import styles from './Dashboard.module.css';
 
 const Dashboard = () => {
   return (
+    <div className={styles.wrapper}>
     <div className={styles.container}>
       <h1 className={styles.title}>Habitarium Dashboard</h1>
 
@@ -50,6 +51,7 @@ const Dashboard = () => {
           </div>
         </section>
       </div>
+    </div>
     </div>
   );
 };
