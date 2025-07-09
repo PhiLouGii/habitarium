@@ -18,6 +18,15 @@
   transform: translate(-50%, -50%);
 }
 
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+  background-color: #f0f0f0;
+}
+
 .title {
   font-size: 2rem;
   text-align: center;
