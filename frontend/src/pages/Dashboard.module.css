@@ -1,18 +1,36 @@
 .container {
+  display: flex;
+  flex-direction: column;
+  background-color: #811638;
+  color: black;
+  border: 4px solid black;
+  border-radius: 16px;
   padding: 2rem;
-  background-color: #FB7DA8;
+  max-width: 90%; /* Make responsive */
+  width: 800px; /* Wider for dashboard content */
+  margin: 2rem auto; /* Center with margin */
+  box-shadow: 8px 8px 0 black;
   font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
-  border: 5px solid black;
-  box-shadow: 12px 12px 0px black;
-  max-width: 1000px;
-  margin: 2rem auto;
-  border-radius: 20px;
+  overflow: auto; /* Add scrolling */
+  min-height: auto; /* Remove fixed height */
+  position: relative; /* Remove absolute positioning */
+  top: auto;
+  left: auto;
+  transform: none;
+}
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
 .title {
   text-align: center;
   font-size: 2.5rem;
-  color: #552CB7;
+  color: #EC8922;
   text-shadow: 3px 3px black;
   margin-bottom: 2rem;
 }
@@ -26,7 +44,7 @@
 
 .panelGood, .panelBad {
   flex: 1;
-  border: 4px solid black;
+  border: 2px solid black;
   padding: 1rem;
   border-radius: 16px;
   background-color: #FFC567;
@@ -34,18 +52,19 @@
 }
 
 .panelBad {
-  background-color: #FD5A46;
+  background-color: #D52429;
 }
 
 .sectionTitle {
+  color: #37342D;
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  text-shadow: 2px 2px black;
+  text-shadow: 2px black;
 }
 
 .card {
   background-color: white;
-  border: 3px solid black;
+  border: 1.5px solid black;
   border-radius: 12px;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -63,6 +82,7 @@
 
 .achievements, .suggestions {
   flex: 1;
+  min-width: 300px;
   border: 4px solid black;
   border-radius: 16px;
   padding: 1rem;
