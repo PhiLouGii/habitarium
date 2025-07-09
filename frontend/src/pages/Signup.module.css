@@ -1,20 +1,33 @@
 .container {
-  background-color: #552CB7;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #811638;
   color: black;
   border: 4px solid black;
   border-radius: 16px;
   padding: 2rem;
-  max-width: 400px;
-  margin: 3rem auto;
+  width: 400px;
+  margin: 0 auto;
   box-shadow: 8px 8px 0 black;
   font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+body {
+  background-image: radial-gradient(#000 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
 .title {
   font-size: 2rem;
   text-align: center;
   margin-bottom: 1.5rem;
-  color: #FFC567;
+  color: #FACA78;
   text-shadow: 2px 2px 0 black;
 }
 
@@ -22,17 +35,19 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 50%;
 }
 
 .input {
   padding: 0.75rem 1rem;
   font-size: 1rem;
-  border: 3px solid black;
+  border: 2px solid black;
   border-radius: 10px;
-  background-color: #FB7DA8;
+  background-color: #F57F5B;
   color: black;
   outline: none;
   transition: transform 0.2s;
+  width: 100%;
 }
 
 .input:focus {
@@ -50,12 +65,14 @@
   cursor: pointer;
   font-weight: bold;
   transition: background-color 0.3s, transform 0.2s;
+  width: 100%;
 }
 
 .button:hover {
-  background-color: #FFC567;
+  background-color: #FACA78;
   transform: scale(1.05);
   color: black;
+  border: #FFC567 solid 3px;
 }
 
 .switchText {
@@ -65,10 +82,10 @@
 }
 
 .link {
-  color: #058CD7;
+  color: #68C7C1;
   font-weight: bold;
   text-decoration: none;
-  border-bottom: 2px dashed #058CD7;
+  border-bottom: 2px dashed #68C7C1;
 }
 
 .link:hover {
