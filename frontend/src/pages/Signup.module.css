@@ -19,7 +19,7 @@
 }
 
 body {
-  background-image: radial-gradient(#000 1px, transparent 1px);
+  background-image: radial-gradient(#000, #68C7C1 1px, transparent 1px);
   background-size: 20px 20px;
 }
 
@@ -41,7 +41,7 @@ body {
 .input {
   padding: 0.75rem 1rem;
   font-size: 1rem;
-  border: 2px solid black;
+  border: 1.5px solid black;
   border-radius: 10px;
   background-color: #F57F5B;
   color: black;
@@ -59,8 +59,8 @@ body {
   padding: 0.75rem;
   font-size: 1rem;
   background-color: #FD5A46;
-  color: white;
-  border: 3px solid black;
+  color: #fcf2e0;
+  border: 1.5px solid black;
   border-radius: 10px;
   cursor: pointer;
   font-weight: bold;
