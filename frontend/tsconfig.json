@@ -1,17 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "jsx": "react-jsx",                         // ✅ enables JSX support
-    "esModuleInterop": true,                    // ✅ fixes React import issue
+    "target": "ES6",
+    "module": "CommonJS",
+    "esModuleInterop": true,
+    "jsx": "react-jsx",  // <-- critical for TSX in tests
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
     "skipLibCheck": true,
-    "strict": true,
-    "baseUrl": "./src",
-    "paths": {
-      "*": ["*"]
-    }
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "__tests__"],              // ✅ make sure your test folder is included
-  "exclude": ["node_modules", "dist"]
+  "include": ["src", "__tests__"]
 }
