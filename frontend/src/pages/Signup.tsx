@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './Signup.module.css';
-import { useAuth } from '../context/AuthContext';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -11,7 +10,6 @@ const Signup = () => {
   });
 
   const [message, setMessage] = useState('');
-  const { login } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -30,11 +28,13 @@ const Signup = () => {
       const data = await res.json();
 
       if (res.ok) {
-        login(data.user, data.token);
+        setMessage('Signup successful! Redirecting...');
+        // Redirect will be handled separately
       } else {
         setMessage(data.message || 'Signup failed');
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('Signup error:', error);
       setMessage('Something went wrong.');
     }
   };

@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
-import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,12 +21,12 @@ const Login = () => {
       const data = await res.json();
 
       if (res.ok) {
-        login(data.user, data.token);
         navigate('/dashboard');
       } else {
         setMessage(data.message || 'Login failed');
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('Login error:', error);
       setMessage('Something went wrong.');
     }
   };
