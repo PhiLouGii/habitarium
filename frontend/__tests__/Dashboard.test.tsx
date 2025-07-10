@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from './test-utils';
+import { render, screen, fireEvent, waitFor } from '../src/test-utils';
 import Dashboard from '../src/pages/Dashboard';
 
 describe('Dashboard Component', () => {
