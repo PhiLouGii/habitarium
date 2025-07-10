@@ -1,14 +1,17 @@
 {
   "compilerOptions": {
-    "baseUrl": "src",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "jsx": "react-jsx",                         // ✅ enables JSX support
+    "esModuleInterop": true,                    // ✅ fixes React import issue
+    "skipLibCheck": true,
+    "strict": true,
+    "baseUrl": "./src",
     "paths": {
       "*": ["*"]
     }
   },
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ],
-  "include": ["src"]
+  "include": ["src", "__tests__"],              // ✅ make sure your test folder is included
+  "exclude": ["node_modules", "dist"]
 }
