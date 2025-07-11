@@ -1,9 +1,15 @@
-import { useState } from 'react';
-import styles from './Dashboard.module.css';
-import { Link } from 'react-router-dom';
-import { NavLink } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, NavLink } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import styles from './Dashboard.module.css';
+
+import { useAuth } from '../context/AuthContext';
+import { getHabits, addHabit, markHabitComplete } from '../services/HabitService';
+
+// -----------------------------
+// Type Definitions
+// -----------------------------
 
 type HabitType = 'good' | 'bad';
 
@@ -12,110 +18,123 @@ interface Habit {
   name: string;
   type: HabitType;
   streak: number;
-  completions: Date[];
+  completions: Date[]; // UTC dates truncated to 00:00
 }
 
-const Dashboard = () => {
-  const [habits, setHabits] = useState<Habit[]>([
-    { id: '1', name: 'Morning Workout', type: 'good', streak: 5, completions: [] },
-    { id: '2', name: 'Read 10 pages', type: 'good', streak: 12, completions: [] },
-    { id: '3', name: 'Smoking', type: 'bad', streak: 8, completions: [] },
-    { id: '4', name: 'Sugar Binge', type: 'bad', streak: 3, completions: [] },
-  ]);
-  
-  const [newHabit, setNewHabit] = useState({ name: '', type: 'good' as HabitType });
+// Helper: compare two JS Dates by y/m/d only
+const isSameDay = (a: Date, b: Date) =>
+  a.getDate() === b.getDate() &&
+  a.getMonth() === b.getMonth() &&
+  a.getFullYear() === b.getFullYear();
+
+// -----------------------------
+// Component
+// -----------------------------
+
+const Dashboard: React.FC = () => {
+  const { currentUser } = useAuth();
+
+  // All habits for the logged‑in user
+  const [habits, setHabits] = useState<Habit[]>([]);
+
+  // Quick‑add form state
+  const [newHabit, setNewHabit] = useState<{ name: string; type: HabitType }>({
+    name: '',
+    type: 'good',
+  });
+
+  // Calendar state
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  const handleAddHabit = () => {
-    if (newHabit.name.trim() === '') return;
-    
-    const habit: Habit = {
-      id: Date.now().toString(),
-      name: newHabit.name,
-      type: newHabit.type,
-      streak: 0,
-      completions: []
-    };
-    
-    setHabits([...habits, habit]);
-    setNewHabit({ name: '', type: 'good' });
-  };
+  // -------------------------
+  // Effect: load habits once user is available / changes
+  // -------------------------
+  useEffect(() => {
+    if (!currentUser) return;
 
-  const handleMarkComplete = (habitId: string) => {
-    setHabits(habits.map(habit => {
-      if (habit.id === habitId) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        // Check if already completed today
-        const alreadyCompleted = habit.completions.some(d => 
-          d.getDate() === today.getDate() &&
-          d.getMonth() === today.getMonth() &&
-          d.getFullYear() === today.getFullYear()
-        );
-        
-        if (!alreadyCompleted) {
-          const completions = [...habit.completions, today];
-          
-          // Calculate streak (consecutive days)
-          let streak = habit.streak;
-          const yesterday = new Date(today);
-          yesterday.setDate(yesterday.getDate() - 1);
-          
-          const hasYesterday = completions.some(d => 
-            d.getDate() === yesterday.getDate() &&
-            d.getMonth() === yesterday.getMonth() &&
-            d.getFullYear() === yesterday.getFullYear()
-          );
-          
-          streak = hasYesterday ? streak + 1 : 1;
-          
-          return { ...habit, completions, streak };
-        }
+    const loadHabits = async () => {
+      try {
+        const userHabits = await getHabits(currentUser.uid);
+        setHabits(userHabits);
+      } catch (err) {
+        console.error('Failed to load habits:', err);
       }
-      return habit;
-    }));
-  };
+    };
 
-  const handleMarkResisted = (habitId: string) => {
-    handleMarkComplete(habitId);
-  };
+    loadHabits();
+  }, [currentUser]);
 
-  const handleCalendarChange = (value: unknown) => {
-    if (value instanceof Date) {
-      setSelectedDate(value);
-    } else if (Array.isArray(value) && value[0] instanceof Date) {
-      setSelectedDate(value[0]);
+  // -------------------------
+  // Handlers
+  // -------------------------
+
+  const handleAddHabit = async () => {
+    if (!currentUser) return;
+    if (newHabit.name.trim() === '') return;
+
+    try {
+      await addHabit(currentUser.uid, {
+        name: newHabit.name,
+        type: newHabit.type,
+        streak: 0,
+        completions: [],
+      });
+      setNewHabit({ name: '', type: 'good' });
+      // Refresh
+      const updated = await getHabits(currentUser.uid);
+      setHabits(updated);
+    } catch (err) {
+      console.error('Failed to add habit:', err);
     }
-    // Null case is ignored (no change)
   };
 
-  const habitsForDate = habits.filter(habit => 
-    habit.completions.some(d => 
-      d.getDate() === selectedDate.getDate() &&
-      d.getMonth() === selectedDate.getMonth() &&
-      d.getFullYear() === selectedDate.getFullYear()
-    )
+  const handleMarkComplete = async (habitId: string) => {
+    if (!currentUser) return;
+    try {
+      await markHabitComplete(currentUser.uid, habitId);
+      // Refresh
+      const updated = await getHabits(currentUser.uid);
+      setHabits(updated);
+    } catch (err) {
+      console.error('Failed to mark complete:', err);
+    }
+  };
+
+  const handleCalendarChange = (value: Date | Date[]) => {
+    if (Array.isArray(value)) {
+      setSelectedDate(value[0]);
+    } else {
+      setSelectedDate(value);
+    }
+  };
+
+  const habitsForSelectedDate = habits.filter((h) =>
+    h.completions.some((d) => isSameDay(d, selectedDate))
   );
+
+  // -------------------------
+  // Render
+  // -------------------------
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
-        <div className={styles.header}>
+        {/* Header */}
+        <header className={styles.header}>
           <h1 className={styles.title}>Habitarium Dashboard</h1>
-          <div className={styles.userInfo}>
-            <nav className={styles.nav}>
-              <NavLink to="/">Dashboard</NavLink>
-              <NavLink to="/profile">Profile</NavLink>
-              <NavLink to="/settings">Settings</NavLink>
-              <NavLink to="/community">Community</NavLink>
-            </nav>
-            <Link to="/" className={styles.logoutButton}>Logout</Link>
-          </div>
-        </div>
+          <nav className={styles.nav}>
+            <NavLink to="/">Dashboard</NavLink>
+            <NavLink to="/profile">Profile</NavLink>
+            <NavLink to="/settings">Settings</NavLink>
+            <NavLink to="/community">Community</NavLink>
+          </nav>
+          <Link to="/" className={styles.logoutButton}>
+            Logout
+          </Link>
+        </header>
 
-        {/* Add Habit Form */}
-        <div className={styles.addHabitContainer}>
+        {/* ------------------ Add Habit ------------------ */}
+        <section className={styles.addHabitContainer}>
           <h2 className={styles.sectionTitle}>➕ Add New Habit</h2>
           <div className={styles.addHabitForm}>
             <input
@@ -123,77 +142,72 @@ const Dashboard = () => {
               placeholder="Habit name"
               className={styles.input}
               value={newHabit.name}
-              onChange={(e) => setNewHabit({...newHabit, name: e.target.value})}
+              onChange={(e) => setNewHabit({ ...newHabit, name: e.target.value })}
             />
             <select
               className={styles.input}
               value={newHabit.type}
-              onChange={(e) => setNewHabit({...newHabit, type: e.target.value as HabitType})}
+              onChange={(e) =>
+                setNewHabit({ ...newHabit, type: e.target.value as HabitType })
+              }
             >
               <option value="good">Good Habit</option>
               <option value="bad">Bad Habit</option>
             </select>
-            <button 
-              className={styles.button} 
-              onClick={handleAddHabit}
-              style={{ marginTop: '10px' }}
-            >
+            <button className={styles.button} onClick={handleAddHabit}>
               Add Habit
             </button>
           </div>
-        </div>
+        </section>
 
-        {/* Calendar Section */}
-        <div className={styles.calendarSection}>
+        {/* ------------------ Calendar ------------------ */}
+        <section className={styles.calendarSection}>
           <h2 className={styles.sectionTitle}>📅 Habit Calendar</h2>
           <div className={styles.calendarContainer}>
-            <Calendar 
+            <Calendar
               onChange={handleCalendarChange}
-              value={selectedDate} 
+              value={selectedDate}
               className={styles.calendar}
-              tileClassName={({ date }) => {
-                const hasHabit = habits.some(habit => 
-                  habit.completions.some(d => 
-                    d.getDate() === date.getDate() &&
-                    d.getMonth() === date.getMonth() &&
-                    d.getFullYear() === date.getFullYear()
-                  )
-                );
-                return hasHabit ? styles.highlightedDay : '';
-              }}
+              tileClassName={({ date }) =>
+                habits.some((h) => h.completions.some((d) => isSameDay(d, date)))
+                  ? styles.highlightedDay
+                  : undefined
+              }
             />
-            
+
             <div className={styles.dateHabits}>
               <h3>Habits on {selectedDate.toDateString()}</h3>
-              {habitsForDate.length > 0 ? (
+              {habitsForSelectedDate.length ? (
                 <ul className={styles.habitList}>
-                  {habitsForDate.map(habit => (
-                    <li key={habit.id} className={styles.habitItem}>
-                      {habit.type === 'good' ? '✅' : '❌'} {habit.name}
+                  {habitsForSelectedDate.map((h) => (
+                    <li key={h.id} className={styles.habitItem}>
+                      {h.type === 'good' ? '✅' : '❌'} {h.name}
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p>No habits recorded for this day</p>
+                <p>No habits recorded for this day.</p>
               )}
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Habit Panels */}
+        {/* ------------------ Panels ------------------ */}
         <div className={styles.panels}>
-          {/* Build Good Habits */}
+          {/* Good Habits */}
           <section className={styles.panelGood}>
             <h2 className={styles.sectionTitle}>🔥 Build Good Habits</h2>
             {habits
-              .filter(habit => habit.type === 'good')
-              .map(habit => (
-                <div key={habit.id} className={styles.card}>
-                  <p>{habit.name}</p>
-                  <p>Streak: <strong>{habit.streak} days</strong></p>
-                  <button 
+              .filter((h) => h.type === 'good')
+              .map((h) => (
+                <div key={h.id} className={styles.card}>
+                  <p>{h.name}</p>
+                  <p>
+                    Streak: <strong>{h.streak} days</strong>
+                  </p>
+                  <button
                     className={styles.smallButton}
-                    onClick={() => handleMarkComplete(habit.id)}
+                    onClick={() => handleMarkComplete(h.id)}
                   >
                     Mark as Done
                   </button>
@@ -201,18 +215,20 @@ const Dashboard = () => {
               ))}
           </section>
 
-          {/* Break Bad Habits */}
+          {/* Bad Habits */}
           <section className={styles.panelBad}>
             <h2 className={styles.sectionTitle}>🧨 Break Bad Habits</h2>
             {habits
-              .filter(habit => habit.type === 'bad')
-              .map(habit => (
-                <div key={habit.id} className={styles.card}>
-                  <p>{habit.name}</p>
-                  <p>Resisted: <strong>{habit.streak} days</strong></p>
-                  <button 
+              .filter((h) => h.type === 'bad')
+              .map((h) => (
+                <div key={h.id} className={styles.card}>
+                  <p>{h.name}</p>
+                  <p>
+                    Resisted: <strong>{h.streak} days</strong>
+                  </p>
+                  <button
                     className={styles.smallButton}
-                    onClick={() => handleMarkResisted(habit.id)}
+                    onClick={() => handleMarkComplete(h.id)}
                   >
                     Mark as Resisted
                   </button>
@@ -221,12 +237,12 @@ const Dashboard = () => {
           </section>
         </div>
 
-        {/* Achievements + Suggestions */}
+        {/* ------------------ Achievements & Suggestions ------------------ */}
         <div className={styles.bottomSection}>
           <section className={styles.achievements}>
             <h2 className={styles.sectionTitle}>🏆 Achievements</h2>
             <ul className={styles.badgeList}>
-              <li className={styles.badge}>🎯 7-Day Streak</li>
+              <li className={styles.badge}>🎯 7‑Day Streak</li>
               <li className={styles.badge}>🌟 First Habit Added</li>
               <li className={styles.badge}>💯 10 Habits Tracked</li>
             </ul>
@@ -235,10 +251,14 @@ const Dashboard = () => {
           <section className={styles.suggestions}>
             <h2 className={styles.sectionTitle}>🔁 Try This Instead</h2>
             <div className={styles.swapCard}>
-              <p>Instead of <strong>Smoking</strong>, try <strong>Deep Breathing</strong></p>
+              <p>
+                Instead of <strong>Smoking</strong>, try <strong>Deep Breathing</strong>
+              </p>
             </div>
             <div className={styles.swapCard}>
-              <p>Instead of <strong>Sugar Binge</strong>, try <strong>Fruit Smoothie</strong></p>
+              <p>
+                Instead of <strong>Sugar Binge</strong>, try <strong>Fruit Smoothie</strong>
+              </p>
             </div>
           </section>
         </div>
