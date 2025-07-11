@@ -157,6 +157,31 @@
   box-shadow: 4px 4px 0 black;
 }
 
+.nav {
+  display: flex;
+  gap: 1rem;
+  margin-right: 1rem;
+}
+
+.nav a {
+  color: #FFC567;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 2px solid transparent;
+}
+
+.nav a:hover {
+  border-color: #FFC567;
+  background-color: rgba(255, 197, 103, 0.1);
+}
+
+.nav a.active {
+  border-color: #FFC567;
+  background-color: rgba(255, 197, 103, 0.2);
+}
+
 .addHabitContainer {
   margin-bottom: 2rem;
   border: 3px solid black;

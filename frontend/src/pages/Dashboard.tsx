@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styles from './Dashboard.module.css';
 import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 
@@ -103,6 +104,12 @@ const Dashboard = () => {
         <div className={styles.header}>
           <h1 className={styles.title}>Habitarium Dashboard</h1>
           <div className={styles.userInfo}>
+            <nav className={styles.nav}>
+              <NavLink to="/">Dashboard</NavLink>
+              <NavLink to="/profile">Profile</NavLink>
+              <NavLink to="/settings">Settings</NavLink>
+              <NavLink to="/community">Community</NavLink>
+            </nav>
             <Link to="/" className={styles.logoutButton}>Logout</Link>
           </div>
         </div>
