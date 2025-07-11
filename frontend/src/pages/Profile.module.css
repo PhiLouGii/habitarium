@@ -1,0 +1,200 @@
+.wrapper {
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  box-sizing: border-box;
+  background-color: #f5f5f5;
+  font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+}
+
+.container {
+  background-color: #811638;
+  color: white;
+  border: 4px solid black;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 8px 8px 0 black;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.backButton {
+  background-color: #FFC567;
+  color: black;
+  border: 2px solid black;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  margin-right: 1rem;
+  box-shadow: 3px 3px 0 black;
+  font-family: inherit;
+}
+
+.backButton:hover {
+  background-color: #EC8922;
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 black;
+}
+
+.title {
+  font-size: 2rem;
+  color: #FFC567;
+  text-shadow: 2px 2px black;
+  margin: 0;
+}
+
+.profileHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #FFC567;
+  padding-bottom: 1rem;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  background-color: #EC8922;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-right: 1.5rem;
+  border: 3px solid black;
+  box-shadow: 3px 3px 0 black;
+}
+
+.userName {
+  font-size: 1.8rem;
+  margin: 0 0 0.5rem 0;
+  color: #FFC567;
+  text-shadow: 1px 1px black;
+}
+
+.premiumBadge {
+  background-color: #FFC567;
+  color: #811638;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-weight: bold;
+  display: inline-block;
+  border: 2px solid black;
+  box-shadow: 2px 2px 0 black;
+}
+
+.section {
+  background-color: #FFC567;
+  border: 3px solid black;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 4px 4px 0 black;
+  color: black;
+}
+
+.sectionTitle {
+  color: #811638;
+  font-size: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-shadow: 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.subtitle {
+  color: #811638;
+  font-size: 1.2rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.detailItem {
+  border-bottom: 2px dashed #811638;
+  padding-bottom: 0.5rem;
+}
+
+.detailLabel {
+  display: block;
+  font-weight: bold;
+  color: #811638;
+  margin-bottom: 0.3rem;
+}
+
+.detailValue {
+  display: block;
+  font-size: 1.1rem;
+}
+
+.tagsSection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 2rem;
+}
+
+.tag {
+  background-color: #93D3AE;
+  color: #37342D;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: bold;
+  border: 2px solid black;
+  box-shadow: 2px 2px 0 black;
+}
+
+.tableHeader {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 1rem;
+  font-weight: bold;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid #811638;
+  margin-bottom: 0.5rem;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 1rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px dashed #811638;
+}
+
+.headerCell, .cell {
+  padding: 0.3rem;
+}
+
+.actionButton {
+  background-color: #679499;
+  color: white;
+  border: 1.5px solid black;
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: bold;
+  box-shadow: 2px 2px 0 black;
+}
+
+.actionButton:hover {
+  background-color: #54777B;
+  transform: translateY(-1px);
+}
