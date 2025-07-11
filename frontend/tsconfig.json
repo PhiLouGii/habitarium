@@ -3,7 +3,7 @@
     "target": "ES6",
     "module": "CommonJS",
     "esModuleInterop": true,
-    "jsx": "react-jsx",  // <-- critical for TSX in tests
+    "jsx": "react-jsx",
     "allowJs": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",

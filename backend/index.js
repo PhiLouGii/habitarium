@@ -1,9 +1,6 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-
-const authRoutes = require('./routes/auth'); // <-- your signup/login logic
 
 // ✅ Load env variables
 dotenv.config();
@@ -18,13 +15,18 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// ✅ Routes
-app.use('/api', authRoutes);
+// ✅ Firebase Admin Setup
+const admin = require('firebase-admin');
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
-// ✅ MongoDB connection
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: process.env.FIREBASE_DATABASE_URL
+});
+
+const db = admin.firestore();
+
+// ✅ Routes will be handled by Firebase client-side
 
 // ✅ Start server
 app.listen(5000, () => {
