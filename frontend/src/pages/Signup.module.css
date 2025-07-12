@@ -92,3 +92,21 @@ body {
   color: #00995E;
   border-color: #00995E;
 }
+
+.error {
+  color: #ff6b6b;
+  background-color: #fff5f5;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+.message {
+  color: #4caf50;
+  background-color: #f0fff4;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+  text-align: center;
+}
