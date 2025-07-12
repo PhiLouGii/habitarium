@@ -9,7 +9,6 @@
     "moduleResolution": "node",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
     "noEmit": true
   },
   "include": ["src", "__tests__"]
