@@ -3,7 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 
 // ✅ Load env variables
-dotenv.config();
+require("dotenv").config();
 
 // ✅ Initialize app
 const app = express();
