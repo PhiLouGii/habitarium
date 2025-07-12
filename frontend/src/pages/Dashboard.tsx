@@ -3,13 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import styles from './Dashboard.module.css';
-
-import { useAuth } from '../context/AuthContext'; 
-import { getHabits, addHabit, markHabitComplete } from '../services/HabitService';
-
-// -----------------------------
-// Type Definitions
-// -----------------------------
+import useAuth from '../context/AuthContext';
 
 type HabitType = 'good' | 'bad';
 
@@ -18,117 +12,109 @@ interface Habit {
   name: string;
   type: HabitType;
   streak: number;
-  completions: Date[]; // UTC dates truncated to 00:00
+  completions: Date[];
 }
 
-// Helper: compare two JS Dates by y/m/d only
 const isSameDay = (a: Date, b: Date) =>
   a.getDate() === b.getDate() &&
   a.getMonth() === b.getMonth() &&
   a.getFullYear() === b.getFullYear();
 
-// -----------------------------
-// Component
-// -----------------------------
-
 const Dashboard: React.FC = () => {
-  const { currentUser, logout } = useAuth(); // Added logout
-  const navigate = useNavigate(); // Added navigate
-
-  // All habits for the logged‑in user
+  const { currentUser, userProfile, logout, updateProfile } = useAuth();
+  const navigate = useNavigate();
+  
   const [habits, setHabits] = useState<Habit[]>([]);
-
-  // Quick‑add form state
   const [newHabit, setNewHabit] = useState<{ name: string; type: HabitType }>({
     name: '',
     type: 'good',
   });
-
-  // Calendar state
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  // -------------------------
-  // Effect: load habits once user is available / changes
-  // -------------------------
   useEffect(() => {
-    if (!currentUser) return;
-
-    const loadHabits = async () => {
-      try {
-        const userHabits = await getHabits(currentUser.uid);
-        setHabits(userHabits);
-      } catch (err) {
-        console.error('Failed to load habits:', err);
-      }
-    };
-
-    loadHabits();
-  }, [currentUser]);
-
-  // -------------------------
-  // Handlers
-  // -------------------------
+    if (userProfile?.habits) {
+      setHabits(userProfile.habits.map((habit: { completions: (string | number | Date)[]; }) => ({
+        ...habit, // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        completions: habit.completions.map((d: string | number | Date) => new Date(d))
+      })));
+    }
+  }, [userProfile]);
 
   const handleAddHabit = async () => {
-    if (!currentUser) return;
-    if (newHabit.name.trim() === '') return;
+    if (!currentUser || !userProfile || newHabit.name.trim() === '') return;
 
     try {
-      await addHabit(currentUser.uid, {
-        name: newHabit.name,
+      const newHabitObj: Habit = {
+        id: Date.now().toString(),
+        name: newHabit.name.trim(),
         type: newHabit.type,
         streak: 0,
-        completions: [],
-      });
+        completions: []
+      };
+      
+      const updatedHabits = [...habits, newHabitObj];
+      await updateProfile({ habits: updatedHabits });
       setNewHabit({ name: '', type: 'good' });
-      // Refresh
-      const updated = await getHabits(currentUser.uid);
-      setHabits(updated);
     } catch (err) {
       console.error('Failed to add habit:', err);
     }
   };
 
-  const handleMarkComplete = async (habitId: string) => {
-    if (!currentUser) return;
+  const handleMarkComplete = async (habitId: string, isGoodHabit: boolean) => {
+    if (!currentUser || !userProfile) return;
+    
     try {
-      await markHabitComplete(currentUser.uid, habitId);
-      // Refresh
-      const updated = await getHabits(currentUser.uid);
-      setHabits(updated);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const updatedHabits = habits.map(habit => {
+        if (habit.id === habitId) {
+          // Check if already completed today
+          const alreadyCompleted = habit.completions.some(d => 
+            isSameDay(d, today)
+          );
+          
+          if (!alreadyCompleted) {
+            const newCompletions = [...habit.completions, today];
+            return {
+              ...habit,
+              streak: isGoodHabit ? habit.streak + 1 : habit.streak,
+              completions: newCompletions
+            };
+          }
+        }
+        return habit;
+      });
+
+      await updateProfile({ habits: updatedHabits });
     } catch (err) {
       console.error('Failed to mark complete:', err);
     }
   };
 
   const handleCalendarChange = (value: Date | Date[]) => {
-    if (Array.isArray(value)) {
-      setSelectedDate(value[0]);
-    } else {
-      setSelectedDate(value);
-    }
+    setSelectedDate(Array.isArray(value) ? value[0] : value);
   };
 
-  const habitsForSelectedDate = habits.filter((h) =>
-    h.completions.some((d) => isSameDay(d, selectedDate))
+  const habitsForSelectedDate = habits.filter(h =>
+    h.completions.some(d => isSameDay(d, selectedDate))
   );
 
-  // Handle logout
   const handleLogout = () => {
     logout();
-    navigate('/'); // Redirect to login page
+    navigate('/');
   };
-
-  // -------------------------
-  // Render
-  // -------------------------
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
-        {/* Header */}
         <header className={styles.header}>
-          <h1 className={styles.title}>Habitarium Dashboard</h1>
+          <div>
+            <h1 className={styles.title}>Habitarium Dashboard</h1>
+            {userProfile && (
+              <p className={styles.username}>Welcome, {userProfile.displayName}!</p>
+            )}
+          </div>
           <nav className={styles.nav}>
             <NavLink to="/dashboard">Dashboard</NavLink>
             <NavLink to="/profile">Profile</NavLink>
@@ -140,7 +126,6 @@ const Dashboard: React.FC = () => {
           </button>
         </header>
 
-        {/* ------------------ Add Habit ------------------ */}
         <section className={styles.addHabitContainer}>
           <h2 className={styles.sectionTitle}>➕ Add New Habit</h2>
           <div className={styles.addHabitForm}>
@@ -167,16 +152,15 @@ const Dashboard: React.FC = () => {
           </div>
         </section>
 
-        {/* ------------------ Calendar ------------------ */}
         <section className={styles.calendarSection}>
           <h2 className={styles.sectionTitle}>📅 Habit Calendar</h2>
           <div className={styles.calendarContainer}>
-            <Calendar 
+            <Calendar
               onChange={handleCalendarChange}
               value={selectedDate}
               className={styles.calendar}
               tileClassName={({ date }) =>
-                habits.some((h) => h.completions.some((d) => isSameDay(d, date)))
+                habits.some(h => h.completions.some(d => isSameDay(d, date)))
                   ? styles.highlightedDay
                   : undefined
               }
@@ -186,7 +170,7 @@ const Dashboard: React.FC = () => {
               <h3>Habits on {selectedDate.toDateString()}</h3>
               {habitsForSelectedDate.length ? (
                 <ul className={styles.habitList}>
-                  {habitsForSelectedDate.map((h) => (
+                  {habitsForSelectedDate.map(h => (
                     <li key={h.id} className={styles.habitItem}>
                       {h.type === 'good' ? '✅' : '❌'} {h.name}
                     </li>
@@ -199,22 +183,18 @@ const Dashboard: React.FC = () => {
           </div>
         </section>
 
-        {/* ------------------ Panels ------------------ */}
         <div className={styles.panels}>
-          {/* Good Habits */}
           <section className={styles.panelGood}>
             <h2 className={styles.sectionTitle}>🔥 Build Good Habits</h2>
             {habits
-              .filter((h) => h.type === 'good')
-              .map((h) => (
+              .filter(h => h.type === 'good')
+              .map(h => (
                 <div key={h.id} className={styles.card}>
                   <p>{h.name}</p>
-                  <p>
-                    Streak: <strong>{h.streak} days</strong>
-                  </p>
+                  <p>Streak: <strong>{h.streak} days</strong></p>
                   <button
                     className={styles.smallButton}
-                    onClick={() => handleMarkComplete(h.id)}
+                    onClick={() => handleMarkComplete(h.id, true)}
                   >
                     Mark as Done
                   </button>
@@ -222,20 +202,17 @@ const Dashboard: React.FC = () => {
               ))}
           </section>
 
-          {/* Bad Habits */}
           <section className={styles.panelBad}>
             <h2 className={styles.sectionTitle}>🧨 Break Bad Habits</h2>
             {habits
-              .filter((h) => h.type === 'bad')
-              .map((h) => (
+              .filter(h => h.type === 'bad')
+              .map(h => (
                 <div key={h.id} className={styles.card}>
                   <p>{h.name}</p>
-                  <p>
-                    Resisted: <strong>{h.streak} days</strong>
-                  </p>
+                  <p>Resisted: <strong>{h.streak} days</strong></p>
                   <button
                     className={styles.smallButton}
-                    onClick={() => handleMarkComplete(h.id)}
+                    onClick={() => handleMarkComplete(h.id, false)}
                   >
                     Mark as Resisted
                   </button>
@@ -244,7 +221,6 @@ const Dashboard: React.FC = () => {
           </section>
         </div>
 
-        {/* ------------------ Achievements & Suggestions ------------------ */}
         <div className={styles.bottomSection}>
           <section className={styles.achievements}>
             <h2 className={styles.sectionTitle}>🏆 Achievements</h2>

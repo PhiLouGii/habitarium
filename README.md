@@ -69,9 +69,7 @@ cp .env.example .env
 ```
 ### Open the newly created ```.env``` file and update the following variables:
 ```
-MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/habitarium
-JWT_SECRET=your_strong_secure_secret_key_here
-PORT=3001
+
 ```
 **Important:** Replace ```<your_username>``` and ```<your_password>``` with your MongoDB Atlas credentials. Ensure ```JWT_SECRET``` is a long, random string for production.
 

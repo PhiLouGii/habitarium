@@ -1,9 +1,61 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Profile.module.css';
+import { useAuth } from '../context/AuthContext';
 
 const Profile = () => {
   const navigate = useNavigate();
-  
+  const { userProfile, updateProfile } = useAuth();
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState({
+    displayName: '',
+    bio: '',
+    role: '',
+    favoriteArtists: '',
+    software: '',
+    city: '',
+    experience: '',
+    genre: '',
+    mood: '',
+    availability: '',
+    tags: '',
+  });
+
+  useEffect(() => {
+    if (userProfile) {
+      setFormData({
+        displayName: userProfile.displayName || '',
+        bio: userProfile.bio || '',
+        role: userProfile.role || '',
+        favoriteArtists: userProfile.favoriteArtists || '',
+        software: userProfile.software || '',
+        city: userProfile.city || '',
+        experience: userProfile.experience || '',
+        genre: userProfile.genre || '',
+        mood: userProfile.mood || '',
+        availability: userProfile.availability || '',
+        tags: userProfile.tags ? userProfile.tags.join(', ') : '',
+      });
+    }
+  }, [userProfile]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = async () => {
+    try {
+      await updateProfile({
+        ...formData,
+        tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
+      });
+      setEditMode(false);
+    } catch (error) {
+      console.error("Error saving profile:", error);
+    }
+  };
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
@@ -15,108 +67,118 @@ const Profile = () => {
             ← Back to Dashboard
           </button>
           <h1 className={styles.title}>Profile</h1>
+          {!editMode && (
+            <button 
+              className={styles.editButton}
+              onClick={() => setEditMode(true)}
+            >
+              Edit Profile
+            </button>
+          )}
         </div>
 
         <div className={styles.profileHeader}>
-          <div className={styles.avatar}>MF</div>
+          <div className={styles.avatar}>
+            {userProfile?.displayName?.charAt(0) || 'U'}
+          </div>
           <div>
-            <h2 className={styles.userName}>Maria Fernanda</h2>
+            {editMode ? (
+              <input
+                type="text"
+                name="displayName"
+                value={formData.displayName}
+                onChange={handleChange}
+                className={styles.editInput}
+              />
+            ) : (
+              <h2 className={styles.userName}>{userProfile?.displayName}</h2>
+            )}
             <div className={styles.premiumBadge}>Premium User</div>
           </div>
         </div>
 
         <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Bio & other details</h3>
+          <h3 className={styles.sectionTitle}>Bio & Details</h3>
+          
+          {editMode ? (
+            <textarea
+              name="bio"
+              value={formData.bio}
+              onChange={handleChange}
+              className={styles.editTextarea}
+              placeholder="Tell us about yourself..."
+              rows={3}
+            />
+          ) : (
+            <p className={styles.bio}>{userProfile?.bio || 'No bio yet'}</p>
+          )}
+          
           <div className={styles.detailsGrid}>
-            <div className={styles.detailItem}>
-              <span className={styles.detailLabel}>My Role</span>
-              <span className={styles.detailValue}>Bedrmaker</span>
-            </div>
-            <div className={styles.detailItem}>
-              <span className={styles.detailLabel}>My 3 Favorite Artists</span>
-              <span className={styles.detailValue}>Ninho, Travis Scott, Metro Boomin</span>
-            </div>
-            <div className={styles.detailItem}>
-              <span className={styles.detailLabel}>The Software or Equipment I Use</span>
-              <span className={styles.detailValue}>Ableton</span>
-            </div>
-            <div className={styles.detailItem}>
-              <span className={styles.detailLabel}>My City or Region</span>
-              <span className={styles.detailValue}>California, USA</span>
-            </div>
-            <div className={styles.detailItem}>
-              <span className={styles.detailLabel}>Bodges</span>
-              <span className={styles.detailValue}>Top Collaborator</span>
-            </div>
-            <div className={styles.detailItem}>
-              <span className={styles.detailLabel}>My Experience Level</span>
-              <span className={styles.detailValue}>Intermediate</span>
-            </div>
-            <div className={styles.detailItem}>
-              <span className={styles.detailLabel}>My Favorite Music Genre</span>
-              <span className={styles.detailValue}>Trap</span>
-            </div>
-            <div className={styles.detailItem}>
-              <span className={styles.detailLabel}>My Preferred Music Mood</span>
-              <span className={styles.detailValue}>Melancholic</span>
-            </div>
-            <div className={styles.detailItem}>
-              <span className={styles.detailLabel}>Availability</span>
-              <span className={styles.detailValue}>Available for Collaboration</span>
-            </div>
+            {renderDetailItem('My Role', 'role')}
+            {renderDetailItem('My Favorite Artists', 'favoriteArtists')}
+            {renderDetailItem('Software/Equipment', 'software')}
+            {renderDetailItem('Location', 'city')}
+            {renderDetailItem('Experience Level', 'experience')}
+            {renderDetailItem('Favorite Music Genre', 'genre')}
+            {renderDetailItem('Preferred Mood', 'mood')}
+            {renderDetailItem('Availability', 'availability')}
           </div>
         </div>
 
         <div className={styles.tagsSection}>
-          <span className={styles.tag}>#Drill</span>
-          <span className={styles.tag}>#Melancholic</span>
-          <span className={styles.tag}>#Rap-US</span>
+          <h4>My Tags:</h4>
+          {editMode ? (
+            <input
+              type="text"
+              name="tags"
+              value={formData.tags}
+              onChange={handleChange}
+              className={styles.editInput}
+              placeholder="Enter tags separated by commas"
+            />
+          ) : (
+            <div className={styles.tagsContainer}>
+              {userProfile?.tags?.map((tag, index) => (
+                <span key={index} className={styles.tag}>#{tag}</span>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Social Media</h3>
-          <h4 className={styles.subtitle}>My Productions</h4>
-          
-          <div className={styles.tableHeader}>
-            <span className={styles.headerCell}>Title</span>
-            <span className={styles.headerCell}>Timing</span>
-            <span className={styles.headerCell}>No. of listenings</span>
-            <span className={styles.headerCell}>Actions</span>
+        {editMode && (
+          <div className={styles.editActions}>
+            <button className={styles.cancelButton} onClick={() => setEditMode(false)}>
+              Cancel
+            </button>
+            <button className={styles.saveButton} onClick={handleSave}>
+              Save Changes
+            </button>
           </div>
-          
-          <div className={styles.tableRow}>
-            <span className={styles.cell}>Midnight Dreams</span>
-            <span className={styles.cell}>3:45</span>
-            <span className={styles.cell}>1,245</span>
-            <span className={styles.cell}>
-              <button className={styles.actionButton}>Edit</button>
-              <button className={styles.actionButton}>Share</button>
-            </span>
-          </div>
-          
-          <div className={styles.tableRow}>
-            <span className={styles.cell}>Urban Echoes</span>
-            <span className={styles.cell}>4:20</span>
-            <span className={styles.cell}>892</span>
-            <span className={styles.cell}>
-              <button className={styles.actionButton}>Edit</button>
-              <button className={styles.actionButton}>Share</button>
-            </span>
-          </div>
-          
-          <div className={styles.tableRow}>
-            <span className={styles.cell}>California Vibes</span>
-            <span className={styles.cell}>2:58</span>
-            <span className={styles.cell}>2,156</span>
-            <span className={styles.cell}>
-              <button className={styles.actionButton}>Edit</button>
-              <button className={styles.actionButton}>Share</button>
-            </span>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
+
+  function renderDetailItem(label: string, field: keyof typeof formData) {
+    return (
+      <div className={styles.detailItem}>
+        <span className={styles.detailLabel}>{label}</span>
+        {editMode ? (
+          <input
+            type="text"
+            name={field}
+            value={formData[field]}
+            onChange={handleChange}
+            className={styles.editInput}
+          />
+        ) : (
+          <span className={styles.detailValue}>
+            {userProfile?.[field] || 'Not specified'}
+          </span>
+        )}
+      </div>
+    );
+  }
 };
 
 export default Profile;

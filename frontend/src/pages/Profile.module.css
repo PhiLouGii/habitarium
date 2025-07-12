@@ -24,6 +24,8 @@
   display: flex;
   align-items: center;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .backButton {
@@ -50,6 +52,25 @@
   color: #FFC567;
   text-shadow: 2px 2px black;
   margin: 0;
+}
+
+.editButton {
+  background-color: #679499;
+  color: white;
+  border: 2px solid black;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: auto;
+  box-shadow: 3px 3px 0 black;
+  font-family: inherit;
+}
+
+.editButton:hover {
+  background-color: #54777B;
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 black;
 }
 
 .profileHeader {
@@ -111,11 +132,10 @@
   text-shadow: 1px 1px rgba(0, 0, 0, 0.2);
 }
 
-.subtitle {
-  color: #811638;
-  font-size: 1.2rem;
-  margin-top: 0;
-  margin-bottom: 1rem;
+.bio {
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  color: #37342D;
 }
 
 .detailsGrid {
@@ -140,13 +160,18 @@
 .detailValue {
   display: block;
   font-size: 1.1rem;
+  color: #37342D;
 }
 
 .tagsSection {
+  margin-bottom: 2rem;
+}
+
+.tagsContainer {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;
-  margin-bottom: 2rem;
+  margin-top: 0.5rem;
 }
 
 .tag {
@@ -159,42 +184,81 @@
   box-shadow: 2px 2px 0 black;
 }
 
-.tableHeader {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1.5fr;
-  gap: 1rem;
-  font-weight: bold;
-  padding: 0.5rem 0;
-  border-bottom: 2px solid #811638;
-  margin-bottom: 0.5rem;
-}
-
-.tableRow {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1.5fr;
-  gap: 1rem;
-  padding: 0.8rem 0;
-  border-bottom: 1px dashed #811638;
-}
-
-.headerCell, .cell {
-  padding: 0.3rem;
-}
-
-.actionButton {
-  background-color: #679499;
-  color: white;
-  border: 1.5px solid black;
-  border-radius: 6px;
-  padding: 0.3rem 0.6rem;
-  margin-right: 0.5rem;
-  cursor: pointer;
+.editInput, .editTextarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid black;
+  border-radius: 8px;
+  margin-bottom: 1rem;
   font-family: inherit;
-  font-weight: bold;
-  box-shadow: 2px 2px 0 black;
+  box-sizing: border-box;
 }
 
-.actionButton:hover {
-  background-color: #54777B;
-  transform: translateY(-1px);
+.editTextarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.editActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.saveButton {
+  background-color: #93D3AE;
+  color: #37342D;
+  border: 2px solid black;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 3px 3px 0 black;
+  font-family: inherit;
+}
+
+.saveButton:hover {
+  background-color: #7dbb91;
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 black;
+}
+
+.cancelButton {
+  background-color: #C33740;
+  color: white;
+  border: 2px solid black;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 3px 3px 0 black;
+  font-family: inherit;
+}
+
+.cancelButton:hover {
+  background-color: #a22e36;
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 black;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .detailsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .profileHeader {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .avatar {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
 }
