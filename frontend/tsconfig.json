@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "module": "CommonJS",
+    "module": "ESNext",
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "allowJs": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "noEmit": true
   },
   "include": ["src", "__tests__"]
 }
