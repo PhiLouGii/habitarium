@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
 import { useAuth } from '../context/AuthContext';
+import { FirebaseError } from 'firebase/app'; 
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -20,16 +21,20 @@ const Login = () => {
       await login(email, password);
       setMessage('Login successful! Redirecting...');
       navigate('/dashboard');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Login error:', err);
       
-      // Friendly error messages
-      if (err.code === 'auth/user-not-found') {
-        setError('No account found with this email');
-      } else if (err.code === 'auth/wrong-password') {
-        setError('Incorrect password');
+      if (err instanceof FirebaseError) {
+        // Friendly error messages
+        if (err.code === 'auth/user-not-found') {
+          setError('No account found with this email');
+        } else if (err.code === 'auth/wrong-password') {
+          setError('Incorrect password');
+        } else {
+          setError('Login failed. Please try again.');
+        }
       } else {
-        setError('Login failed. Please try again.');
+        setError('An unexpected error occurred');
       }
       setMessage('');
     }

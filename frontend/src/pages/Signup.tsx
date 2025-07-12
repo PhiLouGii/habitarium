@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Signup.module.css';
 import { useAuth } from '../context/AuthContext';
+import { FirebaseError } from 'firebase/app';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -26,17 +27,21 @@ const Signup = () => {
     try {
       await signup(formData.email, formData.password);
       setMessage('Account created successfully! Redirecting...');
-      navigate('/dashboard'); // Redirect to dashboard on successful signup
-    } catch (err: any) {
+      navigate('/dashboard'); 
+    } catch (err) {
       console.error('Signup error:', err);
       
-      // Friendly error messages
-      if (err.code === 'auth/email-already-in-use') {
-        setError('This email is already registered. Please login instead.');
-      } else if (err.code === 'auth/weak-password') {
-        setError('Password should be at least 6 characters');
+      if (err instanceof FirebaseError) {
+        // Friendly error messages
+        if (err.code === 'auth/email-already-in-use') {
+          setError('This email is already registered. Please login instead.');
+        } else if (err.code === 'auth/weak-password') {
+          setError('Password should be at least 6 characters');
+        } else {
+          setError('Failed to create account. Please try again.');
+        }
       } else {
-        setError('Failed to create account. Please try again.');
+        setError('An unexpected error occurred');
       }
       setMessage('');
     }
