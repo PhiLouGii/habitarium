@@ -43,7 +43,7 @@ Ensure your development environment includes the following:
 | Technology | Version   | Purpose                                     |
 |------------|-----------|---------------------------------------------|
 | Node.js    | v18.0+    | JavaScript runtime                          |
-| MongoDB    | N/A       | Database system (Atlas account or local)    |
+| Firebase   | N/A       | Database system    |
 | Git        | Latest    | Version control                             |
 | npm        | Latest    | Package management     
 
