@@ -1,0 +1,12 @@
+# .gitignore
+# Firebase secrets
+backend/firebase-service-account.json
+serviceAccountKey*.json
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# VS Code settings
+.vscode/
