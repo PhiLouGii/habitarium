@@ -32,7 +32,15 @@
   font-size: 2.5rem;
   color: #EC8922;
   text-shadow: 3px 3px black;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.username {
+  color: #FFC567;
+  font-size: 1.1rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  text-shadow: 1px 1px black;
 }
 
 .panels {
@@ -49,6 +57,7 @@
   border-radius: 16px;
   background-color: #FFC567;
   box-shadow: 6px 6px 0px black;
+  min-width: 300px;
 }
 
 .panelBad {
@@ -59,7 +68,7 @@
   color: #37342D;
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  text-shadow: 2px black;
+  text-shadow: 1px 1px rgba(0, 0, 0, 0.3);
 }
 
 .card {
@@ -118,6 +127,7 @@
   border-radius: 10px;
   box-shadow: 4px 4px 0 black;
   font-size: 0.95rem;
+  margin-bottom: 1rem;
 }
 
 .header {
@@ -126,6 +136,7 @@
   align-items: center;
   width: 100%;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .userInfo {
@@ -148,6 +159,7 @@
   font-weight: bold;
   transition: all 0.2s;
   box-shadow: 3px 3px 0 black;
+  font-family: inherit;
 }
 
 .logoutButton:hover {
@@ -160,7 +172,8 @@
 .nav {
   display: flex;
   gap: 1rem;
-  margin-right: 1rem;
+  margin: 1rem 0;
+  flex-wrap: wrap;
 }
 
 .nav a {
@@ -195,6 +208,31 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.input {
+  padding: 0.8rem;
+  border: 2px solid black;
+  border-radius: 8px;
+  font-family: inherit;
+}
+
+.button {
+  background-color: #93D3AE;
+  color: #37342D;
+  border: 2px solid black;
+  border-radius: 8px;
+  padding: 0.8rem;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: inherit;
+  box-shadow: 3px 3px 0 black;
+  transition: all 0.2s;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 black;
 }
 
 .calendarSection {
@@ -265,5 +303,22 @@
 @media (max-width: 768px) {
   .calendarContainer {
     flex-direction: column;
+  }
+  
+  .panels {
+    flex-direction: column;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .nav {
+    margin-top: 1rem;
+  }
+  
+  .logoutButton {
+    margin-top: 1rem;
   }
 }

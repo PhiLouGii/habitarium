@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import styles from './Signup.module.css';
-import { useAuth } from '../context/AuthContext';
 import { FirebaseError } from 'firebase/app';
-
+import useAuth from '../context/AuthContext';
+import styles from './Signup.module.css';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Signup = () => {
   const [formData, setFormData] = useState({
     username: '',
@@ -12,7 +12,7 @@ const Signup = () => {
   });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const { signup } = useAuth();
+  const { signup } = useAuth(); // Corrected: useAuth is a hook, not an object with a useAuth property
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,14 +25,13 @@ const Signup = () => {
     setMessage('Creating your account...');
 
     try {
-      await signup(formData.email, formData.password);
+      await signup(formData.email, formData.password, formData.username);
       setMessage('Account created successfully! Redirecting...');
-      navigate('/dashboard'); 
+      navigate('/dashboard');
     } catch (err) {
       console.error('Signup error:', err);
       
       if (err instanceof FirebaseError) {
-        // Friendly error messages
         if (err.code === 'auth/email-already-in-use') {
           setError('This email is already registered. Please login instead.');
         } else if (err.code === 'auth/weak-password') {

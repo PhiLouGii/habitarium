@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
-import { useAuth } from '../context/AuthContext';
+import useAuth from '../context/AuthContext';
 import { FirebaseError } from 'firebase/app'; 
 
 const Login = () => {
@@ -9,7 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { login } = useAuth(); // Corrected: useAuth is a hook, not an object with a useAuth property
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
