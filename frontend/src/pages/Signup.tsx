@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './Signup.module.css';
+import { useAuth } from '../context/AuthContext';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -8,8 +9,10 @@ const Signup = () => {
     email: '',
     password: '',
   });
-
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const { signup } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -17,25 +20,25 @@ const Signup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setMessage('Creating your account...');
 
     try {
-      const res = await fetch('http://localhost:5000/api/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setMessage('Signup successful! Redirecting...');
-        // Redirect will be handled separately
+      await signup(formData.email, formData.password);
+      setMessage('Account created successfully! Redirecting...');
+      navigate('/dashboard'); // Redirect to dashboard on successful signup
+    } catch (err: any) {
+      console.error('Signup error:', err);
+      
+      // Friendly error messages
+      if (err.code === 'auth/email-already-in-use') {
+        setError('This email is already registered. Please login instead.');
+      } else if (err.code === 'auth/weak-password') {
+        setError('Password should be at least 6 characters');
       } else {
-        setMessage(data.message || 'Signup failed');
+        setError('Failed to create account. Please try again.');
       }
-    } catch (error) {
-      console.error('Signup error:', error);
-      setMessage('Something went wrong.');
+      setMessage('');
     }
   };
 
@@ -43,6 +46,9 @@ const Signup = () => {
     <div className={styles.wrapper}>
       <div className={styles.container}>
         <h1 className={styles.title}>Join Habitarium</h1>
+        {message && <p className={styles.message}>{message}</p>}
+        {error && <p className={styles.error}>{error}</p>}
+        
         <form className={styles.form} onSubmit={handleSubmit}>
           <input
             type="text"
@@ -65,17 +71,20 @@ const Signup = () => {
           <input
             type="password"
             name="password"
-            placeholder="Password"
+            placeholder="Password (min 6 characters)"
             className={styles.input}
             value={formData.password}
             onChange={handleChange}
             required
+            minLength={6}
           />
-          <button type="submit" className={styles.button}>Sign Up</button>
+          <button type="submit" className={styles.button}>
+            Sign Up
+          </button>
         </form>
-        {message && <p className={styles.message}>{message}</p>}
+        
         <p className={styles.switchText}>
-          Already have an account? <Link to="/" className={styles.link}>Login</Link>
+          Already have an account? <Link to="/login" className={styles.link}>Login</Link>
         </p>
       </div>
     </div>
