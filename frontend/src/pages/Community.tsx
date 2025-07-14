@@ -1,37 +1,97 @@
-import styles from './Dashboard.module.css';
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useCommunity } from '../context/CommunityContext';
+import Post from '../components/Post';
+import CreatePost from './CreatePost';
+import styles from './Community.module.css';
 
 const Community = () => {
-  const users = [
-    { name: 'Alex', streak: 42, habits: ['Meditation', 'Running'] },
-    { name: 'Sam', streak: 35, habits: ['Reading', 'No Sugar'] },
-    { name: 'Taylor', streak: 28, habits: ['Yoga', 'No Smoking'] },
-  ];
+  useAuth();
+  const { posts, users } = useCommunity();
+  const [showCreatePost, setShowCreatePost] = useState(false);
+  
+  // For demo purposes - top community members
+  const topMembers = [...users]
+    .sort((a, b) => (b.followers?.length || 0) - (a.followers?.length || 0))
+    .slice(0, 5);
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.container}>
-        <h1 className={styles.title}>Community</h1>
+    <div className={styles.container}>
+      {showCreatePost && <CreatePost onClose={() => setShowCreatePost(false)} />}
+      
+      <div className={styles.mainContent}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Community Forum</h1>
+          <button 
+            onClick={() => setShowCreatePost(true)}
+            className={styles.createButton}
+          >
+            + Create Post
+          </button>
+        </div>
         
-        <div className={styles.card}>
-          <h2>Top Streaks</h2>
-          <ul className={styles.habitList}>
-            {users.map((user, index) => (
-              <li key={index} className={styles.habitItem}>
-                <strong>{user.name}</strong> - {user.streak} days
-                <div>{user.habits.join(', ')}</div>
+        <div className={styles.postsContainer}>
+          {posts.length === 0 ? (
+            <div className={styles.emptyState}>
+              <p>No posts yet. Be the first to share!</p>
+            </div>
+          ) : (
+            posts.map(post => (
+              <Post key={post.id} post={post} />
+            ))
+          )}
+        </div>
+      </div>
+      
+      <div className={styles.sidebar}>
+        <div className={styles.sidebarCard}>
+          <h3 className={styles.sidebarTitle}>Top Members</h3>
+          <ul className={styles.memberList}>
+            {topMembers.map(user => (
+              <li key={user.id} className={styles.memberItem}>
+                <div className={styles.memberAvatar} />
+                <div>
+                  <p className={styles.memberName}>{user.name}</p>
+                  <p className={styles.memberFollowers}>
+                    {user.followers?.length || 0} followers
+                  </p>
+                </div>
+                <FollowButton userId={user.id} />
               </li>
             ))}
           </ul>
         </div>
         
-        <div className={styles.card}>
-          <h2>Join a Challenge</h2>
-          <button className={styles.smallButton}>7-Day Meditation</button>
-          <button className={styles.smallButton}>30-Day Fitness</button>
-          <button className={styles.smallButton}>No Sugar January</button>
+        <div className={styles.sidebarCard}>
+          <h3 className={styles.sidebarTitle}>Community Guidelines</h3>
+          <ul className={styles.guidelinesList}>
+            <li>Be respectful to all members</li>
+            <li>Share helpful information</li>
+            <li>Keep discussions on-topic</li>
+            <li>No spamming or self-promotion</li>
+          </ul>
         </div>
       </div>
     </div>
+  );
+};
+
+const FollowButton = ({ userId }: { userId: string }) => {
+  const { currentUser, isFollowing, followUser, unfollowUser } = useCommunity();
+  
+  if (currentUser?.id === userId) return null;
+  
+  return (
+    <button
+      onClick={() => isFollowing(userId) ? unfollowUser(userId) : followUser(userId)}
+      className={`px-3 py-1 rounded-full text-sm font-medium ${
+        isFollowing(userId) 
+          ? 'bg-gray-200 text-gray-700' 
+          : 'bg-blue-500 text-white'
+      }`}
+    >
+      {isFollowing(userId) ? 'Following' : 'Follow'}
+    </button>
   );
 };
 

@@ -5,13 +5,25 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Community from './pages/Community';
-import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './context/AuthContext';
+import { CommunityProvider } from './context/CommunityContext';
 
 function App() {
+  const { currentUser } = useAuth(); // Assuming useAuth() provides currentUser
+
   return (
-    <AuthProvider>
+    <CommunityProvider currentUser={currentUser ? { // Pass currentUser to CommunityProvider
+      id: currentUser.uid, // Firebase user ID
+      name: currentUser.displayName || 'Anonymous', // Firebase user display name
+      avatar: ''
+    } : { // Provide a default user object when currentUser is null
+      id: '',
+      name: 'Anonymous',
+      avatar: ''
+    }}>
       <Router>
-    <Routes>
+        <Routes>
+
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/dashboard" element={<Dashboard />} />
@@ -20,7 +32,7 @@ function App() {
       <Route path="/community" element={<Community />} />
     </Routes>
     </Router>
-    </AuthProvider>
+    </CommunityProvider>
   );
 }
 
