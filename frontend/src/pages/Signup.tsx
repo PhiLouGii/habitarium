@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FirebaseError } from 'firebase/app';
-import useAuth from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import styles from './Signup.module.css';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Signup = () => {
