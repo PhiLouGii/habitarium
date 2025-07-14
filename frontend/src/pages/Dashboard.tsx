@@ -104,7 +104,7 @@ const Dashboard: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate('/login');
   };
 
   return (
@@ -114,7 +114,7 @@ const Dashboard: React.FC = () => {
           <div>
             <h1 className={styles.title}>Habitarium Dashboard</h1>
             {userProfile && (
-              <p className={styles.username}>Welcome, {userProfile.displayName}!</p>
+              <p className={styles.username}>Let's grow and glow, {userProfile.displayName}!</p>
             )}
           </div>
           <nav className={styles.nav}>
