@@ -70,10 +70,17 @@ const Dashboard: React.FC = () => {
       };
       
       const updatedHabits = [...habits, newHabitObj];
-      await updateProfile({ habits: updatedHabits });
+      
+      // Update local state immediately for better UX
+      setHabits(updatedHabits);
       setNewHabit({ name: '', type: 'good' });
+      
+      // Then update profile
+      await updateProfile({ habits: updatedHabits });
     } catch (err) {
       console.error('Failed to add habit:', err);
+      // Revert local state on error
+      setHabits(habits);
     }
   };
 
@@ -103,9 +110,15 @@ const Dashboard: React.FC = () => {
         return habit;
       });
 
+      // Update local state immediately
+      setHabits(updatedHabits);
+      
+      // Then update profile
       await updateProfile({ habits: updatedHabits });
     } catch (err) {
       console.error('Failed to mark complete:', err);
+      // Revert local state on error
+      setHabits(habits);
     }
   };
 
@@ -122,6 +135,16 @@ const Dashboard: React.FC = () => {
     navigate('/login');
   };
 
+  // Get user's first initial for avatar
+  const getInitial = () => {
+    if (userProfile?.displayName) {
+      return userProfile.displayName.charAt(0);
+    } else if (currentUser?.email) {
+      return currentUser.email.charAt(0);
+    }
+    return 'U';
+  };
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
@@ -130,14 +153,16 @@ const Dashboard: React.FC = () => {
           <div className={styles.userInfo}>
             <div className={styles.userAvatar}>
               <span className={styles.avatarInitial}>
-                {userProfile?.displayName?.charAt(0) || 'U'}
+                {getInitial()}
               </span>
             </div>
             <div>
               <h1 className={styles.userName}>Habitarium</h1>
-              {userProfile && (
-              <p className={styles.username}>Let's grow and glow, {userProfile.displayName}!</p>
-            )}
+              {userProfile?.displayName ? (
+                <p className={styles.userGreeting}>Let's grow and glow, {userProfile.displayName}!</p>
+              ) : (
+                <p className={styles.userGreeting}>Let's grow and glow!</p>
+              )}
               <p className={styles.userStats}>{habits.length} habits tracked</p>
             </div>
           </div>
