@@ -1,17 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope&display=swap');
+
 .container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #811638;
-  color: black;
-  border: 4px solid black;
+  background-color: #011B2F;
+  color: #FFD358;
+  border: 4px solid #002A45;
   border-radius: 16px;
   padding: 2rem;
   width: 400px;
   margin: 0 auto;
-  box-shadow: 8px 8px 0 black;
-  font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+  box-shadow: 8px 8px 0 #003F66;
+  font-family: 'Manrope';
   position: absolute;
   top: 50%;
   left: 50%;
@@ -31,8 +34,15 @@
   font-size: 2rem;
   text-align: center;
   margin-bottom: 1.5rem;
-  color: #FACA78;
-  text-shadow: 2px 2px 0 black;
+  color: #FFD358;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  font-weight: normal;
+  color: #FFD358;
+  margin-top: 0;
 }
 
 .form {
@@ -45,26 +55,27 @@
 .input {
   padding: 0.75rem 1rem;
   font-size: 1rem;
-  border: 2px solid black;
+  border: 2px solid #002A45;
   border-radius: 10px;
-  background-color: #F57F5B;
-  color: black;
+  background-color: #003F66;
+  color: #FFD358;
   outline: none;
   transition: transform 0.2s;
   width: 100%;
 }
 
 .input:focus {
-  transform: scale(1.03);
-  background-color: #FFF;
+  transform: scale(1.02);
+  background-color: #002A45; 
+  border-color: #FFD358; 
 }
 
 .button {
   padding: 0.75rem;
   font-size: 1rem;
-  background-color: #FD5A46;
-  color: white;
-  border: 3px solid black;
+  background-color: #FFB915;
+  color: #011B2F;
+  border: 3px solid #002A45;
   border-radius: 10px;
   cursor: pointer;
   font-weight: bold;
@@ -73,28 +84,49 @@
 }
 
 .button:hover {
-  background-color: #FACA78;
-  transform: scale(1.05);
+  background-color: #FFD358;
+  transform: translateY(-2px);
   color: black;
+  box-shadow: 0 4px 0 #002A45; 
   border: #FFC567 solid 3px;
+}
+
+.googleButton {
+  padding: 0.75rem;
+  font-size: 1rem;
+  background-color: #011B2F; /* Oxford Blue */
+  color: #FFB915; /* Selective Yellow */
+  border: 3px solid #002A45; /* Prestian Blue */
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+  width: 100%;
+}
+
+.googleButton:hover {
+  background-color: #002A45; /* Prestian Blue */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 #003F66; /* Indigo Dye */
 }
 
 .switchText {
   text-align: center;
   margin-top: 1rem;
   font-size: 0.9rem;
+  color: #FFD358;
 }
 
 .link {
-  color: #68C7C1;
+  color: #3284b7;
   font-weight: bold;
   text-decoration: none;
-  border-bottom: 2px dashed #68C7C1;
+  border-bottom: 2px dashed #3284b7;
 }
 
 .link:hover {
-  color: #00995E;
-  border-color: #00995E;
+  color: #325970;
+  border-color: #325970;
 }
 
 .error {
@@ -107,7 +139,7 @@
 }
 
 .message {
-  color: #4caf50;
+  color: #513d0e;
   background-color: #f0fff4;
   padding: 10px;
   border-radius: 4px;

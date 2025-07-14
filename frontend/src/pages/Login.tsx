@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FirebaseError } from 'firebase/app';
-import { useAuth } from '../context/AuthContext'; // Fixed import
+import { useAuth } from '../context/AuthContext'; 
 import styles from './Login.module.css';
 
 const Login = () => {
@@ -9,7 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const { login } = useAuth(); // Now using the fixed hook
+  const { login } = useAuth(); 
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,7 +42,8 @@ const Login = () => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
-        <h1 className={styles.title}>Welcome Back!</h1>
+        <h1 className={styles.title}>Small steps. Big results.</h1>
+        <h2 className={styles.subtitle}>Hello welcome back to your account</h2>
         {message && <p className={styles.message}>{message}</p>}
         {error && <p className={styles.error}>{error}</p>}
         
@@ -68,8 +69,16 @@ const Login = () => {
           </button>
         </form>
         
+        <div className={styles.divider}>
+          <span className={styles.dividerText}>or sign in with google</span>
+        </div>
+        
+        <button className={styles.googleButton}>
+          Google
+        </button>
+        
         <p className={styles.switchText}>
-          New here? <Link to="/signup" className={styles.link}>Create an account</Link>
+          New around here? Join the fun <Link to="/signup" className={styles.link}>Create an account</Link>
         </p>
       </div>
     </div>
