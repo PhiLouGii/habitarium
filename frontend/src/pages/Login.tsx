@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FirebaseError } from 'firebase/app';
+import { useAuth } from '../context/AuthContext'; // Fixed import
 import styles from './Login.module.css';
-import useAuth from '../context/AuthContext';
-import { FirebaseError } from 'firebase/app'; 
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const { login } = useAuth(); // Corrected: useAuth is a hook, not an object with a useAuth property
+  const { login } = useAuth(); // Now using the fixed hook
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,7 +25,6 @@ const Login = () => {
       console.error('Login error:', err);
       
       if (err instanceof FirebaseError) {
-        // Friendly error messages
         if (err.code === 'auth/user-not-found') {
           setError('No account found with this email');
         } else if (err.code === 'auth/wrong-password') {

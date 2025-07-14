@@ -65,7 +65,8 @@ const AuthContext = createContext<AuthContextType>({
   updateProfile: async () => {},
 });
 
-const useAuth = () => useContext(AuthContext);
+// Hook for consuming the AuthContext
+export const useAuth = () => useContext(AuthContext);
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -81,7 +82,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (user) {
         setCurrentUser(user);
         
-        // Fetch user profile from Firestore
+        // Fetch user profile
         const userDoc = doc(db, "users", user.uid);
         const docSnap = await getDoc(userDoc);
         
@@ -114,7 +115,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
-      // Update auth profile with username
+      // Update auth profile
       await updateAuthProfile(userCredential.user, {
         displayName: username
       });
@@ -163,7 +164,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (!currentUser || !userProfile) return;
     
     try {
-      // Update Firestore document
+      // Update Firestore
       const userDoc = doc(db, "users", currentUser.uid);
       await updateDoc(userDoc, data);
       
@@ -193,5 +194,3 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     </AuthContext.Provider>
   );
 };
-
-export default { useAuth };

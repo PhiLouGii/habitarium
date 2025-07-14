@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import styles from './Dashboard.module.css';
-import useAuth from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 type HabitType = 'good' | 'bad';
 
@@ -33,10 +33,12 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (userProfile?.habits) {
-      setHabits(userProfile.habits.map((habit: { completions: (string | number | Date)[]; }) => ({
-        ...habit, // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        completions: habit.completions.map((d: string | number | Date) => new Date(d))
-      })));
+      setHabits(userProfile.habits.map((habit: Habit) => {
+        return {
+          ...habit,
+          completions: habit.completions.map((d: string | number | Date) => new Date(d))
+        };
+      }));
     }
   }, [userProfile]);
 
@@ -156,7 +158,7 @@ const Dashboard: React.FC = () => {
           <h2 className={styles.sectionTitle}>📅 Habit Calendar</h2>
           <div className={styles.calendarContainer}>
             <Calendar
-              onChange={handleCalendarChange}
+              onChange={(value) => handleCalendarChange(value as Date | Date[])}
               value={selectedDate}
               className={styles.calendar}
               tileClassName={({ date }) =>
