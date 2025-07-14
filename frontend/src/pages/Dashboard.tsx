@@ -42,6 +42,21 @@ const Dashboard: React.FC = () => {
     }
   }, [userProfile]);
 
+  // Calculate streaks summary
+  const streaksSummary = habits.reduce(
+    (acc, habit) => {
+      if (habit.type === 'good') {
+        acc.totalGood += habit.streak;
+        acc.maxGood = Math.max(acc.maxGood, habit.streak);
+      } else {
+        acc.totalBad += habit.streak;
+        acc.maxBad = Math.max(acc.maxBad, habit.streak);
+      }
+      return acc;
+    },
+    { totalGood: 0, maxGood: 0, totalBad: 0, maxBad: 0 }
+  );
+
   const handleAddHabit = async () => {
     if (!currentUser || !userProfile || newHabit.name.trim() === '') return;
 
@@ -114,51 +129,138 @@ const Dashboard: React.FC = () => {
         <header className={styles.header}>
           <div className={styles.userInfo}>
             <div className={styles.userAvatar}>
-          </div>
-          <div>
+              <span className={styles.avatarInitial}>
+                {userProfile?.displayName?.charAt(0) || 'U'}
+              </span>
             </div>
-            <h1 className={styles.title}>Habitarium Dashboard</h1>
-            {userProfile && (
+            <div>
+              <h1 className={styles.userName}>Habitarium</h1>
+              {userProfile && (
               <p className={styles.username}>Let's grow and glow, {userProfile.displayName}!</p>
             )}
+              <p className={styles.userStats}>{habits.length} habits tracked</p>
+            </div>
           </div>
           <nav className={styles.nav}>
-            <NavLink to="/dashboard">Dashboard</NavLink>
-            <NavLink to="/profile">Profile</NavLink>
-            <NavLink to="/settings">Settings</NavLink>
-            <NavLink to="/community">Community</NavLink>
+            <NavLink to="/dashboard" className={styles.navLink}>Dashboard</NavLink>
+            <NavLink to="/profile" className={styles.navLink}>Profile</NavLink>
+            <NavLink to="/settings" className={styles.navLink}>Settings</NavLink>
+            <NavLink to="/community" className={styles.navLink}>Community</NavLink>
           </nav>
           <button className={styles.logoutButton} onClick={handleLogout}>
             Logout
           </button>
         </header>
 
-        <section className={styles.addHabitContainer}>
-          <h2 className={styles.sectionTitle}>➕ Add New Habit</h2>
-          <div className={styles.addHabitForm}>
-            <input
-              type="text"
-              placeholder="Habit name"
-              className={styles.input}
-              value={newHabit.name}
-              onChange={(e) => setNewHabit({ ...newHabit, name: e.target.value })}
-            />
-            <select
-              className={styles.input}
-              value={newHabit.type}
-              onChange={(e) =>
-                setNewHabit({ ...newHabit, type: e.target.value as HabitType })
-              }
-            >
-              <option value="good">Good Habit</option>
-              <option value="bad">Bad Habit</option>
-            </select>
-            <button className={styles.button} onClick={handleAddHabit}>
-              Add Habit
-            </button>
+        {/* Stats Summary */}
+        <div className={styles.statsContainer}>
+          <div className={styles.statCard}>
+            <h3 className={styles.statLabel}>Total Streaks</h3>
+            <p className={styles.statValue}>{streaksSummary.totalGood + streaksSummary.totalBad}</p>
+            <div className={styles.statProgress}>
+              <div className={styles.progressBar} style={{ width: '75%' }}></div>
+            </div>
           </div>
-        </section>
+          
+          <div className={styles.statCard}>
+            <h3 className={styles.statLabel}>Good Habits</h3>
+            <p className={styles.statValue}>{habits.filter(h => h.type === 'good').length}</p>
+            <div className={styles.statProgress}>
+              <div className={styles.progressBar} style={{ width: '60%' }}></div>
+            </div>
+          </div>
+          
+          <div className={styles.statCard}>
+            <h3 className={styles.statLabel}>Current Streak</h3>
+            <p className={styles.statValue}>{streaksSummary.maxGood} days</p>
+            <div className={styles.statProgress}>
+              <div className={styles.progressBar} style={{ width: '85%' }}></div>
+            </div>
+          </div>
+          
+          <div className={styles.statCard}>
+            <h3 className={styles.statLabel}>Resisted</h3>
+            <p className={styles.statValue}>{streaksSummary.maxBad} days</p>
+            <div className={styles.statProgress}>
+              <div className={styles.progressBar} style={{ width: '90%' }}></div>
+            </div>
+          </div>
+        </div>
 
+        {/* Habits Grid */}
+        <div className={styles.habitsGrid}>
+          <div className={styles.habitsColumn}>
+            <h2 className={styles.sectionTitle}>🔥 Build Good Habits</h2>
+            <div className={styles.habitsList}>
+              {habits
+                .filter((h) => h.type === 'good')
+                .map((h) => (
+                  <div key={h.id} className={styles.habitCard}>
+                    <div className={styles.habitInfo}>
+                      <h3 className={styles.habitName}>{h.name}</h3>
+                      <p className={styles.habitStreak}>Streak: {h.streak} days</p>
+                    </div>
+                    <button
+                      className={styles.habitButton}
+                      onClick={() => handleMarkComplete(h.id, true)}
+                    >
+                      Mark Complete
+                    </button>
+                  </div>
+                ))}
+            </div>
+          </div>
+          
+          <div className={styles.habitsColumn}>
+            <h2 className={styles.sectionTitle}>🧨 Break Bad Habits</h2>
+            <div className={styles.habitsList}>
+              {habits
+                .filter((h) => h.type === 'bad')
+                .map((h) => (
+                  <div key={h.id} className={styles.habitCard}>
+                    <div className={styles.habitInfo}>
+                      <h3 className={styles.habitName}>{h.name}</h3>
+                      <p className={styles.habitStreak}>Resisted: {h.streak} days</p>
+                    </div>
+                    <button
+                      className={styles.habitButton}
+                      onClick={() => handleMarkComplete(h.id, false)}
+                    >
+                      Mark Resisted
+                    </button>
+                  </div>
+                ))}
+            </div>
+          </div>
+          
+          <div className={styles.addHabitCard}>
+            <h2 className={styles.sectionTitle}>➕ Add New Habit</h2>
+            <div className={styles.addHabitForm}>
+              <input
+                type="text"
+                placeholder="Habit name"
+                className={styles.input}
+                value={newHabit.name}
+                onChange={(e) => setNewHabit({ ...newHabit, name: e.target.value })}
+              />
+              <select
+                className={styles.input}
+                value={newHabit.type}
+                onChange={(e) =>
+                  setNewHabit({ ...newHabit, type: e.target.value as HabitType })
+                }
+              >
+                <option value="good">Good Habit</option>
+                <option value="bad">Bad Habit</option>
+              </select>
+              <button className={styles.addButton} onClick={handleAddHabit}>
+                Add Habit
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Calendar Section */}
         <section className={styles.calendarSection}>
           <h2 className={styles.sectionTitle}>📅 Habit Calendar</h2>
           <div className={styles.calendarContainer}>
@@ -190,67 +292,26 @@ const Dashboard: React.FC = () => {
           </div>
         </section>
 
-        <div className={styles.panels}>
-          <section className={styles.panelGood}>
-            <h2 className={styles.sectionTitle}>🔥 Build Good Habits</h2>
-            {habits
-              .filter(h => h.type === 'good')
-              .map(h => (
-                <div key={h.id} className={styles.card}>
-                  <p>{h.name}</p>
-                  <p>Streak: <strong>{h.streak} days</strong></p>
-                  <button
-                    className={styles.smallButton}
-                    onClick={() => handleMarkComplete(h.id, true)}
-                  >
-                    Mark as Done
-                  </button>
-                </div>
-              ))}
-          </section>
-
-          <section className={styles.panelBad}>
-            <h2 className={styles.sectionTitle}>🧨 Break Bad Habits</h2>
-            {habits
-              .filter(h => h.type === 'bad')
-              .map(h => (
-                <div key={h.id} className={styles.card}>
-                  <p>{h.name}</p>
-                  <p>Resisted: <strong>{h.streak} days</strong></p>
-                  <button
-                    className={styles.smallButton}
-                    onClick={() => handleMarkComplete(h.id, false)}
-                  >
-                    Mark as Resisted
-                  </button>
-                </div>
-              ))}
-          </section>
-        </div>
-
+        {/* Achievements & Suggestions */}
         <div className={styles.bottomSection}>
-          <section className={styles.achievements}>
+          <div className={styles.achievementsCard}>
             <h2 className={styles.sectionTitle}>🏆 Achievements</h2>
-            <ul className={styles.badgeList}>
-              <li className={styles.badge}>🎯 7‑Day Streak</li>
-              <li className={styles.badge}>🌟 First Habit Added</li>
-              <li className={styles.badge}>💯 10 Habits Tracked</li>
-            </ul>
-          </section>
-
-          <section className={styles.suggestions}>
+            <div className={styles.badgeList}>
+              <div className={styles.badge}>🎯 7-Day Streak</div>
+              <div className={styles.badge}>🌟 First Habit Added</div>
+              <div className={styles.badge}>💯 10 Habits Tracked</div>
+            </div>
+          </div>
+          
+          <div className={styles.suggestionsCard}>
             <h2 className={styles.sectionTitle}>🔁 Try This Instead</h2>
-            <div className={styles.swapCard}>
-              <p>
-                Instead of <strong>Smoking</strong>, try <strong>Deep Breathing</strong>
-              </p>
+            <div className={styles.suggestionItem}>
+              <p>Instead of <strong>Smoking</strong>, try <strong>Deep Breathing</strong></p>
             </div>
-            <div className={styles.swapCard}>
-              <p>
-                Instead of <strong>Sugar Binge</strong>, try <strong>Fruit Smoothie</strong>
-              </p>
+            <div className={styles.suggestionItem}>
+              <p>Instead of <strong>Sugar Binge</strong>, try <strong>Fruit Smoothie</strong></p>
             </div>
-          </section>
+          </div>
         </div>
       </div>
     </div>
