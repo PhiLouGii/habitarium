@@ -110,8 +110,13 @@ const Dashboard: React.FC = () => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
+        {/* Header */}
         <header className={styles.header}>
+          <div className={styles.userInfo}>
+            <div className={styles.userAvatar}>
+          </div>
           <div>
+            </div>
             <h1 className={styles.title}>Habitarium Dashboard</h1>
             {userProfile && (
               <p className={styles.username}>Let's grow and glow, {userProfile.displayName}!</p>

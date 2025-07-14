@@ -70,12 +70,19 @@ const Login = () => {
         </form>
         
         <div className={styles.divider}>
-          <span className={styles.dividerText}>or sign in with google</span>
         </div>
         
         <button className={styles.googleButton}>
-          Google
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48" style={{ marginRight: '8px' }}>
+            <path fill="#EA4335" d="M24 9.5c3.2 0 6.2 1.1 8.5 3.3l6.3-6.3C34.6 3.6 29.5 1.5 24 1.5 14.9 1.5 7.3 7.8 4.5 16.1l7.4 5.7c2.2-6.7 8.3-11.3 15.1-11.3z"/>
+            <path fill="#4285F4" d="M46.5 24.3c0-1.7-.2-3.4-.6-5H24v9.5h12.7c-.5 2.8-2 5.1-4.3 6.6l7.2 5.6c4.2-3.9 6.6-9.7 6.6-16.7z"/>
+            <path fill="#FBBC05" d="M11.9 28.2c-1-2.8-1-5.8 0-8.6L4.5 13.9c-3.2 6.5-3.2 14.3 0 20.8l7.4-6.5z"/>
+            <path fill="#34A853" d="M24 46.5c6.4 0 11.8-2.1 15.7-5.6l-7.2-5.6c-2.2 1.5-5 2.4-8.5 2.4-6.8 0-12.8-4.6-15-11.3l-7.4 5.7C7.3 40.2 14.9 46.5 24 46.5z"/>
+            <path fill="none" d="M0 0h48v48H0z"/>
+          </svg>
+          Sign in with Google
         </button>
+
         
         <p className={styles.switchText}>
           New around here? Join the fun <Link to="/signup" className={styles.link}>Create an account</Link>
