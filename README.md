@@ -18,7 +18,7 @@ Habitarium is built with a modern, scalable architecture, leveraging the followi
 Backend Infrastructure
 - Runtime: Node.js with Express.js framework
 - Language: TypeScript
-- Database: MongoDB (via MongoDB Atlas for cloud, Mongoose ODM)
+- Database: Firebase Firestore
 - Authentication: JSON Web Tokens (JWT) for secure session management (Planned)
 - Security: bcryptjs for advanced password hashing (Planned)
 
@@ -26,8 +26,7 @@ Frontend Experience
 - Framework: React.js (v18)
 - Build Tool: Vite
 - Language: TypeScript
-- Styling: Vanilla CSS for utility-first styling and responsive design
-- HTTP Client: Fetch API (or Axios for future enhancements)
+- Styling: CSS modules
 
 DevOps & Deployment
 - Containerization: Docker for consistent development and deployment environments (Planned)
@@ -63,16 +62,14 @@ Navigate to the backend directory, install dependencies, and configure environme
 cd backend
 npm install
 ```
-Create a ```.env``` file by copying the example and then edit it with your MongoDB credentials and a JWT secret:
+Create a ```.env``` file by adding it with your Firebase credentials:
 ```
-cp .env.example .env
+
 ```
 ### Open the newly created ```.env``` file and update the following variables:
 ```
 
 ```
-**Important:** Replace ```<your_username>``` and ```<your_password>``` with your MongoDB Atlas credentials. Ensure ```JWT_SECRET``` is a long, random string for production.
-
 ### Start the backend development server: 
 ```
 npm run dev
@@ -134,7 +131,7 @@ habitarium/
 │       └── ci.yml             # CI Pipeline definition
 ├── 📂 backend/                 # Node.js/Express.js server-side application
 │   ├── 📂 models/
-│   │   └── Habit.js           # Mongoose schema for Habit entries
+│   │   └── Habit.js           
 │   ├── 📂 routes/
 │   │   └── habits.js          # API routes for habit management
 │   ├── 📂 tests/
