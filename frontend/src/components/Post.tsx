@@ -2,10 +2,31 @@ import { useState } from 'react';
 import { format } from 'date-fns';
 import Reply from './Reply';
 import ReplyForm from './ReplyForm';
-import useCommunity from '../context/CommunityContext';
+import useCommunity from '../context/CommunityContext'; // This line is already correct.
 
-const Post = ({ post }: { post: any }) => {
-  const { currentUser, toggleLike, isFollowing } = useCommunity();
+// Define proper types for the Post
+interface PostData {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar: string;
+  content: string;
+  timestamp: Date;
+  likes: string[];
+  replies: ReplyData[];
+}
+
+interface ReplyData {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar: string;
+  content: string;
+  timestamp: Date;
+}
+
+const Post = ({ post }: { post: PostData }) => {
+  const { currentUser, toggleLike, isFollowing, followUser, unfollowUser } = useCommunity();
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
 
@@ -15,7 +36,7 @@ const Post = ({ post }: { post: any }) => {
     }
   };
 
-  const isLiked = post.likes.includes(currentUser?.id);
+  const isLiked = currentUser && post.likes.includes(currentUser.id);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -78,7 +99,7 @@ const Post = ({ post }: { post: any }) => {
           
           {showReplies && (
             <div className="space-y-4 mt-2 pl-4 border-l-2 border-gray-200">
-              {post.replies.map((reply: any) => (
+              {post.replies.map((reply) => (
                 <Reply key={reply.id} reply={reply} />
               ))}
             </div>

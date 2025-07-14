@@ -1,9 +1,17 @@
+import { useNavigate } from 'react-router-dom';
 import styles from './Dashboard.module.css';
 
 const Settings = () => {
+  const navigate = useNavigate();
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
+        <button 
+            className={styles.backButton}
+            onClick={() => navigate('/dashboard')}
+          >
+            ← Back to Dashboard
+          </button>
         <h1 className={styles.title}>App Settings</h1>
         
         <div className={styles.card}>

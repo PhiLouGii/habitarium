@@ -1,76 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope&display=swap');
+
 .wrapper {
   display: flex;
-  justify-content: center;
   min-height: 100vh;
   padding: 2rem;
   box-sizing: border-box;
-  background-color: #f5f5f5;
-  font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+  background-color: #f0f2f5;
+  font-family: 'Manrope';
 }
 
 .container {
-  background-color: #811638;
-  color: white;
-  border: 4px solid black;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
   border-radius: 16px;
   padding: 2rem;
-  max-width: 800px;
   width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
-  box-shadow: 8px 8px 0 black;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  width: 100%;
   margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e0e6ed;
 }
 
 .backButton {
-  background-color: #FFC567;
-  color: black;
-  border: 2px solid black;
+  background-color: #002A45;
+  color: #FFC567;
+  border: 1px solid #FFC567;
   border-radius: 8px;
   padding: 0.5rem 1rem;
   cursor: pointer;
   font-weight: bold;
   margin-right: 1rem;
-  box-shadow: 3px 3px 0 black;
   font-family: inherit;
 }
 
 .backButton:hover {
-  background-color: #EC8922;
+  background-color: #003F66;
+  color: #FFC567;
   transform: translateY(-2px);
-  box-shadow: 4px 4px 0 black;
 }
 
 .title {
   font-size: 2rem;
-  color: #FFC567;
-  text-shadow: 2px 2px black;
+  color: #002A45;
+  text-shadow: 1px 1px #FFB915;
   margin: 0;
 }
 
 .editButton {
-  background-color: #679499;
-  color: white;
-  border: 2px solid black;
+  background-color: #FFB915;
+  color: #011B2F;
+  border: 1px solid #011B2F;
   border-radius: 8px;
   padding: 0.5rem 1rem;
   cursor: pointer;
   font-weight: bold;
   margin-left: auto;
-  box-shadow: 3px 3px 0 black;
   font-family: inherit;
 }
 
 .editButton:hover {
-  background-color: #54777B;
+  background-color: #ffd99d;
   transform: translateY(-2px);
-  box-shadow: 4px 4px 0 black;
 }
 
 .profileHeader {
@@ -84,7 +85,8 @@
 .avatar {
   width: 80px;
   height: 80px;
-  background-color: #EC8922;
+  background-color: #002A45;
+  color: #FFC567;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -92,8 +94,7 @@
   font-size: 2rem;
   font-weight: bold;
   margin-right: 1.5rem;
-  border: 3px solid black;
-  box-shadow: 3px 3px 0 black;
+  border: 1px solid #FFC567;;
 }
 
 .userName {
@@ -104,28 +105,27 @@
 }
 
 .premiumBadge {
-  background-color: #FFC567;
-  color: #811638;
+  background: linear-gradient(#003F66, #011B2F);
+  color: #FFB915;
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
   font-weight: bold;
   display: inline-block;
-  border: 2px solid black;
-  box-shadow: 2px 2px 0 black;
+  border: 2px solid #FFB915;
 }
 
 .section {
-  background-color: #FFC567;
+  background-color: #011B2F;
   border: 3px solid black;
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 2rem;
   box-shadow: 4px 4px 0 black;
-  color: black;
+  color: #ffffff;
 }
 
 .sectionTitle {
-  color: #811638;
+  color: #FFB915;
   font-size: 1.5rem;
   margin-top: 0;
   margin-bottom: 1.5rem;
@@ -135,7 +135,7 @@
 .bio {
   margin-bottom: 1.5rem;
   line-height: 1.5;
-  color: #37342D;
+  color: #FFC567;
 }
 
 .detailsGrid {
@@ -146,21 +146,21 @@
 }
 
 .detailItem {
-  border-bottom: 2px dashed #811638;
+  border-bottom: 2px dashed #FFB915;
   padding-bottom: 0.5rem;
 }
 
 .detailLabel {
   display: block;
   font-weight: bold;
-  color: #811638;
+  color: #FFB915;
   margin-bottom: 0.3rem;
 }
 
 .detailValue {
   display: block;
   font-size: 1.1rem;
-  color: #37342D;
+  color: #7c7c7c;
 }
 
 .tagsSection {

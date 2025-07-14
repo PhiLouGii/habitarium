@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useCommunity } from '../context/CommunityContext';
+import useCommunity from '../context/CommunityContext';
 import Post from '../components/Post';
 import CreatePost from './CreatePost';
 import styles from './Community.module.css';
