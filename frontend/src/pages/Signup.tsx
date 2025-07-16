@@ -1,18 +1,19 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FirebaseError } from 'firebase/app';
 import { useAuth } from '../context/AuthContext';
 import styles from './Signup.module.css';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { FirebaseError } from 'firebase/app';
+
 const Signup = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
   });
+
   const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-  const { signup } = useAuth(); // Corrected: useAuth is a hook, not an object with a useAuth property
+  const [loading, setLoading] = useState(false);
+  const { signup } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,39 +21,38 @@ const Signup = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setMessage('Creating your account...');
-
-    try {
-      await signup(formData.email, formData.password, formData.username);
-      setMessage('Account created successfully! Redirecting...');
-      navigate('/dashboard');
-    } catch (err) {
-      console.error('Signup error:', err);
-      
-      if (err instanceof FirebaseError) {
-        if (err.code === 'auth/email-already-in-use') {
-          setError('This email is already registered. Please login instead.');
-        } else if (err.code === 'auth/weak-password') {
-          setError('Password should be at least 6 characters');
-        } else {
-          setError('Failed to create account. Please try again.');
-        }
-      } else {
-        setError('An unexpected error occurred');
-      }
-      setMessage('');
+  e.preventDefault();
+  
+  if (loading) return;
+  
+  try {
+    setLoading(true);
+    setMessage('');
+    
+    console.log("Starting signup...");
+    const startTime = Date.now();
+    
+    await signup(formData.email, formData.password, formData.username);
+    
+    console.log(`Signup completed in ${Date.now() - startTime}ms`);
+    navigate('/dashboard');
+  } catch (error) {
+    console.error("Signup UI error:", error);
+    
+    if (error instanceof FirebaseError) {
+      setMessage(`Error ${error.code}: ${error.message}`);
+    } else {
+      setMessage('Failed to create account');
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
         <h1 className={styles.title}>Join Habitarium</h1>
-        {message && <p className={styles.message}>{message}</p>}
-        {error && <p className={styles.error}>{error}</p>}
-        
         <form className={styles.form} onSubmit={handleSubmit}>
           <input
             type="text"
@@ -75,20 +75,19 @@ const Signup = () => {
           <input
             type="password"
             name="password"
-            placeholder="Password (min 6 characters)"
+            placeholder="Password"
             className={styles.input}
             value={formData.password}
             onChange={handleChange}
             required
-            minLength={6}
           />
-          <button type="submit" className={styles.button}>
-            Sign Up
+          <button type="submit" className={styles.button} disabled={loading}>
+            {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
-        
+        {message && <p className={styles.message}>{message}</p>}
         <p className={styles.switchText}>
-          Already have an account? <Link to="/login" className={styles.link}>Login</Link>
+          Already have an account? <Link to="/" className={styles.link}>Login</Link>
         </p>
       </div>
     </div>
