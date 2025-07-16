@@ -65,9 +65,6 @@ const AuthContext = createContext<AuthContextType>({
   updateProfile: async () => {},
 });
 
-// Hook for consuming the AuthContext
-export const useAuth = () => useContext(AuthContext);
-
 interface AuthProviderProps {
   children: ReactNode;
 }
@@ -194,3 +191,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     </AuthContext.Provider>
   );
 };
+
+// Hook for consuming the AuthContext
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAuth = () => useContext(AuthContext);
