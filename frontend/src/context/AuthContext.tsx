@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { 
   createContext, 
   useContext, 
@@ -56,7 +57,7 @@ interface AuthContextType {
   updateProfile: (data: Partial<UserProfile>) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({
+export const AuthContext = createContext<AuthContextType>({
   currentUser: null,
   userProfile: null,
   signup: async () => {},
@@ -109,35 +110,53 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const signup = async (email: string, password: string, username: string): Promise<void> => {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // Update auth profile
-      await updateAuthProfile(userCredential.user, {
-        displayName: username
-      });
+  try {
+    console.log("Starting signup process...");
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    console.log("Auth user created:", userCredential.user.uid);
+    
+    // Update auth profile
+    await updateAuthProfile(userCredential.user, {
+      displayName: username
+    });
+    console.log("Auth profile updated with username");
       
       // Create Firestore profile
-      const newProfile: UserProfile = {
-        uid: userCredential.user.uid,
-        displayName: username,
-        email: email,
-        bio: '',
-        habits: [],
-      };
+      const userDoc = doc(db, "users", userCredential.user.uid);
+    const newProfile: UserProfile = {
+      uid: userCredential.user.uid,
+      displayName: username,
+      email: email,
+      bio: '',
+      habits: [],
+    };
       
-      await setDoc(doc(db, "users", userCredential.user.uid), newProfile);
-      setUserProfile(newProfile);
-    } catch (error: unknown) {
-      if (error instanceof FirebaseError) {
-        throw error;
-      }
-      throw new FirebaseError(
-        'unknown-error', 
-        'An unknown error occurred during signup'
-      );
+     await setDoc(userDoc, newProfile);
+    console.log("Firestore document created:", userDoc.id);
+    
+    // Verify document exists
+    const docSnap = await getDoc(userDoc);
+    if (docSnap.exists()) {
+      console.log("Document verified in Firestore");
+      setUserProfile(docSnap.data() as UserProfile);
+    } else {
+      console.error("Firestore document not found after creation!");
     }
-  };
+  } catch (error: unknown) {
+    console.error("Full signup error:", error);
+    
+    if (error instanceof FirebaseError) {
+      console.error("Firebase error code:", error.code);
+      console.error("Firebase error message:", error.message);
+      throw error;
+    }
+    
+    throw new FirebaseError(
+      'unknown-error', 
+      'An unknown error occurred during signup'
+    );
+  }
+};
 
   const login = async (email: string, password: string): Promise<void> => {
     try {
@@ -170,6 +189,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         ...userProfile,
         ...data
       });
+      
+      // Update auth displayName if changed
+      if (data.displayName) {
+        await updateAuthProfile(currentUser, {
+          displayName: data.displayName
+        });
+      }
     } catch (error) {
       console.error("Error updating profile:", error);
       throw error;
