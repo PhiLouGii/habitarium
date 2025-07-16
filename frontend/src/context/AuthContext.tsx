@@ -1,214 +1,148 @@
 /* eslint-disable react-refresh/only-export-components */
-import { 
-  createContext, 
-  useContext, 
-  useEffect, 
-  useState,
-  ReactNode 
-} from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { 
   User, 
-  onAuthStateChanged, 
   createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword,
-  signOut,
-  updateProfile as updateAuthProfile
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  updateProfile
 } from 'firebase/auth';
 import { 
   doc, 
-  getDoc, 
   setDoc, 
-  updateDoc 
+  getDoc, 
+  serverTimestamp 
 } from 'firebase/firestore';
 import { auth, db } from '../firebase';
-import { FirebaseError } from 'firebase/app';
-
-interface UserProfile {
-  uid: string;
-  displayName: string;
-  email: string;
-  bio?: string;
-  role?: string;
-  favoriteArtists?: string;
-  software?: string;
-  city?: string;
-  experience?: string;
-  genre?: string;
-  mood?: string;
-  availability?: string;
-  tags?: string[];
-  habits?: Habit[];
-}
-
-interface Habit {
-  id: string;
-  name: string;
-  type: 'good' | 'bad';
-  streak: number;
-  completions: Date[];
-}
 
 interface AuthContextType {
   currentUser: User | null;
-  userProfile: UserProfile | null;
-  signup: (email: string, password: string, username: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string, username: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateProfile: (data: Partial<UserProfile>) => Promise<void>;
+  loading: boolean;
 }
 
-export const AuthContext = createContext<AuthContextType>({
-  currentUser: null,
-  userProfile: null,
-  signup: async () => {},
-  login: async () => {},
-  logout: async () => {},
-  updateProfile: async () => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        setCurrentUser(user);
-        
-        // Fetch user profile
-        const userDoc = doc(db, "users", user.uid);
-        const docSnap = await getDoc(userDoc);
-        
-        if (docSnap.exists()) {
-          setUserProfile(docSnap.data() as UserProfile);
-        } else {
-          // Create new profile
-          const newProfile: UserProfile = {
-            uid: user.uid,
-            displayName: user.displayName || user.email?.split('@')[0] || 'User',
-            email: user.email || '',
-            bio: '',
-            habits: [],
-          };
-          
-          await setDoc(userDoc, newProfile);
-          setUserProfile(newProfile);
-        }
-      } else {
-        setCurrentUser(null);
-        setUserProfile(null);
-      }
-      setLoading(false);
-    });
-    
-    return () => unsubscribe();
-  }, []);
-
-  const signup = async (email: string, password: string, username: string): Promise<void> => {
-  try {
-    console.log("Starting signup process...");
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    console.log("Auth user created:", userCredential.user.uid);
-    
-    // Update auth profile
-    await updateAuthProfile(userCredential.user, {
-      displayName: username
-    });
-    console.log("Auth profile updated with username");
-      
-      // Create Firestore profile
-      const userDoc = doc(db, "users", userCredential.user.uid);
-    const newProfile: UserProfile = {
-      uid: userCredential.user.uid,
-      displayName: username,
-      email: email,
-      bio: '',
-      habits: [],
-    };
-      
-     await setDoc(userDoc, newProfile);
-    console.log("Firestore document created:", userDoc.id);
-    
-    // Verify document exists
-    const docSnap = await getDoc(userDoc);
-    if (docSnap.exists()) {
-      console.log("Document verified in Firestore");
-      setUserProfile(docSnap.data() as UserProfile);
-    } else {
-      console.error("Firestore document not found after creation!");
-    }
-  } catch (error: unknown) {
-    console.error("Full signup error:", error);
-    
-    if (error instanceof FirebaseError) {
-      console.error("Firebase error code:", error.code);
-      console.error("Firebase error message:", error.message);
-      throw error;
-    }
-    
-    throw new FirebaseError(
-      'unknown-error', 
-      'An unknown error occurred during signup'
-    );
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
   }
+  return context;
 };
 
-  const login = async (email: string, password: string): Promise<void> => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (error: unknown) {
-      if (error instanceof FirebaseError) {
-        throw error;
-      }
-      throw new FirebaseError(
-        'unknown-error', 
-        'An unknown error occurred during login'
-      );
-    }
-  };
+interface AuthProviderProps {
+  children: React.ReactNode;
+}
 
-  const logout = async (): Promise<void> => {
-    await signOut(auth);
-  };
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const updateProfile = async (data: Partial<UserProfile>): Promise<void> => {
-    if (!currentUser || !userProfile) return;
-    
+  const signup = async (email: string, password: string, username: string) => {
     try {
-      // Update Firestore
-      const userDoc = doc(db, "users", currentUser.uid);
-      await updateDoc(userDoc, data);
+      console.log('Starting Firebase signup process...');
       
-      // Update local state
-      setUserProfile({
-        ...userProfile,
-        ...data
+      // Create user with Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      console.log('Firebase Auth user created:', user.uid);
+      
+      // Update the user's profile with display name
+      await updateProfile(user, {
+        displayName: username
       });
       
-      // Update auth displayName if changed
-      if (data.displayName) {
-        await updateAuthProfile(currentUser, {
-          displayName: data.displayName
-        });
+      console.log('Profile updated with displayName');
+      
+      // Create user document in Firestore
+      const userDocRef = doc(db, 'users', user.uid);
+      const userData = {
+        uid: user.uid,
+        username: username,
+        email: email,
+        displayName: username,
+        createdAt: serverTimestamp(),
+        lastLoginAt: serverTimestamp(),
+        habitsTracked: 0,
+        streaks: {},
+        achievements: [],
+        settings: {
+          theme: 'dark',
+          notifications: true
+        }
+      };
+      
+      await setDoc(userDocRef, userData);
+      console.log('User document created in Firestore');
+      
+      // Verify the document was created
+      const docSnap = await getDoc(userDocRef);
+      if (docSnap.exists()) {
+        console.log('Verification: User document exists in Firestore');
+      } else {
+        console.error('Verification failed: User document not found in Firestore');
       }
+      
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error('Signup error:', error);
       throw error;
     }
   };
 
-  const value = {
+  const login = async (email: string, password: string) => {
+    try {
+      console.log('Starting login process...');
+      
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      console.log('Login successful for user:', user.uid);
+      
+      // Update last login time
+      const userDocRef = doc(db, 'users', user.uid);
+      await setDoc(userDocRef, {
+        lastLoginAt: serverTimestamp()
+      }, { merge: true });
+      
+      console.log('Last login time updated');
+      
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      console.log('User signed out successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log('Auth state changed:', user ? `User: ${user.uid}` : 'No user');
+      setCurrentUser(user);
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  const value: AuthContextType = {
     currentUser,
-    userProfile,
-    signup,
     login,
+    signup,
     logout,
-    updateProfile
+    loading
   };
 
   return (
@@ -217,7 +151,3 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     </AuthContext.Provider>
   );
 };
-
-// Hook for consuming the AuthContext
-// eslint-disable-next-line react-refresh/only-export-components
-export const useAuth = () => useContext(AuthContext);

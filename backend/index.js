@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const habitsRoutes = require('./routes/habits');
 const authRoutes = require('./routes/auth');
 
 // Load env variables
