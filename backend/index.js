@@ -1,21 +1,52 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const habitsRoutes = require('./routes/habits');
+const authRoutes = require('./routes/auth');
 
-// ✅ Load env variables
+// Load env variables
 require("dotenv").config();
 
-// ✅ Initialize app
+// Initialize app
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-// ✅ Middlewares
+// Middlewares
 app.use(cors({
-  origin: 'http://localhost:5173', 
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true
 }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// ✅ Firebase Admin Setup
+// Routes
+app.use('/api/habits', habitsRoutes);
+app.use('/api/auth', authRoutes);
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
+// Error handling middleware
+app.use((error, req, res, next) => {
+  console.error('Server error:', error);
+  res.status(500).json({ 
+    error: 'Internal server error',
+    message: process.env.NODE_ENV === 'development' ? error.message : undefined
+  });
+});
+
+// Firebase Admin Setup
 const admin = require('firebase-admin');
 admin.initializeApp({
   credential: admin.credential.cert({
@@ -36,9 +67,8 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// ✅ Routes will be handled by Firebase client-side
-
-// ✅ Start server
-app.listen(5000, () => {
-  console.log('🚀 Server running on port 5000');
+// Start server
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
 });
