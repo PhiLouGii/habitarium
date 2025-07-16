@@ -13,10 +13,10 @@ function App() {
 
   return (
     <CommunityProvider currentUser={currentUser ? { // Pass currentUser to CommunityProvider
-      id: currentUser.uid, // Firebase user ID
-      name: currentUser.displayName || 'Anonymous', // Firebase user display name
+      id: currentUser.uid, 
+      name: currentUser.displayName || 'Anonymous', 
       avatar: ''
-    } : { // Provide a default user object when currentUser is null
+    } : { 
       id: '',
       name: 'Anonymous',
       avatar: ''
