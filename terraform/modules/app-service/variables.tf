@@ -21,3 +21,19 @@ variable "ecr_repository_url" {
 variable "tags" {
   type = map(string)
 }
+
+variable "container_port" {
+  type        = number
+  description = "Port exposed by the container"
+}
+
+variable "health_check_path" {
+  type        = string
+  description = "Path for health check on the container"
+}
+
+variable "alb_security_group_id" {
+  type        = string
+  description = "Security group ID for the ALB"
+}
+

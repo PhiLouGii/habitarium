@@ -103,3 +103,7 @@ resource "aws_security_group" "ecs_tasks" {
     Name = "${var.project_name}-${var.environment}-ecs-tasks-sg"
   })
 }
+
+output "vpc_id" {
+  value = aws_vpc.your_vpc_resource.id
+}
