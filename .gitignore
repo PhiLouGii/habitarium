@@ -10,3 +10,6 @@ serviceAccountKey*.json
 
 # VS Code settings
 .vscode/
+
+#Terraform thing
+.terraform/
