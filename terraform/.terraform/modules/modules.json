@@ -1,1 +1,0 @@
-{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"app_service","Source":"./modules/app-service","Dir":"modules/app-service"},{"Key":"container_registry","Source":"./modules/container-registry","Dir":"modules/container-registry"},{"Key":"networking","Source":"./modules/networking","Dir":"modules/networking"}]}
