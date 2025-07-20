@@ -164,12 +164,12 @@ habitarium/
 |--------|------------------------------|-----------------------------------------------------|
 | ✅     | Core Application Baseline     | Basic habit logging and streak counter UI.          |
 | ✅     | CI Pipeline                   | Automated linting and unit tests on Pull Requests.  |
-| ❔   | Containerization              | Docker implementation for consistent environments.  |
-| ❔     | Infrastructure as Code (IaC)  | Automated infrastructure provisioning.              |
-| ✏️     | Continuous Deployment Pipeline| Automation for deploying to cloud environments.     |
-| ✏️     | Monitoring & Logging          | Application performance and error tracking.         |
+| ✅   | Containerization              | Docker implementation for consistent environments.  |
+| ✅     | Infrastructure as Code (IaC)  | Automated infrastructure provisioning.              |
+| ❔     | Continuous Deployment Pipeline| Automation for deploying to cloud environments.     |
+| ❔     | Monitoring & Logging          | Application performance and error tracking.         |
 | ✏️     | Achievement System            | Implementation of gamified milestones.              |
-| ✏️     | Habit Replacement Suggestions | AI-driven suggestions for replacing bad habits.     |
+| ❔     | Habit Replacement Suggestions | AI-driven suggestions for replacing bad habits.     |
 
 **Key:** ✅ Complete | ❔ In Progress | ✏️ Planned  
 
