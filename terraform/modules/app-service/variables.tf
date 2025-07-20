@@ -1,6 +1,5 @@
 variable "project_name" {
-  type        = string
-  description = "Name of the project"
+  type = string
 }
 
 variable "environment" {
@@ -20,6 +19,5 @@ variable "ecr_repository_url" {
 }
 
 variable "tags" {
-  type    = map(string)
-  default = {}
+  type = map(string)
 }
