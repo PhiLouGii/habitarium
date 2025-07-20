@@ -13,6 +13,9 @@ RUN npm ci --only=production
 # Production stage
 FROM node:18-alpine AS production
 
+# Install curl for health checks
+RUN apk add --no-cache curl
+
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S habitarium -u 1001
@@ -23,8 +26,8 @@ WORKDIR /app
 # Copy dependencies from builder stage
 COPY --from=builder /app/node_modules ./node_modules
 
-# Copy application code
-COPY . .
+# Copy application code (only backend)
+COPY backend/ .
 
 # Change ownership to non-root user
 RUN chown -R habitarium:nodejs /app
