@@ -10,99 +10,151 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
+  
+  default_tags {
+    tags = {
+      Project     = "Habitarium"
+      Environment = var.environment
+      ManagedBy   = "Terraform"
+    }
+  }
 }
 
-# ECR Repository for storing Docker images
-resource "aws_ecr_repository" "habitarium_repo" {
-  name                 = "habitarium"
+# Data sources
+data "aws_caller_identity" "current" {}
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
+# ECR Repositories
+resource "aws_ecr_repository" "frontend" {
+  name                 = "${var.project_name}-frontend"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
     scan_on_push = true
   }
+
+  lifecycle_policy {
+    policy = jsonencode({
+      rules = [
+        {
+          rulePriority = 1
+          description  = "Keep last 10 images"
+          selection = {
+            tagStatus     = "untagged"
+            countType     = "imageCountMoreThan"
+            countNumber   = 10
+          }
+          action = {
+            type = "expire"
+          }
+        }
+      ]
+    })
+  }
 }
 
-# ECS Cluster
-resource "aws_ecs_cluster" "habitarium_cluster" {
-  name = "habitarium-cluster"
+resource "aws_ecr_repository" "backend" {
+  name                 = "${var.project_name}-backend"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  lifecycle_policy {
+    policy = jsonencode({
+      rules = [
+        {
+          rulePriority = 1
+          description  = "Keep last 10 images"
+          selection = {
+            tagStatus     = "untagged"
+            countType     = "imageCountMoreThan"
+            countNumber   = 10
+          }
+          action = {
+            type = "expire"
+          }
+        }
+      ]
+    })
+  }
 }
 
-# VPC for our resources
-resource "aws_vpc" "habitarium_vpc" {
+# VPC and Networking
+resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
   enable_dns_support   = true
 
   tags = {
-    Name = "habitarium-vpc"
+    Name = "${var.project_name}-vpc"
   }
 }
 
-# Internet Gateway
-resource "aws_internet_gateway" "habitarium_igw" {
-  vpc_id = aws_vpc.habitarium_vpc.id
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "habitarium-igw"
+    Name = "${var.project_name}-igw"
   }
 }
 
 # Public Subnets
-resource "aws_subnet" "public_subnet_1" {
-  vpc_id                  = aws_vpc.habitarium_vpc.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = "${var.aws_region}a"
+resource "aws_subnet" "public" {
+  count = 2
+
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.${count.index + 1}.0/24"
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "habitarium-public-subnet-1"
+    Name = "${var.project_name}-public-subnet-${count.index + 1}"
+    Type = "Public"
   }
 }
 
-resource "aws_subnet" "public_subnet_2" {
-  vpc_id                  = aws_vpc.habitarium_vpc.id
-  cidr_block              = "10.0.2.0/24"
-  availability_zone       = "${var.aws_region}b"
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "habitarium-public-subnet-2"
-  }
-}
-
-# Route Table for public subnets
-resource "aws_route_table" "public_rt" {
-  vpc_id = aws_vpc.habitarium_vpc.id
+# Route Table
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.habitarium_igw.id
+    gateway_id = aws_internet_gateway.main.id
   }
 
   tags = {
-    Name = "habitarium-public-rt"
+    Name = "${var.project_name}-public-rt"
   }
 }
 
-# Associate route table with public subnets
-resource "aws_route_table_association" "public_rta_1" {
-  subnet_id      = aws_subnet.public_subnet_1.id
-  route_table_id = aws_route_table.public_rt.id
+resource "aws_route_table_association" "public" {
+  count = length(aws_subnet.public)
+
+  subnet_id      = aws_subnet.public[count.index].id
+  route_table_id = aws_route_table.public.id
 }
 
-resource "aws_route_table_association" "public_rta_2" {
-  subnet_id      = aws_subnet.public_subnet_2.id
-  route_table_id = aws_route_table.public_rt.id
-}
-
-# Security Group for Load Balancer
-resource "aws_security_group" "alb_sg" {
-  name_prefix = "habitarium-alb-"
-  vpc_id      = aws_vpc.habitarium_vpc.id
+# Security Groups
+resource "aws_security_group" "app_runner" {
+  name_prefix = "${var.project_name}-apprunner-"
+  vpc_id      = aws_vpc.main.id
 
   ingress {
+    description = "HTTP"
     from_port   = 80
     to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -115,95 +167,13 @@ resource "aws_security_group" "alb_sg" {
   }
 
   tags = {
-    Name = "habitarium-alb-sg"
+    Name = "${var.project_name}-apprunner-sg"
   }
 }
 
-# Security Group for ECS Tasks
-resource "aws_security_group" "ecs_sg" {
-  name_prefix = "habitarium-ecs-"
-  vpc_id      = aws_vpc.habitarium_vpc.id
-
-  ingress {
-    from_port       = 3000
-    to_port         = 3000
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb_sg.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "habitarium-ecs-sg"
-  }
-}
-
-# Application Load Balancer
-resource "aws_lb" "habitarium_alb" {
-  name               = "habitarium-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb_sg.id]
-  subnets            = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
-
-  enable_deletion_protection = false
-
-  tags = {
-    Name = "habitarium-alb"
-  }
-}
-
-# ALB Target Group
-resource "aws_lb_target_group" "habitarium_tg" {
-  name        = "habitarium-tg"
-  port        = 3000
-  protocol    = "HTTP"
-  vpc_id      = aws_vpc.habitarium_vpc.id
-  target_type = "ip"
-
-  health_check {
-    enabled             = true
-    healthy_threshold   = 2
-    interval            = 30
-    matcher             = "200"
-    path                = "/"
-    port                = "traffic-port"
-    protocol            = "HTTP"
-    timeout             = 5
-    unhealthy_threshold = 2
-  }
-
-  tags = {
-    Name = "habitarium-tg"
-  }
-}
-
-# ALB Listener
-resource "aws_lb_listener" "habitarium_listener" {
-  load_balancer_arn = aws_lb.habitarium_alb.arn
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.habitarium_tg.arn
-  }
-}
-
-# CloudWatch Log Group
-resource "aws_cloudwatch_log_group" "habitarium_logs" {
-  name              = "/ecs/habitarium"
-  retention_in_days = 7
-}
-
-# IAM role for ECS tasks
-resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "habitarium-ecs-task-execution-role"
+# IAM Role for App Runner
+resource "aws_iam_role" "app_runner_instance" {
+  name = "${var.project_name}-apprunner-instance-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -212,74 +182,81 @@ resource "aws_iam_role" "ecs_task_execution_role" {
         Action = "sts:AssumeRole"
         Effect = "Allow"
         Principal = {
-          Service = "ecs-tasks.amazonaws.com"
+          Service = "tasks.apprunner.amazonaws.com"
         }
       }
     ]
   })
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
+resource "aws_iam_role" "app_runner_access" {
+  name = "${var.project_name}-apprunner-access-role"
 
-# ECS Task Definition
-resource "aws_ecs_task_definition" "habitarium_task" {
-  family                   = "habitarium"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = 256
-  memory                   = 512
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-
-  container_definitions = jsonencode([
-    {
-      name  = "habitarium"
-      image = "${aws_ecr_repository.habitarium_repo.repository_url}:latest"
-      portMappings = [
-        {
-          containerPort = 3000
-          protocol      = "tcp"
-        }
-      ]
-      environment = [
-        {
-          name  = "NODE_ENV"
-          value = "production"
-        }
-      ]
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          "awslogs-group"         = "/ecs/habitarium"
-          "awslogs-region"        = var.aws_region
-          "awslogs-stream-prefix" = "ecs"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "build.apprunner.amazonaws.com"
         }
       }
-    }
-  ])
+    ]
+  })
 }
 
-# ECS Service
-resource "aws_ecs_service" "habitarium_service" {
-  name            = "habitarium-service"
-  cluster         = aws_ecs_cluster.habitarium_cluster.id
-  task_definition = aws_ecs_task_definition.habitarium_task.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
+resource "aws_iam_role_policy_attachment" "app_runner_access_policy" {
+  role       = aws_iam_role.app_runner_access.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess"
+}
 
-  network_configuration {
-    security_groups  = [aws_security_group.ecs_sg.id]
-    subnets          = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
-    assign_public_ip = true
+# CloudWatch Log Groups
+resource "aws_cloudwatch_log_group" "frontend" {
+  name              = "/aws/apprunner/${var.project_name}-frontend"
+  retention_in_days = 7
+
+  tags = {
+    Name = "${var.project_name}-frontend-logs"
   }
+}
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.habitarium_tg.arn
-    container_name   = "habitarium"
-    container_port   = 3000
+resource "aws_cloudwatch_log_group" "backend" {
+  name              = "/aws/apprunner/${var.project_name}-backend"
+  retention_in_days = 7
+
+  tags = {
+    Name = "${var.project_name}-backend-logs"
   }
+}
 
-  depends_on = [aws_lb_listener.habitarium_listener]
+# Parameter Store for secrets (Firebase config)
+resource "aws_ssm_parameter" "firebase_project_id" {
+  name  = "/${var.project_name}/firebase/project-id"
+  type  = "String"
+  value = var.firebase_project_id
+
+  tags = {
+    Name = "${var.project_name}-firebase-project-id"
+  }
+}
+
+resource "aws_ssm_parameter" "firebase_private_key" {
+  name  = "/${var.project_name}/firebase/private-key"
+  type  = "SecureString"
+  value = var.firebase_private_key
+
+  tags = {
+    Name = "${var.project_name}-firebase-private-key"
+  }
+}
+
+resource "aws_ssm_parameter" "firebase_client_email" {
+  name  = "/${var.project_name}/firebase/client-email"
+  type  = "String"
+  value = var.firebase_client_email
+
+  tags = {
+    Name = "${var.project_name}-firebase-client-email"
+  }
 }
