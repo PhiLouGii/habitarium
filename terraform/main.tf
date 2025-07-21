@@ -54,11 +54,16 @@ module "container_registry" {
 module "app_service" {
   source = "./modules/app-service"
   
-  project_name     = var.project_name
-  environment      = var.environment
-  vpc_id          = module.networking.vpc_id
-  public_subnet_ids = module.networking.public_subnet_ids
-  ecr_repository_url = module.container_registry.repository_url
+  container_port        = 3000 
+  health_check_path     = "/health"
+  alb_security_group_id = var.alb_security_group_id
+
+  project_name          = var.project_name
+  environment           = var.environment
+  ecr_repository_url    = module.container_registry.repository_url
+  vpc_id                = module.networking.vpc_id
+  public_subnet_ids     = module.networking.public_subnet_ids
+  ecs_security_group_id = var.ecs_security_group_id
   
-  tags = local.common_tags
+  tags                  = local.common_tags
 }

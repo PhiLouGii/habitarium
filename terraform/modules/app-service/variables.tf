@@ -37,3 +37,8 @@ variable "alb_security_group_id" {
   description = "Security group ID for the ALB"
 }
 
+variable "ecs_security_group_id" {
+  type        = string
+  description = "Security group ID for the ECS service"
+}
+

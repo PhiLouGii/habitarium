@@ -1,12 +1,17 @@
 # VPC
 resource "aws_vpc" "main" {
-  cidr_block           = var.vpc_cidr
+  cidr_block = var.vpc_cidr
+
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  tags = merge(var.tags, {
-    Name = "${var.project_name}-${var.environment}-vpc"
-  })
+  tags = merge(
+    {
+      Name        = "${var.project_name}-${var.environment}-vpc"
+      Environment = var.environment
+    },
+    var.tags
+  )
 }
 
 # Internet Gateway
@@ -104,6 +109,3 @@ resource "aws_security_group" "ecs_tasks" {
   })
 }
 
-output "vpc_id" {
-  value = aws_vpc.your_vpc_resource.id
-}

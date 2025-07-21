@@ -39,3 +39,13 @@ variable "health_check_path" {
   type        = string
   default     = "/api/health"
 }
+
+variable "alb_security_group_id" {
+  type = string
+  description = "ID of the security group for the ALB"
+}
+
+variable "ecs_security_group_id" {
+  type = string
+  description = "ID of the security group for the ECS service"
+}
