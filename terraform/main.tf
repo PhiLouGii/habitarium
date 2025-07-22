@@ -223,21 +223,9 @@ resource "aws_ssm_parameter" "firebase_client_email" {
   }
 }
 
-variable "project_name" {
-  type = string
-}
-
-variable "environment" {
-  type = string
-}
-
-variable "tags" {
-  type = map(string)
-  default = {}
-}
-
 module "container_registry" {
-  source       = "./modules/container_registry"
+  source       = "terraform-aws-modules/ecr/aws"
+  name         = "container_registry"
   project_name = var.project_name
   environment  = var.environment
   tags         = var.tags
