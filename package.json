@@ -7,6 +7,8 @@
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
   },
   "dependencies": {
+    "@firebase/auth": "^1.11.0",
+    "@firebase/firestore": "^4.9.0",
     "date-fns": "^4.1.0",
     "firebase": "^12.0.0",
     "firebase-admin": "^13.4.0"
