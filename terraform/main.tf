@@ -222,14 +222,3 @@ resource "aws_ssm_parameter" "firebase_client_email" {
     Name = "${var.project_name}-firebase-client-email"
   }
 }
-
-module "container_registry" {
-  source       = "terraform-aws-modules/ecr/aws"
-  name         = "container_registry"
-  project_name = var.project_name
-  environment  = var.environment
-  tags         = var.tags
-
-  frontend_repository_name = "habitarium-frontend"
-  backend_repository_name  = "habitarium-backend"
-}
