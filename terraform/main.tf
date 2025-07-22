@@ -34,25 +34,6 @@ resource "aws_ecr_repository" "frontend" {
   image_scanning_configuration {
     scan_on_push = true
   }
-
-  lifecycle_policy {
-    policy = jsonencode({
-      rules = [
-        {
-          rulePriority = 1
-          description  = "Keep last 10 images"
-          selection = {
-            tagStatus     = "untagged"
-            countType     = "imageCountMoreThan"
-            countNumber   = 10
-          }
-          action = {
-            type = "expire"
-          }
-        }
-      ]
-    })
-  }
 }
 
 resource "aws_ecr_repository" "backend" {
@@ -61,25 +42,6 @@ resource "aws_ecr_repository" "backend" {
 
   image_scanning_configuration {
     scan_on_push = true
-  }
-
-  lifecycle_policy {
-    policy = jsonencode({
-      rules = [
-        {
-          rulePriority = 1
-          description  = "Keep last 10 images"
-          selection = {
-            tagStatus     = "untagged"
-            countType     = "imageCountMoreThan"
-            countNumber   = 10
-          }
-          action = {
-            type = "expire"
-          }
-        }
-      ]
-    })
   }
 }
 
@@ -259,4 +221,27 @@ resource "aws_ssm_parameter" "firebase_client_email" {
   tags = {
     Name = "${var.project_name}-firebase-client-email"
   }
+}
+
+variable "project_name" {
+  type = string
+}
+
+variable "environment" {
+  type = string
+}
+
+variable "tags" {
+  type = map(string)
+  default = {}
+}
+
+module "container_registry" {
+  source       = "./modules/container_registry"
+  project_name = var.project_name
+  environment  = var.environment
+  tags         = var.tags
+
+  frontend_repository_name = "habitarium-frontend"
+  backend_repository_name  = "habitarium-backend"
 }

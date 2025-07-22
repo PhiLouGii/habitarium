@@ -1,12 +1,16 @@
-output "ecr_frontend_url" {
-  description = "ECR repository URL for frontend"
-  value       = aws_ecr_repository.frontend.repository_url
+output "frontend_ecr_repository_url" {
+  value = module.container_registry.frontend_repository_url
 }
 
-output "ecr_backend_url" {
-  description = "ECR repository URL for backend"
-  value       = aws_ecr_repository.backend.repository_url
+output "backend_ecr_repository_url" {
+  value = module.container_registry.backend_repository_url
 }
+
+output "ecr_repository_url" {
+  description = "ECR repository URL from container registry module"
+  value = module.container_registry.repository_url
+}
+
 
 output "vpc_id" {
   description = "ID of the VPC"
