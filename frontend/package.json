@@ -14,7 +14,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@firebase/auth": "^1.11.0",
+    "@firebase/firestore": "^4.9.0",
     "axios": "^1.10.0",
+    "date-fns": "^4.1.0",
     "firebase": "^11.10.0",
     "react": "^19.1.0",
     "react-calendar": "^6.0.0",
