@@ -6,21 +6,52 @@ import {
   signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
-  updateProfile
+  updateProfile as firebaseUpdateProfile
 } from 'firebase/auth';
 import { 
   doc, 
   setDoc, 
   getDoc, 
-  serverTimestamp 
+  serverTimestamp,
+  updateDoc
 } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
+// Define UserProfile type
+export interface UserProfile {
+  uid: string;
+  username: string;
+  email: string;
+  displayName: string;
+  createdAt: any;
+  lastLoginAt: any;
+  habitsTracked: number;
+  streaks: Record<string, any>;
+  achievements: any[];
+  settings: {
+    theme: string;
+    notifications: boolean;
+  };
+  // Add additional profile fields
+  bio?: string;
+  role?: string;
+  favoriteArtists?: string[];
+  equipment?: string;
+  location?: string;
+  badges?: string;
+  experienceLevel?: string;
+  favoriteGenre?: string;
+  preferredMood?: string;
+  availability?: string;
+}
+
 interface AuthContextType {
   currentUser: User | null;
+  userProfile: UserProfile | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, username: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
   loading: boolean;
 }
 
@@ -40,31 +71,24 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   const signup = async (email: string, password: string, username: string) => {
     try {
-      console.log('Starting Firebase signup process...');
-      
       // Create user with Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      console.log('Firebase Auth user created:', user.uid);
-      
       // Update the user's profile with display name
-      await updateProfile(user, {
-        displayName: username
-      });
-      
-      console.log('Profile updated with displayName');
+      await firebaseUpdateProfile(user, { displayName: username });
       
       // Create user document in Firestore
       const userDocRef = doc(db, 'users', user.uid);
-      const userData = {
+      const userData: UserProfile = {
         uid: user.uid,
-        username: username,
-        email: email,
+        username,
+        email,
         displayName: username,
         createdAt: serverTimestamp(),
         lastLoginAt: serverTimestamp(),
@@ -78,16 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
       
       await setDoc(userDocRef, userData);
-      console.log('User document created in Firestore');
-      
-      // Verify the document was created
-      const docSnap = await getDoc(userDocRef);
-      if (docSnap.exists()) {
-        console.log('Verification: User document exists in Firestore');
-      } else {
-        console.error('Verification failed: User document not found in Firestore');
-      }
-      
+      setUserProfile(userData);
     } catch (error) {
       console.error('Signup error:', error);
       throw error;
@@ -96,21 +111,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      console.log('Starting login process...');
-      
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      console.log('Login successful for user:', user.uid);
-      
       // Update last login time
       const userDocRef = doc(db, 'users', user.uid);
-      await setDoc(userDocRef, {
-        lastLoginAt: serverTimestamp()
-      }, { merge: true });
+      await updateDoc(userDocRef, { lastLoginAt: serverTimestamp() });
       
-      console.log('Last login time updated');
-      
+      // Fetch user profile
+      const docSnap = await getDoc(userDocRef);
+      if (docSnap.exists()) {
+        setUserProfile(docSnap.data() as UserProfile);
+      }
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -120,17 +132,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     try {
       await signOut(auth);
-      console.log('User signed out successfully');
+      setUserProfile(null);
     } catch (error) {
       console.error('Logout error:', error);
       throw error;
     }
   };
 
+  const updateProfile = async (updates: Partial<UserProfile>) => {
+    if (!currentUser) return;
+    
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userDocRef, updates);
+      
+      // Update local profile
+      setUserProfile(prev => ({
+        ...prev!,
+        ...updates
+      }));
+    } catch (error) {
+      console.error('Update profile error:', error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log('Auth state changed:', user ? `User: ${user.uid}` : 'No user');
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
+      
+      if (user) {
+        // Fetch user profile
+        const userDocRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(userDocRef);
+        
+        if (docSnap.exists()) {
+          setUserProfile(docSnap.data() as UserProfile);
+        } else {
+          console.warn('User profile not found');
+          setUserProfile(null);
+        }
+      } else {
+        setUserProfile(null);
+      }
+      
       setLoading(false);
     });
 
@@ -139,9 +184,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value: AuthContextType = {
     currentUser,
+    userProfile,
     login,
     signup,
     logout,
+    updateProfile,
     loading
   };
 
