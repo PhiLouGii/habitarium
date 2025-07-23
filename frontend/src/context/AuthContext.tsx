@@ -19,6 +19,16 @@ import {
 import { auth, db } from '../firebase';
 
 // Define UserProfile type with proper typing
+export type HabitType = 'good' | 'bad';
+
+export interface Habit {
+  id: string;
+  name: string;
+  type: HabitType;
+  streak: number;
+  completions: (string | Date)[]; 
+}
+
 export interface UserProfile {
   uid: string;
   username: string;
@@ -33,6 +43,7 @@ export interface UserProfile {
     theme: string;
     notifications: boolean;
   };
+  habits?: Habit[]; 
   bio?: string;
   role?: string;
   favoriteArtists?: string[];

@@ -22,7 +22,7 @@ FROM nginx:alpine
 RUN apk add --no-cache curl
 
 # Copy built app from builder stage (CRA default build dir is /build)
-COPY --from=builder /app/build /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy custom Nginx config (optional, remove if not needed)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
@@ -32,7 +32,7 @@ RUN addgroup -g 1001 -S nodejs && \
     adduser -S habitarium -u 1001
 
 # Expose port 80 (typical for Nginx)
-EXPOSE 80
+EXPOSE 10000
 
 # Health check on the exposed port
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

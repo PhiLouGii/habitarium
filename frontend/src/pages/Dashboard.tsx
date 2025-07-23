@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
 import styles from './Dashboard.module.css';
 import { useAuth } from '../context/AuthContext';
 
@@ -33,7 +32,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (userProfile?.habits) {
-      setHabits(userProfile.habits.map((habit: Habit) => {
+      setHabits(userProfile.habits.map((habit) => {
         return {
           ...habit,
           completions: habit.completions.map((d: string | number | Date) => new Date(d))
