@@ -1,0 +1,290 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope&display=swap');
+
+.wrapper {
+  display: flex;
+  min-height: 100vh;
+  padding: 2rem;
+  box-sizing: border-box;
+  background-color: #f0f2f5;
+  font-family: 'Manrope';
+  justify-content: center; 
+  align-items: flex-start; 
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 1000px; 
+  margin: 0 auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.header {
+  display: flex;
+  gap: 1.5rem; 
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e0e6ed;
+}
+
+.title {
+  font-size: 2rem;
+  color: #011B2F;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.backButton {
+  background-color: #002A45;
+  color: #FFC567;
+  height: 50px;
+  width: auto;
+  min-width: 120px; 
+  border: 1px solid #FFC567;
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.backButton:hover {
+  background-color: #003F66;
+  color: #FFC567;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profileHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e0e6ed;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #002A45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #FFD358;
+  flex-shrink: 0;
+}
+
+.userName {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0 0 0.5rem 0;
+  color: #011B2F;
+}
+
+.premiumBadge {
+  display: inline-block;
+  background-color: #FFB915;
+  color: #011B2F;
+  padding: 0.3rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* --- Form Structure --- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.formSection { /* New class for logical grouping of form fields */
+  background-color: #011B2F;
+  border-bottom: 3px solid #FFB915;
+  border-right: 3px solid #FFB915;
+  border-radius: 12px;
+  padding: 2rem; /* Increased padding */
+  color: #ffffff;
+  margin-bottom: 1rem; /* Space between sections */
+}
+
+.sectionTitle { /* New class for titles within form sections */
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #FFB915;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Subtle separator */
+  padding-bottom: 0.8rem;
+}
+
+.formGrid { 
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+  gap: 1.8rem; 
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #FFB915;
+}
+
+.input,
+.select {
+  padding: 0.9rem 1.1rem;
+  font-size: 1rem;
+  border: 1px solid #d1d9e0;
+  border-radius: 8px;
+  background-color: white;
+  color: #011B2F;
+  outline: none;
+  transition: all 0.3s ease;
+  font-family: 'Manrope';
+}
+
+.input:focus,
+.select:focus {
+  border-color: #FFB915;
+  box-shadow: 0 0 0 3px rgba(255, 185, 21, 0.3);
+}
+
+.checkbox {
+  margin-right: 0.6rem;
+  width: 20px;
+  height: 20px;
+  accent-color: #002A45;
+  transform: translateY(2px);
+}
+
+.themeOptions {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.themeOption {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  background-color: #f0f2f5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #011B2F;
+}
+
+.themeOption:hover {
+  background-color: #FFC567;
+}
+
+.themeLabel {
+  font-size: 1rem;
+}
+
+/* --- Form Actions --- */
+.formActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e6ed;
+}
+
+.saveButton,
+.cancelButton {
+  border-radius: 8px;
+  padding: 0.9rem 1.8rem; /* Adjusted padding */
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.05rem; /* Slightly larger font */
+  transition: all 0.3s ease;
+  min-width: 160px; /* Slightly larger min-width */
+}
+
+.saveButton {
+  background-color: #002A45;
+  color: white;
+  border: none;
+}
+
+.saveButton:hover {
+  background-color: #003F66;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cancelButton {
+  background-color: #FFB915;
+  color: #002A45;
+  border: 1px solid #d1d9e0;
+}
+
+.cancelButton:hover {
+  background-color: #f0f2f5;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) { /* Adjust breakpoint for larger screens */
+  .container {
+    padding: 2rem;
+  }
+  .formGrid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    padding: 1rem;
+  }
+  .container {
+    padding: 1.5rem;
+  }
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .title {
+    font-size: 2rem;
+  }
+  .profileHeader {
+    flex-direction: column;
+    text-align: center;
+  }
+  .formSection {
+    padding: 1.5rem;
+  }
+  .formGrid {
+    grid-template-columns: 1fr; /* Single column on small screens */
+    gap: 1.5rem;
+  }
+  .formActions {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch; /* Stretch buttons to full width */
+  }
+  .saveButton,
+  .cancelButton {
+    min-width: unset;
+    width: 100%;
+  }
+}
