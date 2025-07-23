@@ -13,26 +13,26 @@ import {
   setDoc, 
   getDoc, 
   serverTimestamp,
-  updateDoc
+  updateDoc,
+  Timestamp
 } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
-// Define UserProfile type
+// Define UserProfile type with proper typing
 export interface UserProfile {
   uid: string;
   username: string;
   email: string;
   displayName: string;
-  createdAt: any;
-  lastLoginAt: any;
+  createdAt: Timestamp | null;
+  lastLoginAt: Timestamp | null;
   habitsTracked: number;
-  streaks: Record<string, any>;
-  achievements: any[];
+  streaks: Record<string, number>;
+  achievements: string[];
   settings: {
     theme: string;
     notifications: boolean;
   };
-  // Add additional profile fields
   bio?: string;
   role?: string;
   favoriteArtists?: string[];
@@ -90,8 +90,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         username,
         email,
         displayName: username,
-        createdAt: serverTimestamp(),
-        lastLoginAt: serverTimestamp(),
+        createdAt: serverTimestamp() as Timestamp,
+        lastLoginAt: serverTimestamp() as Timestamp,
         habitsTracked: 0,
         streaks: {},
         achievements: [],
