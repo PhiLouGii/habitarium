@@ -20,14 +20,14 @@
 ## 👥Peer Review
 - **Pull Request Reviewed**: [https://github.com/vuwase/DevOps-course-project/pull/12(https://github.com/vuwase/DevOps-course-project/pull/12)]
 - **Feedback Provided**:  
-1. Dockerfile Efficiency: Consider leveraging a multi-stage build in your Dockerfile. This can significantly reduce the final image size by separating build-time dependencies from runtime necessities. For instance, you could use one stage to build your Node.js/React application and a leaner base image in a second stage for the final runtime, copying only the necessary artifacts. This improves deployment speed and reduces attack surface.
+1. Dockerfile Efficiency: Consider leveraging a multi-stage build in your Dockerfile. This can significantly reduce the final image size by separating build-time dependencies from runtime necessities. For instance, you could use one stage to build your Node.js/React application and a leaner base image in a second stage for the final runtime, copying only the necessary artefacts. This improves deployment speed and reduces attack surface.
 2. App Runner Configuration: For increased reliability, look into adding health checks within your App Runner service definition. 
 
 ## 🧠Reflection on Challenges
 
 ### Infrastructure as Code Challenges
 1. **Cloud Provider Access Issues**  
-   - AWS: Encountered persistent `SubscriptionRequiredException` for App Runner despite support ticket (#CAS-12345)
+   - AWS: Encountered persistent `SubscriptionRequiredException` for App Runner. (I submitted a support ticket and was told they would get back to me soon)[CASE 175330869200982] <img src="screenshots/error2.png" alt="Error Message" width="300" height="400" />
    - Azure: Service principal authentication failures during Terraform apply
    - GCP: Container startup timeouts despite Firebase configuration fixes
 
