@@ -27,7 +27,7 @@
 
 ### Infrastructure as Code Challenges
 1. **Cloud Provider Access Issues**  
-   - AWS: Encountered persistent `SubscriptionRequiredException` for App Runner despite support ticket (#CAS-12345)
+   - AWS: Encountered persistent `SubscriptionRequiredException` for App Runner. (Submitter a support ticket for help and was told they'd get back to me soon)<img src="screenshots/error2.png" alt="Error Message" width="300" height="400" />
    - Azure: Service principal authentication failures during Terraform apply
    - GCP: Container startup timeouts despite Firebase configuration fixes
 
