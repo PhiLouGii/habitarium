@@ -11,7 +11,7 @@
 2. [Render Deployment Dashboard](render_dashboard.png)  
    *Confirms manual deployment configuration on Render*
 
-3. [Live Application with Functional Features]<img width="600" height="400" alt="image" src="https://github.com/user-attachments/assets/c87ae63f-a320-47ff-9e82-9809db0e5ca7" />
+3. [Live Application with Functional Features](screenshots/live-app.png)
  
    *Demonstrates working application with database interactions*
 
