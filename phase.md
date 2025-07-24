@@ -11,9 +11,8 @@
 2. [Render Deployment Dashboard](render_dashboard.png)  
    *Confirms manual deployment configuration on Render*
 
-3. [Live Application with Functional Features](screenshots/live-app.png)
- 
-   *Demonstrates working application with database interactions*
+3. <img src="screenshots/live-app.png" alt="Live Application with Functional Features" width="600" height="400" />
+*Demonstrates working application with database interactions*
 
 4. [Cloud Infrastructure Diagram](architecture_diagram.png)  
    *Visualizes the Terraform-provisioned infrastructure*
