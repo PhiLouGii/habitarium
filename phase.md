@@ -18,7 +18,7 @@
 *Visualizes the Terraform-provisioned infrastructure*
 
 ## 👥Peer Review
-- **Pull Request Reviewed**: [https://github.com/vuwase/DevOps-course-project/pull/12(https://github.com/vuwase/DevOps-course-project/pull/12)]
+- **Pull Request Reviewed**: [https://github.com/vuwase/bookhub/pull/12(https://github.com/vuwase/bookhub/pull/12)]
 - **Feedback Provided**:  
 1. Dockerfile Efficiency: Consider leveraging a multi-stage build in your Dockerfile. This can significantly reduce the final image size by separating build-time dependencies from runtime necessities. For instance, you could use one stage to build your Node.js/React application and a leaner base image in a second stage for the final runtime, copying only the necessary artifacts. This improves deployment speed and reduces attack surface.
 2. App Runner Configuration: For increased reliability, look into adding health checks within your App Runner service definition. 
