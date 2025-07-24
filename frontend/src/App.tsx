@@ -9,7 +9,7 @@ import { useAuth } from './context/AuthContext';
 import { CommunityProvider } from './context/CommunityContext';
 
 function App() {
-  const { currentUser } = useAuth(); // Assuming useAuth() provides currentUser
+  const { currentUser } = useAuth();
 
   return (
     <CommunityProvider currentUser={currentUser ? { // Pass currentUser to CommunityProvider
@@ -23,7 +23,7 @@ function App() {
     }}>
       <Router>
         <Routes>
-
+      <Route path="/" element={<Signup />} />    
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/dashboard" element={<Dashboard />} />
