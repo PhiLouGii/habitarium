@@ -2,7 +2,7 @@
 
 ## ✅ Live Public URL of Manually Deployed App
 
-[https://your-app-url.com](https://your-app-url.com)  
+[https://habitarium1.onrender.com](https://your-app-url.com](https://habitarium1.onrender.com))  
 _This is the public URL of the app I manually deployed using Docker and cloud infrastructure provisioned with Terraform._
 
 ---
