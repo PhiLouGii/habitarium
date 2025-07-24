@@ -8,8 +8,8 @@
 1. [Terraform Resources Provisioned](terraform_resources.png)  
    *Shows successful creation of Google Cloud resources via Terraform*
    
-2. [Render Deployment Dashboard](render_dashboard.png)  
-   *Confirms manual deployment configuration on Render*
+2. <img src="screenshots/render-dashboard.png" alt="Render Dashboard of Successful Deployment" width="600" height="400" />
+*Confirms manual deployment configuration on Render*
 
 3. <img src="screenshots/live-app.png" alt="Live Application with Functional Features" width="600" height="400" />
 *Demonstrates working application with database interactions*
