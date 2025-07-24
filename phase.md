@@ -18,9 +18,10 @@
 *Visualizes the Terraform-provisioned infrastructure*
 
 ## 👥Peer Review
-- **Pull Request Reviewed**: [https://github.com/classmate-username/repo-name/pull/1](https://github.com/classmate-username/repo-name/pull/1)  
+- **Pull Request Reviewed**: [https://github.com/vuwase/DevOps-course-project/pull/12(https://github.com/vuwase/DevOps-course-project/pull/12)]
 - **Feedback Provided**:  
-  "Your Dockerfile could be optimized with multi-stage builds to reduce image size. Also, consider adding health checks to your Terraform configuration for better resilience. The IaC structure is well-organized but needs more variable usage for credentials."
+1. Dockerfile Efficiency: Consider leveraging a multi-stage build in your Dockerfile. This can significantly reduce the final image size by separating build-time dependencies from runtime necessities. For instance, you could use one stage to build your Node.js/React application and a leaner base image in a second stage for the final runtime, copying only the necessary artifacts. This improves deployment speed and reduces attack surface.
+2. App Runner Configuration: For increased reliability, look into adding health checks within your App Runner service definition. 
 
 ## 🧠Reflection on Challenges
 
