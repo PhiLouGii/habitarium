@@ -50,7 +50,6 @@
 
 3. **Debugging Complexity**  
    - Cloud-specific logging tools (CloudWatch, Azure Monitor, Cloud Logging) had different interfaces
-   - Firewall misconfigurations caused silent failures
 
 ### 👍🏽Resolution Path
 After extensive troubleshooting with AWS support , Azure documentation, and GCP community forums, I made the pragmatic decision to deploy to Render while maintaining full IaC implementation. This allowed me to:
@@ -62,13 +61,13 @@ After extensive troubleshooting with AWS support , Azure documentation, and GCP 
 
 ### 📝Key Learnings
 1. **Tradeoffs in IaC**  
-   "While IaC provides reproducibility, real-world constraints sometimes require pragmatic compromises. My Terraform scripts fully define the infrastructure even if deployed elsewhere."
+   While IaC provides reproducibility, real-world constraints sometimes require pragmatic compromises. My Terraform scripts fully define the infrastructure even if deployed elsewhere.
 
 2. **Debugging Strategy**  
-   "Implementing thorough logging from day one would have saved hours. The health check endpoint (`/api/health`) proved invaluable."
+   Implementing thorough logging from day one would have saved hours. The health check endpoint (`/api/health`) proved invaluable.
 
 3. **Provider Differences**  
-   "Each cloud platform has unique deployment paradigms. GCP's container expectations differ significantly from AWS's."
+   Each cloud platform has unique deployment paradigms. GCP's container expectations differ significantly from AWS's.
 
 4. **Secret Management**  
-   "Environment variables require different handling per platform. Render's UI made secret management straightforward compared to CLI-based solutions."
+   Environment variables require different handling per platform. Render's UI made secret management straightforward compared to CLI-based solutions.
