@@ -1,14 +1,43 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const authRoutes = require('./routes/auth');
 
-// Load env variables
-require("dotenv").config();
+// Load env variables ASAP
+dotenv.config();
 
 // Initialize app
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
+
+console.log("🕒 Starting server initialization...");
+console.log("Environment variables:", {
+  PORT: process.env.PORT,
+  NODE_ENV: process.env.NODE_ENV,
+  FIREBASE_PROJECT_ID: !!process.env.FIREBASE_PROJECT_ID,
+  FIREBASE_CLIENT_EMAIL: !!process.env.FIREBASE_CLIENT_EMAIL,
+  FIREBASE_DATABASE_URL: !!process.env.FIREBASE_DATABASE_URL
+});
+
+// Firebase Admin Setup
+try {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+    }),
+    databaseURL: process.env.FIREBASE_DATABASE_URL || "https://habitarium-d1aab-default-rtdb.firebaseio.com",
+    storageBucket: "habitarium-d1aab.appspot.com"
+  });
+  console.log("✅ Firebase initialized");
+} catch (error) {
+  console.error("🔥 Firebase initialization error:", error);
+  process.exit(1);
+}
+
+const db = admin.firestore();
 
 // Middlewares
 app.use(cors({
@@ -18,11 +47,10 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use('/api/habits', habitsRoutes);
+// API routes
 app.use('/api/auth', authRoutes);
 
-// Health check endpoint
+// Health check
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
@@ -31,12 +59,20 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+// Serve frontend build (static files)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Important: 
+// Move this *after* API and static routes to avoid conflicts
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Error handling middleware
+// Error handling middleware: 
+// Remove the 404 handler to avoid conflicts with frontend routes
+// This ensures React Router works fine on the frontend
+
+// General error handler
 app.use((error, req, res, next) => {
   console.error('Server error:', error);
   res.status(500).json({ 
@@ -45,29 +81,8 @@ app.use((error, req, res, next) => {
   });
 });
 
-// Firebase Admin Setup
-const admin = require('firebase-admin');
-admin.initializeApp({
-  credential: admin.credential.cert({
-    type: "service_account",
-    project_id: process.env.FIREBASE_PROJECT_ID,
-    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID, 
-    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    client_id: process.env.FIREBASE_CLIENT_ID, 
-    auth_uri: "https://accounts.google.com/o/oauth2/auth",
-    token_uri: "https://oauth2.googleapis.com/token",
-    auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-    client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL 
-  }),
-  databaseURL: process.env.FIREBASE_DATABASE_URL,
-  storageBucket: "habitarium-d1aab.appspot.com"
-});
-
-const db = admin.firestore();
-
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
 });

@@ -1,6 +1,6 @@
 project_name          = "habitarium"
 environment          = "prod"
-aws_region           = "us-east-1"
+region      = "us-central1"
 firebase_project_id  = "your-firebase-project-id"
 firebase_private_key = "your-firebase-private-key"
 firebase_client_email = "your-firebase-client-email"

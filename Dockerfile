@@ -1,44 +1,33 @@
-# Multi-stage build for efficiency
-FROM node:18-alpine AS builder
+# Base image
+FROM node:20-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy only dependency files first for caching
+COPY backend/package*.json ./backend/
+COPY frontend/package*.json ./frontend/
 
 # Install dependencies
-RUN npm ci --only=production
+RUN cd backend && npm install --production
+RUN cd frontend && npm install --production
 
-# Production stage
-FROM node:18-alpine AS production
+# Copy source
+COPY . .
 
-# Install curl for health checks
-RUN apk add --no-cache curl
+# Build frontend
+RUN cd frontend && npm run build
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S habitarium -u 1001
+# Move build to correct location
+RUN mkdir -p backend/public && \
+    cp -r frontend/dist/* backend/public/ && \
+    mv backend/public /app/public  # Fix path to match Express
 
-# Set working directory
-WORKDIR /app
-
-# Copy dependencies from builder stage
-COPY --from=builder /app/node_modules ./node_modules
-
-# Copy application code (only backend)
-COPY backend/ .
-
-# Change ownership to non-root user
-RUN chown -R habitarium:nodejs /app
-USER habitarium
+# Set working directory to backend
+WORKDIR /app/backend
 
 # Expose port
-EXPOSE 3001
+EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3001/api/health || exit 1
-
-# Start the application
+# Start backend
 CMD ["npm", "start"]
