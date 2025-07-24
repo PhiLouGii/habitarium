@@ -31,7 +31,7 @@ Frontend Experience
 DevOps & Deployment
 - Containerization: Docker for consistent development and deployment environments (Planned)
 - CI/CD: GitHub Actions for automated testing and deployment pipelines
-- Cloud Infrastructure: AWS deployment architecture (in development)
+- Cloud Infrastructure: (in development)
 
 Testing
 - Backend: Jest with Supertest for API integration testing.
