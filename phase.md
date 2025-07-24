@@ -5,17 +5,17 @@
 *Note: Application is fully functional with database connectivity and user authentication*
 
 ## 📸Screenshots of Provisioned Resources
-1. [Terraform Resources Provisioned](terraform_resources.png)  
-   *Shows successful creation of Google Cloud resources via Terraform*
+1. <img src="screenshots/terraform.png" alt="Terraform" width="600" height="400" />
+*Displays Google Cloud resources as defined and managed by the Terraform configuration.*
    
-2. <img src="screenshots/render-dashboard.png" alt="Render Dashboard of Successful Deployment" width="600" height="400" />
+3. <img src="screenshots/render-dashboard.png" alt="Render Dashboard of Successful Deployment" width="600" height="400" />
 *Confirms manual deployment configuration on Render*
 
-3. <img src="screenshots/live-app.png" alt="Live Application with Functional Features" width="600" height="400" />
+4. <img src="screenshots/live-app.png" alt="Live Application with Functional Features" width="600" height="400" />
 *Demonstrates working application with database interactions*
 
-4. [Cloud Infrastructure Diagram](architecture_diagram.png)  
-   *Visualizes the Terraform-provisioned infrastructure*
+5.  <img src="screenshots/google-cloud.png" alt="Terraform-provisioned infrastructure" width="600" height="400" />
+*Visualizes the Terraform-provisioned infrastructure*
 
 ## 👥Peer Review
 - **Pull Request Reviewed**: [https://github.com/classmate-username/repo-name/pull/1](https://github.com/classmate-username/repo-name/pull/1)  
