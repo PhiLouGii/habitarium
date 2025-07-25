@@ -5,28 +5,29 @@
 *Note: Application is fully functional with database connectivity and user authentication*
 
 ## 📸Screenshots of Provisioned Resources
-1. [Terraform Resources Provisioned](terraform_resources.png)  
-   *Shows successful creation of Google Cloud resources via Terraform*
+1. <img src="screenshots/terraform.png" alt="Terraform" width="600" height="400" />
+*Displays Google Cloud resources as defined and managed by the Terraform configuration.*
    
-2. [Render Deployment Dashboard](render_dashboard.png)  
-   *Confirms manual deployment configuration on Render*
+3. <img src="screenshots/render-dashboard.png" alt="Render Dashboard of Successful Deployment" width="600" height="400" />
+*Confirms manual deployment configuration on Render*
 
-3. [Live Application with Functional Features](live_app.png)  
-   *Demonstrates working application with database interactions*
+4. <img src="screenshots/live-app.png" alt="Live Application with Functional Features" width="600" height="400" />
+*Demonstrates working application with database interactions*
 
-4. [Cloud Infrastructure Diagram](architecture_diagram.png)  
-   *Visualizes the Terraform-provisioned infrastructure*
+5.  <img src="screenshots/google-cloud.png" alt="Terraform-provisioned infrastructure" width="600" height="400" />
+*Visualizes the Terraform-provisioned infrastructure*
 
 ## 👥Peer Review
-- **Pull Request Reviewed**: [https://github.com/classmate-username/repo-name/pull/1](https://github.com/classmate-username/repo-name/pull/1)  
+- **Pull Request Reviewed**: [https://github.com/vuwase/bookhub/pull/12(https://github.com/vuwase/bookhub/pull/12)]
 - **Feedback Provided**:  
-  "Your Dockerfile could be optimized with multi-stage builds to reduce image size. Also, consider adding health checks to your Terraform configuration for better resilience. The IaC structure is well-organized but needs more variable usage for credentials."
+1. Dockerfile Efficiency: Consider leveraging a multi-stage build in your Dockerfile. This can significantly reduce the final image size by separating build-time dependencies from runtime necessities. For instance, you could use one stage to build your Node.js/React application and a leaner base image in a second stage for the final runtime, copying only the necessary artifacts. This improves deployment speed and reduces attack surface.
+2. App Runner Configuration: For increased reliability, look into adding health checks within your App Runner service definition. 
 
 ## 🧠Reflection on Challenges
 
 ### Infrastructure as Code Challenges
 1. **Cloud Provider Access Issues**  
-   - AWS: Encountered persistent `SubscriptionRequiredException` for App Runner despite support ticket (#CAS-12345)
+   - AWS: Encountered persistent `SubscriptionRequiredException` for App Runner. (Submitter a support ticket for help and was told they'd get back to me soon)<img src="screenshots/error2.png" alt="Error Message" width="300" height="400" />
    - Azure: Service principal authentication failures during Terraform apply
    - GCP: Container startup timeouts despite Firebase configuration fixes
 
@@ -50,7 +51,6 @@
 
 3. **Debugging Complexity**  
    - Cloud-specific logging tools (CloudWatch, Azure Monitor, Cloud Logging) had different interfaces
-   - Firewall misconfigurations caused silent failures
 
 ### 👍🏽Resolution Path
 After extensive troubleshooting with AWS support , Azure documentation, and GCP community forums, I made the pragmatic decision to deploy to Render while maintaining full IaC implementation. This allowed me to:
@@ -62,13 +62,13 @@ After extensive troubleshooting with AWS support , Azure documentation, and GCP 
 
 ### 📝Key Learnings
 1. **Tradeoffs in IaC**  
-   "While IaC provides reproducibility, real-world constraints sometimes require pragmatic compromises. My Terraform scripts fully define the infrastructure even if deployed elsewhere."
+   While IaC provides reproducibility, real-world constraints sometimes require pragmatic compromises. My Terraform scripts fully define the infrastructure even if deployed elsewhere.
 
 2. **Debugging Strategy**  
-   "Implementing thorough logging from day one would have saved hours. The health check endpoint (`/api/health`) proved invaluable."
+   Implementing thorough logging from day one would have saved hours. The health check endpoint (`/api/health`) proved invaluable.
 
 3. **Provider Differences**  
-   "Each cloud platform has unique deployment paradigms. GCP's container expectations differ significantly from AWS's."
+   Each cloud platform has unique deployment paradigms. GCP's container expectations differ significantly from AWS's.
 
 4. **Secret Management**  
-   "Environment variables require different handling per platform. Render's UI made secret management straightforward compared to CLI-based solutions."
+   Environment variables require different handling per platform. Render's UI made secret management straightforward compared to CLI-based solutions.
