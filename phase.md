@@ -1,7 +1,7 @@
 # Phase 2: IaC, Containerization & Manual Deployment
 
 ## 🌐Live Public URL
-**Application URL**: [https://habitarium1.onrender.com](https://habitarium1.onrender.com)  
+**Application URL**: [https://habitarium-webapp.azurewebsites.net/](https://habitarium-webapp.azurewebsites.net/)  
 *Note: Application is fully functional with database connectivity and user authentication*
 
 ## 📸Screenshots of Provisioned Resources
