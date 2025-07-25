@@ -1,5 +1,5 @@
 {
-  "name": "ahbitarium-backend",
+  "name": "habitarium-backend",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {

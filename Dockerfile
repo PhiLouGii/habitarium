@@ -1,33 +1,29 @@
-# Base image
 FROM node:20-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Copy only dependency files first for caching
+# Install backend dependencies (production only)
 COPY backend/package*.json ./backend/
-COPY frontend/package*.json ./frontend/
-
-# Install dependencies
 RUN cd backend && npm install --production
-RUN cd frontend && npm install --production
 
-# Copy source
-COPY . .
+# Install frontend dependencies (full install for build step)
+COPY frontend/package*.json ./frontend/
+RUN cd frontend && npm install
 
-# Build frontend
+# Copy source code
+COPY backend ./backend
+COPY frontend ./frontend
+
+# Build frontend assets
 RUN cd frontend && npm run build
 
-# Move build to correct location
-RUN mkdir -p backend/public && \
-    cp -r frontend/dist/* backend/public/ && \
-    mv backend/public /app/public  # Fix path to match Express
+# Copy frontend build to backend's public folder
+RUN mkdir -p backend/public && cp -r frontend/dist/* backend/public/
 
-# Set working directory to backend
+# Set working directory to backend before start
 WORKDIR /app/backend
 
 # Expose port
 EXPOSE 8080
 
-# Start backend
 CMD ["npm", "start"]

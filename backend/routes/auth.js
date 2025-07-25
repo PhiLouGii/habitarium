@@ -11,9 +11,7 @@ router.post('/register', async (req, res) => {
 
     // Validate input
     if (!username || !email || !password) {
-      return res.status(400).json({ 
-        error: 'Please provide username, email, and password' 
-      });
+      return res.status(400).json({ error: 'Please provide username, email, and password' });
     }
 
     // Check if user already exists in Firestore
@@ -22,43 +20,38 @@ router.post('/register', async (req, res) => {
       .get();
 
     if (!userSnapshot.empty) {
-      return res.status(409).json({ 
-        error: 'User with this email already exists' 
-      });
+      return res.status(409).json({ error: 'User with this email already exists' });
     }
 
     // Create user in Firebase Auth
     const userRecord = await auth.createUser({
-      email: email,
-      password: password,
+      email,
+      password,
       displayName: username,
     });
 
-    // Hash password for storage
+    // Hash password for storage in Firestore
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user document in Firestore
+    // Prepare user data for Firestore
     const userData = {
       uid: userRecord.uid,
-      username: username,
-      email: email,
+      username,
+      email,
       password: hashedPassword,
       createdAt: new Date().toISOString(),
       lastLogin: new Date().toISOString(),
       habitsTracked: 0,
       streaks: {},
-      achievements: []
+      achievements: [],
     };
 
+    // Save user document in Firestore
     await db.collection('users').doc(userRecord.uid).set(userData);
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
-        uid: userRecord.uid, 
-        email: email,
-        username: username 
-      },
+      { uid: userRecord.uid, email, username },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
@@ -67,32 +60,26 @@ router.post('/register', async (req, res) => {
       message: 'User created successfully',
       user: {
         uid: userRecord.uid,
-        username: username,
-        email: email,
-        createdAt: userData.createdAt
+        username,
+        email,
+        createdAt: userData.createdAt,
       },
-      token: token
+      token,
     });
-
   } catch (error) {
     console.error('Registration error:', error);
-    
+
     if (error.code === 'auth/email-already-exists') {
       return res.status(409).json({ error: 'Email already registered' });
     }
-    
     if (error.code === 'auth/weak-password') {
       return res.status(400).json({ error: 'Password should be at least 6 characters' });
     }
-    
     if (error.code === 'auth/invalid-email') {
       return res.status(400).json({ error: 'Invalid email format' });
     }
 
-    res.status(500).json({ 
-      error: 'Failed to create user', 
-      details: error.message 
-    });
+    res.status(500).json({ error: 'Failed to create user', details: error.message });
   }
 });
 
@@ -101,13 +88,12 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Validate input
     if (!email || !password) {
-      return res.status(400).json({ 
-        error: 'Please provide email and password' 
-      });
+      return res.status(400).json({ error: 'Please provide email and password' });
     }
 
-    // Get user from Firestore
+    // Retrieve user document from Firestore by email
     const userSnapshot = await db.collection('users')
       .where('email', '==', email)
       .get();
@@ -119,25 +105,20 @@ router.post('/login', async (req, res) => {
     const userDoc = userSnapshot.docs[0];
     const userData = userDoc.data();
 
-    // Verify password
+    // Verify password with bcrypt
     const isPasswordValid = await bcrypt.compare(password, userData.password);
-    
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Update last login
+    // Update last login timestamp
     await db.collection('users').doc(userData.uid).update({
       lastLogin: new Date().toISOString()
     });
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
-        uid: userData.uid, 
-        email: userData.email,
-        username: userData.username 
-      },
+      { uid: userData.uid, email: userData.email, username: userData.username },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
@@ -148,17 +129,13 @@ router.post('/login', async (req, res) => {
         uid: userData.uid,
         username: userData.username,
         email: userData.email,
-        lastLogin: userData.lastLogin
+        lastLogin: userData.lastLogin,
       },
-      token: token
+      token,
     });
-
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ 
-      error: 'Login failed', 
-      details: error.message 
-    });
+    res.status(500).json({ error: 'Login failed', details: error.message });
   }
 });
 
@@ -166,29 +143,28 @@ router.post('/login', async (req, res) => {
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
     const userDoc = await db.collection('users').doc(req.user.uid).get();
-    
+
     if (!userDoc.exists) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     const userData = userDoc.data();
+
+    // Exclude sensitive info like password
     const { password, ...userProfile } = userData;
 
     res.json({ user: userProfile });
 
   } catch (error) {
     console.error('Profile fetch error:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch user profile', 
-      details: error.message 
-    });
+    res.status(500).json({ error: 'Failed to fetch user profile', details: error.message });
   }
 });
 
 // Middleware to authenticate JWT token
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer token
 
   if (!token) {
     return res.status(401).json({ error: 'Access token required' });

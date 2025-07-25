@@ -4,10 +4,12 @@ const dotenv = require('dotenv');
 const path = require('path');
 const authRoutes = require('./routes/auth');
 
-// Load env variables ASAP
+// Load environment variables ASAP
 dotenv.config();
 
-// Initialize app
+// Import the initialized Firebase admin instance from firebase.js
+const admin = require('./config/firebase'); // Adjust path as needed
+
 const app = express();
 const PORT = process.env.PORT || 8080;
 
@@ -20,23 +22,7 @@ console.log("Environment variables:", {
   FIREBASE_DATABASE_URL: !!process.env.FIREBASE_DATABASE_URL
 });
 
-// Firebase Admin Setup
-try {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
-    }),
-    databaseURL: process.env.FIREBASE_DATABASE_URL || "https://habitarium-d1aab-default-rtdb.firebaseio.com",
-    storageBucket: "habitarium-d1aab.appspot.com"
-  });
-  console.log("✅ Firebase initialized");
-} catch (error) {
-  console.error("🔥 Firebase initialization error:", error);
-  process.exit(1);
-}
-
+// Use Firestore instance from initialized admin
 const db = admin.firestore();
 
 // Middlewares
@@ -50,32 +36,27 @@ app.use(express.urlencoded({ extended: true }));
 // API routes
 app.use('/api/auth', authRoutes);
 
-// Health check
+// Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
 });
 
-// Serve frontend build (static files)
+// Serve frontend build static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Important: 
-// Move this *after* API and static routes to avoid conflicts
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// Catch-all route for React Router
+// app.get('*', (req, res) => {
+// res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// });
 
-// Error handling middleware: 
-// Remove the 404 handler to avoid conflicts with frontend routes
-// This ensures React Router works fine on the frontend
-
-// General error handler
+// General error handling middleware
 app.use((error, req, res, next) => {
   console.error('Server error:', error);
-  res.status(500).json({ 
+  res.status(500).json({
     error: 'Internal server error',
     message: process.env.NODE_ENV === 'development' ? error.message : undefined
   });
