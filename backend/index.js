@@ -48,10 +48,14 @@ app.get('/api/health', (req, res) => {
 // Serve frontend build static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Catch-all route for React Router
-// app.get('*', (req, res) => {
-// res.sendFile(path.join(__dirname, 'public', 'index.html'));
-// });
+app.get('*', (req, res) => {
+  // Add proper path handling
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  } else {
+    next(); // For API routes
+  }
+});
 
 // General error handling middleware
 app.use((error, req, res, next) => {
