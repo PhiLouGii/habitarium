@@ -73,10 +73,17 @@ From the project root directory, use Docker Compose to build your images and lau
 ```
 docker-compose up-build
 ```
-### Step 4: Access Application
-Once Docker Compose has finished starting the services:
-*   **Frontend Application**: Available at `http://localhost:5173` (or the port shown by Vite/Docker).
-*   **Backend API**: Available at `http://localhost:3001/api`.
+### Step 4: Access Application (Local Development)
+- **Frontend Application:**  
+  Available at http://localhost:5173 (or the port shown by Vite/Docker).
+- **Backend API:**  
+  Available at http://localhost:3001/api.
+
+### Step 4: Access Application (Production Deployment)
+- **Application URL:**   
+  [https://habitarium-webapp.azurewebsites.net/](https://habitarium-webapp.azurewebsites.net/)
+- **Backend API:**  
+  Available at https://habitarium-webapp.azurewebsites.net/api
 
 ### Stopping the Application
 To stop and remove the containers, networks, and volumes created by `docker-compose up`:
