@@ -1,50 +1,120 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import api from '../services/api';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { 
+  User, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  updateProfile as firebaseUpdateProfile
+} from 'firebase/auth';
+import { 
+  doc, 
+  setDoc, 
+  getDoc, 
+  serverTimestamp,
+  updateDoc,
+  Timestamp
+} from 'firebase/firestore';
+import { auth, db } from '../firebase';
 
-interface User {
+// Define UserProfile type with proper typing
+export type HabitType = 'good' | 'bad';
+
+export interface Habit {
   id: string;
   name: string;
+  type: HabitType;
+  streak: number;
+  completions: (string | Date)[]; 
+}
+
+export interface UserProfile {
+  uid: string;
+  username: string;
   email: string;
+  displayName: string;
+  createdAt: Timestamp | null;
+  lastLoginAt: Timestamp | null;
+  habitsTracked: number;
+  streaks: Record<string, number>;
+  achievements: string[];
+  settings: {
+    theme: string;
+    notifications: boolean;
+  };
+  habits?: Habit[]; 
+  bio?: string;
+  role?: string;
+  favoriteArtists?: string[];
+  equipment?: string;
+  location?: string;
+  badges?: string;
+  experienceLevel?: string;
+  favoriteGenre?: string;
+  preferredMood?: string;
+  availability?: string;
 }
 
 interface AuthContextType {
-  user: User | null;
+  currentUser: User | null;
+  userProfile: UserProfile | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
+  signup: (email: string, password: string, username: string) => Promise<void>;
+  logout: () => Promise<void>;
+  updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
+  loading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+interface AuthProviderProps {
+  children: React.ReactNode;
+}
 
-  // Initialize user from localStorage
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const signup = async (name: string, email: string, password: string) => {
+  const signup = async (email: string, password: string, username: string) => {
     try {
-      const response = await api.post('/auth/signup', { name, email, password });
-      const { user, token } = response.data;
+      // Create user with Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
       
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('token', token);
-      setUser(user);
-    } catch (error: any) {
+      // Update the user's profile with display name
+      await firebaseUpdateProfile(user, { displayName: username });
+      
+      // Create user document in Firestore
+      const userDocRef = doc(db, 'users', user.uid);
+      const userData: UserProfile = {
+        uid: user.uid,
+        username,
+        email,
+        displayName: username,
+        createdAt: serverTimestamp() as Timestamp,
+        lastLoginAt: serverTimestamp() as Timestamp,
+        habitsTracked: 0,
+        streaks: {},
+        achievements: [],
+        settings: {
+          theme: 'dark',
+          notifications: true
+        }
+      };
+      
+      await setDoc(userDocRef, userData);
+      setUserProfile(userData);
+    } catch (error) {
       console.error('Signup error:', error);
       throw error;
     }
@@ -52,31 +122,90 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
-      const { user, token } = response.data;
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
       
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('token', token);
-      setUser(user);
-    } catch (error: any) {
+      // Update last login time
+      const userDocRef = doc(db, 'users', user.uid);
+      await updateDoc(userDocRef, { lastLoginAt: serverTimestamp() });
+      
+      // Fetch user profile
+      const docSnap = await getDoc(userDocRef);
+      if (docSnap.exists()) {
+        setUserProfile(docSnap.data() as UserProfile);
+      }
+    } catch (error) {
       console.error('Login error:', error);
-
-      if (error.message.includes('Network Error')) {
-      throw new Error('Cannot connect to server. Please check your connection.');
-    }
       throw error;
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    setUser(null);
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      setUserProfile(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+      throw error;
+    }
+  };
+
+  const updateProfile = async (updates: Partial<UserProfile>) => {
+    if (!currentUser) return;
+    
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userDocRef, updates);
+      
+      // Update local profile
+      setUserProfile(prev => ({
+        ...prev!,
+        ...updates
+      }));
+    } catch (error) {
+      console.error('Update profile error:', error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setCurrentUser(user);
+      
+      if (user) {
+        // Fetch user profile
+        const userDocRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(userDocRef);
+        
+        if (docSnap.exists()) {
+          setUserProfile(docSnap.data() as UserProfile);
+        } else {
+          console.warn('User profile not found');
+          setUserProfile(null);
+        }
+      } else {
+        setUserProfile(null);
+      }
+      
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  const value: AuthContextType = {
+    currentUser,
+    userProfile,
+    login,
+    signup,
+    logout,
+    updateProfile,
+    loading
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout }}>
-      {children}
+    <AuthContext.Provider value={value}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

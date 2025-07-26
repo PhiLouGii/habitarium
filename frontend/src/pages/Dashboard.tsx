@@ -1,312 +1,343 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import Calendar from 'react-calendar';
+import styles from './Dashboard.module.css';
 import { useAuth } from '../context/AuthContext';
-import { useGuest } from '../context/GuestContext';
-import HabitItem from '../components/habits/HabitItem';
-import StreakCounter from '../components/habits/StreakCounter';
-import api from '../services/api';
-import './Dashboard.css';
+
+type HabitType = 'good' | 'bad';
 
 interface Habit {
   id: string;
   name: string;
-  type: 'good' | 'bad';
+  type: HabitType;
   streak: number;
+  completions: Date[];
 }
 
-interface Achievement {
-  id: string;
-  name: string;
-  accomplishment: string;
-  streak: number;
-  avatarColor: string;
-}
+const isSameDay = (a: Date, b: Date) =>
+  a.getDate() === b.getDate() &&
+  a.getMonth() === b.getMonth() &&
+  a.getFullYear() === b.getFullYear();
 
 const Dashboard: React.FC = () => {
-  const { user, logout } = useAuth();
-  const { isGuest, logoutGuest } = useGuest();
-  const [habits, setHabits] = useState<{ goodHabits: Habit[]; badHabits: Habit[] }>({ goodHabits: [], badHabits: [] });
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { currentUser, userProfile, logout, updateProfile } = useAuth();
+  const navigate = useNavigate();
+  
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [newHabit, setNewHabit] = useState<{ name: string; type: HabitType }>({
+    name: '',
+    type: 'good',
+  });
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   useEffect(() => {
-    const mockAchievements: Achievement[] = [
-      { 
-        id: '1', 
-        name: 'Cristina Yang', 
-        accomplishment: '90 days in circulation', 
-        streak: 906, 
-        avatarColor: '#8A2BE2' 
-      },
-      { 
-        id: '2', 
-        name: 'Maya Bishop', 
-        accomplishment: '3 months smoke-free', 
-        streak: 966, 
-        avatarColor: '#20B2AA' 
-      },
-      { 
-        id: '3', 
-        name: 'Alex Karev', 
-        accomplishment: '1 year of daily exercise', 
-        streak: 956, 
-        avatarColor: '#FF6347' 
-      },
-      { 
-        id: '4', 
-        name: 'Jo Wilson', 
-        accomplishment: '90 days no alcohol', 
-        streak: 6, 
-        avatarColor: '#4682B4' 
-      },
-    ];
-    setAchievements(mockAchievements);
+    if (userProfile?.habits) {
+      setHabits(userProfile.habits.map((habit) => {
+        return {
+          ...habit,
+          completions: habit.completions.map((d: string | number | Date) => new Date(d))
+        };
+      }));
+    }
+  }, [userProfile]);
 
-    const fetchHabits = async () => {
-      try {
-        const response = await api.get('/habits');
-        setHabits(response.data);
-      } catch (error) {
-        console.error('Failed to fetch habits', error);
-      } finally {
-        setLoading(false);
+  // Calculate streaks summary
+  const streaksSummary = habits.reduce(
+    (acc, habit) => {
+      if (habit.type === 'good') {
+        acc.totalGood += habit.streak;
+        acc.maxGood = Math.max(acc.maxGood, habit.streak);
+      } else {
+        acc.totalBad += habit.streak;
+        acc.maxBad = Math.max(acc.maxBad, habit.streak);
       }
-    };
+      return acc;
+    },
+    { totalGood: 0, maxGood: 0, totalBad: 0, maxBad: 0 }
+  );
 
-    if (user && !isGuest) fetchHabits();
-    else setLoading(false);
-  }, [user, isGuest]);
+  const handleAddHabit = async () => {
+    if (!currentUser || !userProfile || newHabit.name.trim() === '') return;
 
-  const handleLog = async (id: string, status: 'done' | 'resisted' | 'slipped') => {
     try {
-      const response = await api.post(`/habits/${id}/log`, { status });
-      setHabits(response.data);
-    } catch (error) {
-      console.error('Failed to log habit', error);
+      const newHabitObj: Habit = {
+        id: Date.now().toString(),
+        name: newHabit.name.trim(),
+        type: newHabit.type,
+        streak: 0,
+        completions: []
+      };
+      
+      const updatedHabits = [...habits, newHabitObj];
+      
+      // Update local state immediately for better UX
+      setHabits(updatedHabits);
+      setNewHabit({ name: '', type: 'good' });
+      
+      // Then update profile
+      await updateProfile({ habits: updatedHabits });
+    } catch (err) {
+      console.error('Failed to add habit:', err);
+      // Revert local state on error
+      setHabits(habits);
     }
   };
 
-  const totalGoodStreak = habits.goodHabits.reduce((sum, h) => sum + h.streak, 0);
-  const totalBadStreak = habits.badHabits.reduce((sum, h) => sum + h.streak, 0);
+  const handleMarkComplete = async (habitId: string, isGoodHabit: boolean) => {
+    if (!currentUser || !userProfile) return;
+    
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const updatedHabits = habits.map(habit => {
+        if (habit.id === habitId) {
+          // Check if already completed today
+          const alreadyCompleted = habit.completions.some(d => 
+            isSameDay(d, today)
+          );
+          
+          if (!alreadyCompleted) {
+            const newCompletions = [...habit.completions, today];
+            return {
+              ...habit,
+              streak: isGoodHabit ? habit.streak + 1 : habit.streak,
+              completions: newCompletions
+            };
+          }
+        }
+        return habit;
+      });
 
-  if (loading) {
-    return (
-      <div className="dashboard-loading">
-        <div className="loading-message">Loading your dashboard...</div>
-      </div>
-    );
-  }
+      // Update local state immediately
+      setHabits(updatedHabits);
+      
+      // Then update profile
+      await updateProfile({ habits: updatedHabits });
+    } catch (err) {
+      console.error('Failed to mark complete:', err);
+      // Revert local state on error
+      setHabits(habits);
+    }
+  };
+
+  const handleCalendarChange = (value: Date | Date[]) => {
+    setSelectedDate(Array.isArray(value) ? value[0] : value);
+  };
+
+  const habitsForSelectedDate = habits.filter(h =>
+    h.completions.some(d => isSameDay(d, selectedDate))
+  );
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  // Get user's first initial for avatar
+  const getInitial = () => {
+    if (userProfile?.displayName) {
+      return userProfile.displayName.charAt(0);
+    } else if (currentUser?.email) {
+      return currentUser.email.charAt(0);
+    }
+    return 'U';
+  };
 
   return (
-    <div className="dashboard-container">
-      {/* Header */}
-      <header className="dashboard-header">
-        <div className="header-content">
-          <div className="header-left">
-            <h1 className="app-title">Habitarium</h1>
-            <p className="app-subtitle">
-              {isGuest ? "Guest View - See what's possible" : `Welcome back, ${user?.name}!`}
-            </p>
+    <div className={styles.wrapper}>
+      <div className={styles.container}>
+        {/* Header */}
+        <header className={styles.header}>
+          <div className={styles.userInfo}>
+            <div className={styles.userAvatar}>
+              <span className={styles.avatarInitial}>
+                {getInitial()}
+              </span>
+            </div>
+            <div>
+              <h1 className={styles.userName}>Habitarium</h1>
+              {userProfile?.displayName ? (
+                <p className={styles.userGreeting}>Let's grow and glow, {userProfile.displayName}!</p>
+              ) : (
+                <p className={styles.userGreeting}>Let's grow and glow!</p>
+              )}
+              <p className={styles.userStats}>{habits.length} habits tracked</p>
+            </div>
           </div>
-          <button
-            onClick={isGuest ? logoutGuest : logout}
-            className="logout-button"
-          >
-            {isGuest ? 'Exit Guest Mode' : 'Logout'}
+          <nav className={styles.nav}>
+            <NavLink to="/dashboard" className={styles.navLink}>Dashboard</NavLink>
+            <NavLink to="/profile" className={styles.navLink}>Profile</NavLink>
+            <NavLink to="/settings" className={styles.navLink}>Settings</NavLink>
+            <NavLink to="/community" className={styles.navLink}>Community</NavLink>
+          </nav>
+          <button className={styles.logoutButton} onClick={handleLogout}>
+            Logout
           </button>
+        </header>
+
+        {/* Stats Summary */}
+        <div className={styles.statsContainer}>
+          <div className={styles.statCard}>
+            <h3 className={styles.statLabel}>Total Streaks</h3>
+            <p className={styles.statValue}>{streaksSummary.totalGood + streaksSummary.totalBad}</p>
+            <div className={styles.statProgress}>
+              <div className={styles.progressBar} style={{ width: '75%' }}></div>
+            </div>
+          </div>
+          
+          <div className={styles.statCard}>
+            <h3 className={styles.statLabel}>Good Habits</h3>
+            <p className={styles.statValue}>{habits.filter(h => h.type === 'good').length}</p>
+            <div className={styles.statProgress}>
+              <div className={styles.progressBar} style={{ width: '60%' }}></div>
+            </div>
+          </div>
+          
+          <div className={styles.statCard}>
+            <h3 className={styles.statLabel}>Current Streak</h3>
+            <p className={styles.statValue}>{streaksSummary.maxGood} days</p>
+            <div className={styles.statProgress}>
+              <div className={styles.progressBar} style={{ width: '85%' }}></div>
+            </div>
+          </div>
+          
+          <div className={styles.statCard}>
+            <h3 className={styles.statLabel}>Resisted</h3>
+            <p className={styles.statValue}>{streaksSummary.maxBad} days</p>
+            <div className={styles.statProgress}>
+              <div className={styles.progressBar} style={{ width: '90%' }}></div>
+            </div>
+          </div>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="dashboard-main">
-        {isGuest ? (
-          <>
-            {/* Inspiration Section */}
-            <section className="inspiration-section">
-              <h1 className="inspiration-title">
-                Real People, <span className="highlight">Remarkable Habits</span>
-              </h1>
-              <p className="inspiration-description">
-                See what our community has accomplished. Join Habitarium today and start your own transformation journey.
-              </p>
-            </section>
-
-            {/* Achievements */}
-            <div className="achievements-container">
-              {achievements.map((achievement) => (
-                <div key={achievement.id} className="achievement-item">
-                  <div className="achievement-divider"></div>
-                  <div className="achievement-content">
-                    <div className="achievement-header">
-                      <div 
-                        className="achievement-avatar"
-                        style={{ backgroundColor: achievement.avatarColor }}
-                      >
-                        <span className="avatar-initial">{achievement.name.charAt(0)}</span>
-                      </div>
-                      <div>
-                        <h3 className="achievement-name">{achievement.name}</h3>
-                        <p className="achievement-role">Habitarium Member</p>
-                      </div>
+        {/* Habits Grid */}
+        <div className={styles.habitsGrid}>
+          <div className={styles.habitsColumn}>
+            <h2 className={styles.sectionTitle}>🔥 Build Good Habits</h2>
+            <div className={styles.habitsList}>
+              {habits
+                .filter((h) => h.type === 'good')
+                .map((h) => (
+                  <div key={h.id} className={styles.habitCard}>
+                    <div className={styles.habitInfo}>
+                      <h3 className={styles.habitName}>{h.name}</h3>
+                      <p className={styles.habitStreak}>Streak: {h.streak} days</p>
                     </div>
-                    <p className="achievement-accomplishment">{achievement.accomplishment}</p>
-                    <div className="achievement-streak">
-                      <span>Current streak: </span>
-                      <span className="streak-count">{achievement.streak} days</span>
-                      <div className="streak-icon">●</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              <div className="achievement-divider"></div>
-            </div>
-
-
-            {/* CTA Section */}
-            <div className="cta-section">
-              <h2 className="cta-title">Ready to Transform Your Habits?</h2>
-              <p className="cta-description">
-                Join thousands who've built better routines, broken bad habits, and transformed their lives with Habitarium.
-              </p>
-              <button
-                onClick={() => {
-                  logoutGuest();
-                  window.location.href = '/signup';
-                }}
-                className="cta-button"
-              >
-                Start Your Journey – It's Free!
-              </button>
-            </div>
-
-            {/* Features */}
-            <div className="features-section">
-              <h3 className="features-title">Personalized Tracking</h3>
-              <ul className="features-list">
-                <li className="feature-item">
-                  <div className="feature-icon">●</div>
-                  Daily Motivation
-                </li>
-                <li className="feature-item">
-                  <div className="feature-icon">●</div>
-                  Progress Analytics
-                </li>
-                <li className="feature-item">
-                  <div className="feature-icon">●</div>
-                  Achievement Badges
-                </li>
-              </ul>
-            </div>
-          </>
-        ) : (
-          <div className="authenticated-view">
-            <div className="journey-header">
-              <h2 className="journey-title">Your Habit Journey</h2>
-              <p className="journey-subtitle">
-                Track your progress and celebrate your milestones
-              </p>
-            </div>
-            
-            <div className="streaks-container">
-              <StreakCounter type="good" count={totalGoodStreak} />
-              <StreakCounter type="bad" count={totalBadStreak} />
-            </div>
-            
-            <div className="habits-grid">
-              <section className="habits-section good-habits">
-                <div className="section-header">
-                  <h2 className="section-title good-title">Build Good Habits</h2>
-                  <span className="habit-count">{habits.goodHabits.length} habits</span>
-                </div>
-                <div className="habits-list">
-                  {habits.goodHabits.map(habit => (
-                    <HabitItem 
-                      key={habit.id} 
-                      {...habit} 
-                      onLog={(status) => handleLog(habit.id, status)} 
-                    />
-                  ))}
-                  {habits.goodHabits.length === 0 && (
-                    <div className="empty-state">
-                      <p>You haven't added any good habits yet</p>
-                      <button className="add-button good">
-                        + Add Good Habit
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </section>
-              
-              <section className="habits-section bad-habits">
-                <div className="section-header">
-                  <h2 className="section-title bad-title">Break Bad Habits</h2>
-                  <span className="habit-count">{habits.badHabits.length} habits</span>
-                </div>
-                <div className="habits-list">
-                  {habits.badHabits.map(habit => (
-                    <HabitItem 
-                      key={habit.id} 
-                      {...habit} 
-                      onLog={(status) => handleLog(habit.id, status)} 
-                    />
-                  ))}
-                  {habits.badHabits.length === 0 && (
-                    <div className="empty-state">
-                      <p>You haven't added any bad habits to break</p>
-                      <button className="add-button bad">
-                        + Add Bad Habit
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </section>
-            </div>
-            
-            {/* Community Inspiration */}
-            <div className="community-section">
-              <div className="community-header">
-                <h2 className="community-title">Community Inspiration</h2>
-                <p className="community-description">
-                  See what others in the Habitarium community are accomplishing
-                </p>
-              </div>
-              
-              <div className="community-grid">
-                {achievements.slice(0, 2).map((achievement) => (
-                  <div 
-                    key={achievement.id}
-                    className="community-card"
-                  >
-                    <div className="card-header">
-                      <div 
-                        className="card-avatar"
-                        style={{ backgroundColor: achievement.avatarColor }}
-                      >
-                        <span className="avatar-initial">{achievement.name.charAt(0)}</span>
-                      </div>
-                      <div>
-                        <h3 className="card-name">{achievement.name}</h3>
-                        <p className="card-role">Habitarium Member</p>
-                      </div>
-                    </div>
-                    <p className="card-accomplishment">{achievement.accomplishment}</p>
-                    <div className="card-streak">
-                      <span>Current streak: </span>
-                      <span className="streak-value">{achievement.streak} days</span>
-                      <div className="streak-icon">●</div>
-                    </div>
+                    <button
+                      className={styles.habitButton}
+                      onClick={() => handleMarkComplete(h.id, true)}
+                    >
+                      Mark Complete
+                    </button>
                   </div>
                 ))}
-              </div>
             </div>
           </div>
-        )}
-      </main>
-      
-      {/* Footer */}
-      <footer className="dashboard-footer">
-        <p>© {new Date().getFullYear()} Habitarium. All rights reserved.</p>
-        <p className="footer-sub">Your journey to better habits starts with a single step</p>
-      </footer>
+          
+          <div className={styles.habitsColumn}>
+            <h2 className={styles.sectionTitle}>🧨 Break Bad Habits</h2>
+            <div className={styles.habitsList}>
+              {habits
+                .filter((h) => h.type === 'bad')
+                .map((h) => (
+                  <div key={h.id} className={styles.habitCard}>
+                    <div className={styles.habitInfo}>
+                      <h3 className={styles.habitName}>{h.name}</h3>
+                      <p className={styles.habitStreak}>Resisted: {h.streak} days</p>
+                    </div>
+                    <button
+                      className={styles.habitButton}
+                      onClick={() => handleMarkComplete(h.id, false)}
+                    >
+                      Mark Resisted
+                    </button>
+                  </div>
+                ))}
+            </div>
+          </div>
+          
+          <div className={styles.addHabitCard}>
+            <h2 className={styles.sectionTitle}>➕ Add New Habit</h2>
+            <div className={styles.addHabitForm}>
+              <input
+                type="text"
+                placeholder="Habit name"
+                className={styles.input}
+                value={newHabit.name}
+                onChange={(e) => setNewHabit({ ...newHabit, name: e.target.value })}
+              />
+              <select
+                className={styles.input}
+                value={newHabit.type}
+                onChange={(e) =>
+                  setNewHabit({ ...newHabit, type: e.target.value as HabitType })
+                }
+              >
+                <option value="good">Good Habit</option>
+                <option value="bad">Bad Habit</option>
+              </select>
+              <button className={styles.addButton} onClick={handleAddHabit}>
+                Add Habit
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Calendar Section */}
+        <section className={styles.calendarSection}>
+          <h2 className={styles.sectionTitle}>📅 Habit Calendar</h2>
+          <div className={styles.calendarContainer}>
+            <Calendar
+              onChange={(value) => handleCalendarChange(value as Date | Date[])}
+              value={selectedDate}
+              className={styles.calendar}
+              tileClassName={({ date }) =>
+                habits.some(h => h.completions.some(d => isSameDay(d, date)))
+                  ? styles.highlightedDay
+                  : undefined
+              }
+            />
+
+            <div className={styles.dateHabits}>
+              <h3>Habits on {selectedDate.toDateString()}</h3>
+              {habitsForSelectedDate.length ? (
+                <ul className={styles.habitList}>
+                  {habitsForSelectedDate.map(h => (
+                    <li key={h.id} className={styles.habitItem}>
+                      {h.type === 'good' ? '✅' : '❌'} {h.name}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No habits recorded for this day.</p>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* Achievements & Suggestions */}
+        <div className={styles.bottomSection}>
+          <div className={styles.achievementsCard}>
+            <h2 className={styles.sectionTitle}>🏆 Achievements</h2>
+            <div className={styles.badgeList}>
+              <div className={styles.badge}>🎯 7-Day Streak</div>
+              <div className={styles.badge}>🌟 First Habit Added</div>
+              <div className={styles.badge}>💯 10 Habits Tracked</div>
+            </div>
+          </div>
+          
+          <div className={styles.suggestionsCard}>
+            <h2 className={styles.sectionTitle}>🔁 Try This Instead</h2>
+            <div className={styles.suggestionItem}>
+              <p>Instead of <strong>Smoking</strong>, try <strong>Deep Breathing</strong></p>
+            </div>
+            <div className={styles.suggestionItem}>
+              <p>Instead of <strong>Sugar Binge</strong>, try <strong>Fruit Smoothie</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

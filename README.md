@@ -15,40 +15,45 @@ Habitarium is a comprehensive web application designed to empower individuals in
 ## 🏗️ Architecture & Technology Stack
 Habitarium is built with a modern, scalable architecture, leveraging the following technologies:
 
-Backend Infrastructure
-- Runtime: Node.js with Express.js framework
-- Language: TypeScript
-- Database: MongoDB (via MongoDB Atlas for cloud, Mongoose ODM)
-- Authentication: JSON Web Tokens (JWT) for secure session management (Planned)
-- Security: bcryptjs for advanced password hashing (Planned)
+### Backend Infrastructure
+*   **Runtime**: Node.js with Express.js framework
+*   **Language**: TypeScript
+*   **Database**: Firebase Firestore
+*   **Authentication**: JSON Web Tokens (JWT) for secure session management
+*   **Security**: `bcryptjs` for advanced password hashing
 
-Frontend Experience
+### Frontend Experience
 - Framework: React.js (v18)
 - Build Tool: Vite
 - Language: TypeScript
-- Styling: Vanilla CSS for utility-first styling and responsive design
-- HTTP Client: Fetch API (or Axios for future enhancements)
+- Styling: CSS modules
 
-DevOps & Deployment
-- Containerization: Docker for consistent development and deployment environments (Planned)
-- CI/CD: GitHub Actions for automated testing and deployment pipelines
-- Cloud Infrastructure: AWS deployment architecture (in development)
+### 🚀DevOps & Deployment
+- Containerization: Docker is used for consistent development and deployment environments, leveraging efficient multi-stage builds to optimize image sizes and improve deployment speed and security.
+- Infrastructure as Code (IaC): Terraform provisions and manages cloud infrastructure across AWS, Google Cloud Platform (GCP), and now Microsoft Azure, enabling reproducible and versioned deployments.
+- CI/CD: GitHub Actions powers automated testing and deployment pipelines across platforms, facilitating streamlined continuous integration and continuous delivery workflows.
+- Container Service Deployment:
+- - Initially explored AWS App Runner for container hosting but faced credential and access challenges.
+- - Successfully deployed containerized applications manually and via IaC to Microsoft Azure Web App for Containers, providing a stable production environment with Azure-managed scaling and monitoring.
+- - Also maintain deployment on Render platform to complement cloud deployments, providing a simplified UI-based deployment option.
 
-Testing
-- Backend: Jest with Supertest for API integration testing.
-- Frontend: Vitest with React Testing Library and JSDOM for component testing.
+### 🧪Testing
+*   **Backend**: Jest with Supertest for API integration testing.
+*   **Frontend**: Vitest with React Testing Library and JSDOM for component testing.
 
 ## 🔧 Prerequisites
 Ensure your development environment includes the following: 
 | Technology | Version   | Purpose                                     |
 |------------|-----------|---------------------------------------------|
 | Node.js    | v18.0+    | JavaScript runtime                          |
-| MongoDB    | N/A       | Database system (Atlas account or local)    |
+| Firebase   | N/A       | Database system    |
 | Git        | Latest    | Version control                             |
 | npm        | Latest    | Package management     
+| Docker      | Latest     | Containerization          |
+| Terraform   | Latest     | Infrastructure as Code    |
 
-## 🚀 Quick Start Guide
-Follow these steps to get Habitarium running on your local machine
+## 🚀 Quick Start Guide (Docker-based)
+Follow these steps to get Habitarium running quickly using Docker on your local machine.
 
 ### Step 1: Repository Setup
 Clone the repository to your local machine and navigate into the project directory.
@@ -57,54 +62,39 @@ git clone https://github.com/PhiLouGii/habitarium.git
 cd habitarium
 ```
 
-### Step 2: Backend Configuration
-Navigate to the backend directory, install dependencies, and configure environment variables.
-```
-cd backend
-npm install
-```
-Create a ```.env``` file by copying the example and then edit it with your MongoDB credentials and a JWT secret:
-```
-cp .env.example .env
-```
-### Open the newly created ```.env``` file and update the following variables:
-```
-MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/habitarium
-JWT_SECRET=your_strong_secure_secret_key_here
-PORT=3001
-```
-**Important:** Replace ```<your_username>``` and ```<your_password>``` with your MongoDB Atlas credentials. Ensure ```JWT_SECRET``` is a long, random string for production.
+### Step 2: Configure Environment Variables
+Before building, ensure your environment variables are set.
+*   **Firebase Credentials**: You'll need a `.env` file in the `backend/` directory with your Firebase service account credentials. Refer to the `.env.example` in `backend/` for required variables.
+*   **Frontend API URL**: The frontend needs to know where to find the backend. Create a `.env` file in `frontend/` and set `VITE_API_BASE_URL` to point to your backend container (e.g., `http://localhost:3001/api`). Refer to the `.env.example` in `frontend/`.
 
-### Start the backend development server: 
-```
-npm run dev
-```
-🌐 **Backend API available at:** http://localhost:3001
+### Step 3: Build and Run with Docker Compose
+From the project root directory, use Docker Compose to build your images and launch the services. This will set up both backend and frontend containers, along with any necessary services (e.g., a local database if configured in `docker-compose.yml`).
 
-### Step 3: Frontend Setup
-Open a new terminal window, navigate back to the project root, then into the frontend directory, install dependencies, and configure environment variables.
 ```
-cd ../frontend
-npm install
+docker-compose up-build
 ```
-Create a ```.env``` file by copying the example and then edit it to point to your backend API:
-```
-cp .env.example .env
-```
-### Open the newly created ```.env``` file and update the following variable:
-```
-VITE_API_BASE_URL=http://localhost:3001/api
-```
-### Launch the frontend development server: 
-```
-npm run dev
-```
-🎨 **Frontend application available at:** http://localhost:5173 (or the port shown by Vite)
+### Step 4: Access Application (Local Development)
+- **Frontend Application:**  
+  Available at http://localhost:5173 (or the port shown by Vite/Docker).
+- **Backend API:**  
+  Available at http://localhost:3001/api.
 
-### Step 4: Access Application
-Once both backend and frontend servers are running, access the application in your web browser:
-- Frontend: http://localhost:3000
-- Backned API: http://localhost:3001/api
+### Step 4: Access Application (Production Deployment)
+- **Application URL:**   
+  [https://habitarium-webapp.azurewebsites.net/](https://habitarium-webapp.azurewebsites.net/)
+- **Backend API:**  
+  Available at https://habitarium-webapp.azurewebsites.net/api
+
+### Stopping the Application
+To stop and remove the containers, networks, and volumes created by `docker-compose up`:
+
+```docker-compose down```
+
+## ☁️ Cloud Deployment
+Habitarium’s infrastructure is defined and provisioned using Terraform, targeting cloud environments on AWS, Google Cloud Platform, and Microsoft Azure. While initial provisioning attempts faced platform-specific challenges (as detailed in phase.md), the containerised application has been successfully deployed on Microsoft Azure Web App for Containers, demonstrating the full containerization and manual deployment workflow on a major cloud platform.
+
+### Live Public URL
+**Application URL**: [https://habitarium-webapp.azurewebsites.net/](https://habitarium-webapp.azurewebsites.net/)
 
 ## Testing 🧪
 Run automated tests for both your backend and frontend applications to ensure functionality and code quality.
@@ -131,36 +121,45 @@ The Habitarium backend exposes the following RESTful API endpoints. The base URL
 The Habitarium project is organized into backend and frontend directories, with a dedicated .github folder for CI/CD workflows.
 ```
 habitarium/
-├── 📂 .github/                 # GitHub Actions workflows
-│   └── 📂 workflows/
-│       └── ci.yml             # CI Pipeline definition
-├── 📂 backend/                 # Node.js/Express.js server-side application
-│   ├── 📂 models/
-│   │   └── Habit.js           # Mongoose schema for Habit entries
-│   ├── 📂 routes/
-│   │   └── habits.js          # API routes for habit management
-│   ├── 📂 tests/
-│   │   └── habits.test.js     # Backend unit/integration tests
-│   ├── server.js              # Express server entry point
-│   ├── package.json           # Backend dependencies & scripts
-│   └── .env                   # Environment variables (local, ignored by Git)
-├── 📂 frontend/               # React.js/Vite client-side application
-│   ├── 📂 public/             # Static assets
-│   ├── 📂 src/
-│   │   ├── 📂 components/
-│   │   │   ├── StreakCounter.tsx  # Component to display habit streaks
-│   │   │   └── StreakCounter.css  # Styling for StreakCounter
-│   │   ├── 📂 assets/         # Static assets like logos
-│   │   ├── App.tsx            # Root application component
-│   │   ├── App.css            # Global styles
-│   │   ├── main.tsx           # Application entry point
-│   │   └── setupTests.ts      # Frontend test setup (e.g., Jest-DOM)
-│   │   └── components/
-│   │       └── StreakCounter.test.tsx # Frontend component tests
-│   ├── package.json           # Frontend dependencies & scripts
-│   ├── vite.config.ts         # Vite and Vitest configuration
-│   └── .env                   # Environment variables (local, ignored by Git)
-└── README.md                  # Project documentation
+├── 📂 .github/ 
+│ └── 📂 workflows/
+│ └── ci.yml 
+├── 📂 backend/ 
+│ ├── 📂 models/
+│ │ └── Habit.js
+│ ├── 📂 routes/
+│ │ └── habits.js 
+│ ├── 📂 tests/
+│ │ └── habits.test.js 
+│ ├── Dockerfile
+│ ├── server.js 
+│ ├── package.json 
+│ └── .env 
+├── 📂 frontend/ 
+│ ├── 📂 public/ 
+│ ├── 📂 src/
+│ │ ├── 📂 components/
+│ │ │ ├── StreakCounter.tsx 
+│ │ │ └── StreakCounter.css 
+│ │ ├── 📂 assets/ 
+│ │ ├── App.tsx 
+│ │ ├── App.css 
+│ │ ├── main.tsx 
+│ │ └── setupTests.ts 
+│ │ └── components/
+│ │ └── StreakCounter.test.tsx 
+│ ├── Dockerfile 
+│ ├── package.json 
+│ ├── vite.config.ts 
+│ └── .env 
+├── 📂 terraform/
+│ └── main.tf 
+│ └── variables.tf 
+│ └── outputs.tf 
+├── docker-compose.yml
+├── Dockerfile
+├── phase.md 
+└── README.md 
 ```
 
 ## Project Status & Roadmap 🗺️
@@ -169,12 +168,12 @@ habitarium/
 |--------|------------------------------|-----------------------------------------------------|
 | ✅     | Core Application Baseline     | Basic habit logging and streak counter UI.          |
 | ✅     | CI Pipeline                   | Automated linting and unit tests on Pull Requests.  |
-| ❔   | Containerization              | Docker implementation for consistent environments.  |
-| ❔     | Infrastructure as Code (IaC)  | Automated infrastructure provisioning.              |
-| ✏️     | Continuous Deployment Pipeline| Automation for deploying to cloud environments.     |
-| ✏️     | Monitoring & Logging          | Application performance and error tracking.         |
+| ✅   | Containerization              | Docker implementation for consistent environments.  |
+| ✅     | Infrastructure as Code (IaC)  | Automated infrastructure provisioning.              |
+| ❔     | Continuous Deployment Pipeline| Automation for deploying to cloud environments.     |
+| ❔     | Monitoring & Logging          | Application performance and error tracking.         |
 | ✏️     | Achievement System            | Implementation of gamified milestones.              |
-| ✏️     | Habit Replacement Suggestions | AI-driven suggestions for replacing bad habits.     |
+| ❔     | Habit Replacement Suggestions | AI-driven suggestions for replacing bad habits.     |
 
 **Key:** ✅ Complete | ❔ In Progress | ✏️ Planned  
 
