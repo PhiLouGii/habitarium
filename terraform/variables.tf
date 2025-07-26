@@ -1,22 +1,27 @@
-variable "project_id" {
-  description = "GCP Project ID"
+variable "subscription_id" {
+  description = "Azure Subscription ID"
   type        = string
 }
 
-variable "region" {
-  description = "GCP Region"
+variable "resource_group_name" {
+  description = "Azure Resource Group name"
   type        = string
-  default     = "us-central1"
+}
+
+variable "location" {
+  description = "Azure Region (e.g., eastus, westus2)"
+  type        = string
+  default     = "eastus"
 }
 
 variable "app_name" {
-  description = "Application name"
+  description = "Name prefix for Azure resources (e.g., app name)"
   type        = string
   default     = "my-app"
 }
 
 variable "db_password" {
-  description = "Database password"
+  description = "Password for PostgreSQL database admin user"
   type        = string
   sensitive   = true
 }
