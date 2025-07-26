@@ -1,174 +1,276 @@
-# Data source for current AWS region
-data "aws_region" "current" {}
-
-# ECS Cluster
-resource "aws_ecs_cluster" "main" {
-  name = "${var.project_name}-${var.environment}-cluster"
-  tags = var.tags
-}
-
-# IAM Role for ECS Task Execution
-resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "${var.project_name}-${var.environment}-ecs-task-execution-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      }
-    }]
-  })
-
-  tags = var.tags
-}
-
-# IAM Role Policy Attachment for ECS Task Execution
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_role" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
-
-# IAM Role for ECS Task
-resource "aws_iam_role" "ecs_task_role" {
-  name = "${var.project_name}-${var.environment}-ecs-task-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      }
-    }]
-  })
-
-  tags = var.tags
-}
-
-# CloudWatch Log Group
-resource "aws_cloudwatch_log_group" "app" {
-  name              = "/ecs/${var.project_name}-${var.environment}"
-  retention_in_days = 7
-  tags              = var.tags
-}
-
-# ECS Task Definition
-resource "aws_ecs_task_definition" "app" {
-  family                   = "${var.project_name}-${var.environment}-task"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = 256
-  memory                   = 512
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  task_role_arn            = aws_iam_role.ecs_task_role.arn
-
-  container_definitions = jsonencode([
-    {
-      name  = "${var.project_name}-container"
-      image = "${var.ecr_repository_url}:latest"
-
-      portMappings = [
-        {
-          containerPort = var.container_port
-          protocol      = "tcp"
-        }
-      ]
-
-      healthCheck = {
-        command     = ["CMD-SHELL", "curl -f http://localhost:${var.container_port}${var.health_check_path} || exit 1"]
-        interval    = 30
-        timeout     = 5
-        retries     = 3
-        startPeriod = 0
-      }
-
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group         = aws_cloudwatch_log_group.app.name
-          awslogs-region        = data.aws_region.current.name
-          awslogs-stream-prefix = "ecs"
-        }
-      }
-
-      essential = true
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~>3.0"
     }
-  ])
+  }
+}
+
+provider "azurerm" {
+  features {}
+}
+
+variable "project_name" {
+  type = string
+}
+
+variable "environment" {
+  type = string
+}
+
+variable "location" {
+  type    = string
+  default = "eastus"
+}
+
+variable "tags" {
+  type = map(string)
+}
+
+variable "container_image" {
+  type = string
+}
+
+variable "container_port" {
+  type    = number
+  default = 8080
+}
+
+variable "app_gateway_subnet_id" {
+  type = string
+}
+
+variable "vnet_id" {
+  type = string
+}
+
+variable "subnet_ids" {
+  type = list(string)
+}
+
+variable "app_service_subnet_id" {
+  type = string
+}
+
+variable "log_analytics_workspace_id" {
+  type = string
+}
+
+variable "log_analytics_workspace_key" {
+  type      = string
+  sensitive = true
+}
+
+# ---------
+# Azure Container Registry
+resource "azurerm_container_registry" "acr" {
+  name                = "${var.project_name}${var.environment}acr"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+  sku                 = "Basic"
+  admin_enabled       = true
 
   tags = var.tags
 }
 
-# Application Load Balancer
-resource "aws_lb" "main" {
-  name               = "${var.project_name}-${var.environment}-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [var.alb_security_group_id]
-  subnets            = var.public_subnet_ids
-
-  enable_deletion_protection = false
-  tags                       = var.tags
+# ---------
+# Resource Group 
+resource "azurerm_resource_group" "rg" {
+  name     = "${var.project_name}-${var.environment}-rg"
+  location = var.location
+  tags     = var.tags
 }
 
-# Target Group
-resource "aws_lb_target_group" "app" {
-  name        = "${var.project_name}-${var.environment}-tg"
-  port        = var.container_port
-  protocol    = "HTTP"
-  vpc_id      = var.vpc_id
-  target_type = "ip"
+# ---------
+# Log Analytics Workspace for logs & monitoring
+resource "azurerm_log_analytics_workspace" "law" {
+  name                = "${var.project_name}-${var.environment}-law"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+  tags                = var.tags
+}
 
-  health_check {
-    enabled             = true
-    healthy_threshold   = 2
+# ---------
+# App Service Plan (Linux Containers)
+resource "azurerm_app_service_plan" "asp" {
+  name                = "${var.project_name}-${var.environment}-asp"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  kind = "Linux"
+  reserved = true
+
+  sku {
+    tier = "Basic"
+    size = "B1"
+  }
+
+  tags = var.tags
+}
+
+# ---------
+# Web App for Container (similar to ECS task running container)
+resource "azurerm_web_app" "webapp" {
+  name                = "${var.project_name}-${var.environment}-webapp"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  app_service_plan_id = azurerm_app_service_plan.asp.id
+
+  site_config {
+    linux_fx_version = "DOCKER|${var.container_image}"
+    app_command_line = "" # optional start command
+  }
+
+  app_settings = {
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
+    "DOCKER_REGISTRY_SERVER_URL"          = "https://${azurerm_container_registry.acr.login_server}"
+    "DOCKER_REGISTRY_SERVER_USERNAME"     = azurerm_container_registry.acr.admin_username
+    "DOCKER_REGISTRY_SERVER_PASSWORD"     = azurerm_container_registry.acr.admin_password
+
+    # Add your app-specific environment variables here
+    "PORT"                               = tostring(var.container_port)
+    # Add others as needed, e.g. health check path vars, Firebase creds, etc.
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  logs {
+    application_logs {
+      azure_blob_storage {
+        level = "Information"
+      }
+    }
+    http_logs {
+      file_system {
+        retention_in_mb   = 100
+        retention_in_days = 7
+      }
+    }
+  }
+
+  depends_on = [
+    azurerm_container_registry.acr,
+    azurerm_app_service_plan.asp
+  ]
+
+  tags = var.tags
+}
+
+# ---------
+# Application Gateway (similar to ALB)
+resource "azurerm_application_gateway" "appgw" {
+  name                = "${var.project_name}-${var.environment}-appgw"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  sku {
+    name     = "Standard_v2"
+    tier     = "Standard_v2"
+    capacity = 2
+  }
+
+  gateway_ip_configuration {
+    name      = "appgw-ip-configuration"
+    subnet_id = var.app_gateway_subnet_id
+  }
+
+  frontend_port {
+    name = "http-port"
+    port = 80
+  }
+
+  frontend_ip_configuration {
+    name                 = "public-ip-config"
+    public_ip_address_id = azurerm_public_ip.appgw_public_ip.id
+  }
+
+  backend_address_pool {
+    name = "webapp-pool"
+    fqdns = [
+      azurerm_web_app.webapp.default_site_hostname
+    ]
+  }
+
+  backend_http_settings {
+    name                  = "http-settings"
+    cookie_based_affinity = "Disabled"
+    port                  = var.container_port
+    protocol              = "Http"
+    host_name             = azurerm_web_app.webapp.default_site_hostname
+    pick_host_name_from_backend_address = true
+    probe_enabled         = true
+    probe_name            = "health-probe"
+  }
+
+  probe {
+    name                = "health-probe"
+    protocol            = "Http"
+    path                = "/health" # customize as per your app
     interval            = 30
-    matcher             = "200"
-    path                = var.health_check_path
-    port                = "traffic-port"
-    protocol            = "HTTP"
-    timeout             = 5
-    unhealthy_threshold = 2
+    timeout             = 30
+    unhealthy_threshold = 3
+    match {
+      body          = ""
+      status_codes  = ["200-399"]
+    }
+  }
+
+  listener {
+    name                           = "http-listener"
+    frontend_ip_configuration_name = "public-ip-config"
+    frontend_port_name             = "http-port"
+    protocol                       = "Http"
+  }
+
+  request_routing_rule {
+    name                       = "routing-rule"
+    rule_type                  = "Basic"
+    http_listener_name         = "http-listener"
+    backend_address_pool_name  = "webapp-pool"
+    backend_http_settings_name = "http-settings"
   }
 
   tags = var.tags
 }
 
-# Load Balancer Listener
-resource "aws_lb_listener" "app" {
-  load_balancer_arn = aws_lb.main.arn
-  port              = "80"
-  protocol          = "HTTP"
+# ---------
+# Public IP for Application Gateway
+resource "azurerm_public_ip" "appgw_public_ip" {
+  name                = "${var.project_name}-${var.environment}-appgw-pip"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
 
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.app.arn
-  }
+  tags = var.tags
 }
 
-# ECS Service
-resource "aws_ecs_service" "main" {
-  name            = "${var.project_name}-${var.environment}-service"
-  cluster         = aws_ecs_cluster.main.id
-  task_definition = aws_ecs_task_definition.app.arn
-  desired_count   = 2
-  launch_type     = "FARGATE"
+# ---------
+# Application Insights for monitoring (optional)
+resource "azurerm_application_insights" "app_insights" {
+  name                = "${var.project_name}-${var.environment}-appinsights"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+  application_type    = "web"
 
-  network_configuration {
-    security_groups  = [var.ecs_security_group_id]
-    subnets          = var.public_subnet_ids
-    assign_public_ip = true
-  }
+  retention_in_days = 30
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.app.arn
-    container_name   = "${var.project_name}-container"
-    container_port   = var.container_port
-  }
-
-  depends_on = [aws_lb_listener.app]
-  tags       = var.tags
+  tags = var.tags
 }
+
+# ---------
+# Outputs
+output "web_app_url" {
+  description = "Web App public URL"
+  value       = "https://${azurerm_web_app.webapp.default_site_hostname}"
+}
+
+output "application_gateway_public_ip" {
+  description = "Public IP of the Application Gateway"
+  value       = azurerm_public_ip.appgw_public_ip.ip_address
+}
+

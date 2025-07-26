@@ -1,14 +1,14 @@
 output "app_url" {
-  description = "URL of the deployed application"
-  value       = google_cloud_run_service.app.status[0].url
+  description = "URL of the deployed Azure Web App"
+  value       = "https://${azurerm_web_app.webapp.default_site_hostname}"
 }
 
-output "database_ip" {
-  description = "Database IP address"
-  value       = google_sql_database_instance.main.public_ip_address
+output "database_fqdn" {
+  description = "Fully Qualified Domain Name (FQDN) of the Azure PostgreSQL server"
+  value       = azurerm_postgresql_server.postgres_server.fqdn
 }
 
-output "registry_url" {
-  description = "Artifact Registry URL"
-  value       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.app_repo.name}"
+output "registry_login_server" {
+  description = "Azure Container Registry login server URL"
+  value       = azurerm_container_registry.acr.login_server
 }

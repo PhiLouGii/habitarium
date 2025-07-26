@@ -28,13 +28,16 @@ Habitarium is built with a modern, scalable architecture, leveraging the followi
 - Language: TypeScript
 - Styling: CSS modules
 
-### DevOps & Deployment
-*   **Containerization**: Docker for consistent development and deployment environments, utilizing **efficient multi-stage builds** for optimized image sizes.
-*   **Infrastructure as Code (IaC)**: Terraform for provisioning cloud resources on **AWS and Google Cloud**.
-*   **CI/CD**: GitHub Actions for automated testing and deployment pipelines.
-*   **Container Service**: Deployed to Render (after exploring AWS App Runner due to credential/access challenges, as detailed in `phase.md`).
+### 🚀DevOps & Deployment
+- Containerization: Docker is used for consistent development and deployment environments, leveraging efficient multi-stage builds to optimize image sizes and improve deployment speed and security.
+- Infrastructure as Code (IaC): Terraform provisions and manages cloud infrastructure across AWS, Google Cloud Platform (GCP), and now Microsoft Azure, enabling reproducible and versioned deployments.
+- CI/CD: GitHub Actions powers automated testing and deployment pipelines across platforms, facilitating streamlined continuous integration and continuous delivery workflows.
+- Container Service Deployment:
+- - Initially explored AWS App Runner for container hosting but faced credential and access challenges.
+- - Successfully deployed containerized applications manually and via IaC to Microsoft Azure Web App for Containers, providing a stable production environment with Azure-managed scaling and monitoring.
+- - Also maintain deployment on Render platform to complement cloud deployments, providing a simplified UI-based deployment option.
 
-### Testing
+### 🧪Testing
 *   **Backend**: Jest with Supertest for API integration testing.
 *   **Frontend**: Vitest with React Testing Library and JSDOM for component testing.
 
@@ -70,10 +73,17 @@ From the project root directory, use Docker Compose to build your images and lau
 ```
 docker-compose up-build
 ```
-### Step 4: Access Application
-Once Docker Compose has finished starting the services:
-*   **Frontend Application**: Available at `http://localhost:5173` (or the port shown by Vite/Docker).
-*   **Backend API**: Available at `http://localhost:3001/api`.
+### Step 4: Access Application (Local Development)
+- **Frontend Application:**  
+  Available at http://localhost:5173 (or the port shown by Vite/Docker).
+- **Backend API:**  
+  Available at http://localhost:3001/api.
+
+### Step 4: Access Application (Production Deployment)
+- **Application URL:**   
+  [https://habitarium-webapp.azurewebsites.net/](https://habitarium-webapp.azurewebsites.net/)
+- **Backend API:**  
+  Available at https://habitarium-webapp.azurewebsites.net/api
 
 ### Stopping the Application
 To stop and remove the containers, networks, and volumes created by `docker-compose up`:
@@ -81,10 +91,10 @@ To stop and remove the containers, networks, and volumes created by `docker-comp
 ```docker-compose down```
 
 ## ☁️ Cloud Deployment
-Habitarium's infrastructure is defined using Terraform, targeting AWS and Google Cloud environments. While initial provisioning attempts faced platform-specific challenges (detailed in `phase.md`), the application has been successfully deployed to Render, demonstrating the full containerization and manual deployment workflow.
+Habitarium’s infrastructure is defined and provisioned using Terraform, targeting cloud environments on AWS, Google Cloud Platform, and Microsoft Azure. While initial provisioning attempts faced platform-specific challenges (as detailed in phase.md), the containerised application has been successfully deployed on Microsoft Azure Web App for Containers, demonstrating the full containerization and manual deployment workflow on a major cloud platform.
 
 ### Live Public URL
-**Application URL**: [https://habitarium1.onrender.com](https://habitarium1.onrender.com)
+**Application URL**: [https://habitarium-webapp.azurewebsites.net/](https://habitarium-webapp.azurewebsites.net/)
 
 ## Testing 🧪
 Run automated tests for both your backend and frontend applications to ensure functionality and code quality.
