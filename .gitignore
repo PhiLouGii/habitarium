@@ -12,4 +12,4 @@ serviceAccountKey*.json
 .vscode/
 
 #Terraform thing
-.terraform/
+.terraform/appsettings.json
