@@ -7,8 +7,8 @@ const authRoutes = require('./routes/auth');
 // Load environment variables ASAP
 dotenv.config();
 
-// Import the initialized Firebase admin instance from firebase.js
-const admin = require('./config/firebase'); // Adjust path as needed
+// Import the Firebase instances (updated to match new export structure)
+const { admin, auth, db } = require('./config/firebase');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -22,8 +22,8 @@ console.log("Environment variables:", {
   FIREBASE_DATABASE_URL: !!process.env.FIREBASE_DATABASE_URL
 });
 
-// Use Firestore instance from initialized admin
-const db = admin.firestore();
+// db is already initialized from the firebase.js import
+console.log("✅ Firestore connected");
 
 // Middlewares
 app.use(cors({
@@ -48,16 +48,17 @@ app.get('/api/health', (req, res) => {
 // Serve frontend build static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Catch-all route for React Router
-// app.get('*', (req, res) => {
-// res.sendFile(path.join(__dirname, 'public', 'index.html'));
-// });
+// Fixed catch-all route - added 'next' parameter and fixed logic
+app.get(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 
 // General error handling middleware
 app.use((error, req, res, next) => {
   console.error('Server error:', error);
-  res.status(500).json({
-    error: 'Internal server error',
+  res.status(error.status || 500).json({
+    error: error.status === 404 ? 'Route not found' : 'Internal server error',
     message: process.env.NODE_ENV === 'development' ? error.message : undefined
   });
 });
