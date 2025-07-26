@@ -7,66 +7,78 @@ variable "environment" {
 }
 
 variable "tags" {
-  type = map(string)
+  type    = map(string)
   default = {}
 }
 
-variable "frontend_repository_name" {
+variable "resource_group_name" {
   type = string
 }
 
-variable "backend_repository_name" {
+variable "location" {
+  type = string
+  default = "eastus"
+}
+
+variable "frontend_registry_name" {
   type = string
 }
 
-resource "aws_ecr_repository" "frontend" {
-  name = var.frontend_repository_name
-
-  image_tag_mutability = "MUTABLE"
-
-  tags = merge(
-    {
-      Project     = var.project_name
-      Environment = var.environment
-    },
-    var.tags
-  )
+variable "backend_registry_name" {
+  type = string
 }
 
-resource "aws_ecr_repository" "backend" {
-  name = var.backend_repository_name
-
-  image_tag_mutability = "MUTABLE"
-
-  tags = merge(
-    {
-      Project     = var.project_name
-      Environment = var.environment
-    },
-    var.tags
-  )
+# Resource Group (ensure it exists)
+resource "azurerm_resource_group" "rg" {
+  name     = var.resource_group_name
+  location = var.location
+  tags     = var.tags
 }
 
+# Frontend Container Registry
+resource "azurerm_container_registry" "frontend" {
+  name                = var.frontend_registry_name
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  sku                 = "Basic"
+  admin_enabled       = true # Optional: enable for admin credentials
 
-# ECR Lifecycle Policy
-resource "aws_ecr_lifecycle_policy" "main" {
-  repository = aws_ecr_repository.main.name
+  tags = merge({
+    Project     = var.project_name
+    Environment = var.environment
+  }, var.tags)
+}
 
-  policy = jsonencode({
-    rules = [
-      {
-        rulePriority = 1
-        description  = "Keep last 10 images"
-        selection = {
-          tagStatus     = "tagged"
-          tagPrefixList = ["v"]
-          countType     = "imageCountMoreThan"
-          countNumber   = 10
-        }
-        action = {
-          type = "expire"
-        }
-      }
-    ]
-  })
+# Backend Container Registry
+resource "azurerm_container_registry" "backend" {
+  name                = var.backend_registry_name
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  sku                 = "Basic"
+  admin_enabled       = true
+
+  tags = merge({
+    Project     = var.project_name
+    Environment = var.environment
+  }, var.tags)
+}
+
+# Retention Policy on Frontend Registry - clean up deleted manifests after 7 days
+resource "azurerm_container_registry_retention_policy" "frontend" {
+  registry_name      = azurerm_container_registry.frontend.name
+  resource_group_name = azurerm_resource_group.rg.name
+
+  days    = 7
+  status  = "Enabled"
+  type    = "Delete"
+}
+
+# Retention Policy on Backend Registry - same cleanup
+resource "azurerm_container_registry_retention_policy" "backend" {
+  registry_name      = azurerm_container_registry.backend.name
+  resource_group_name = azurerm_resource_group.rg.name
+
+  days    = 7
+  status  = "Enabled"
+  type    = "Delete"
 }
