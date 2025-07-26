@@ -1,21 +1,19 @@
-output "vpc_id" {
-  description = "The ID of the VPC"
-  value       = aws_vpc.main.id
+output "vnet_id" {
+  description = "The ID of the Azure Virtual Network"
+  value       = azurerm_virtual_network.vnet.id
 }
 
 output "public_subnet_ids" {
-  description = "IDs of public subnets"
-  value       = aws_subnet.public[*].id
+  description = "IDs of public subnets in Azure"
+  value       = azurerm_subnet.public[*].id
 }
 
-output "alb_security_group_id" {
-  description = "Security group for ALB"
-  value       = aws_security_group.alb.id
+output "alb_network_security_group_id" {
+  description = "Network Security Group ID for the Application Gateway (ALB equivalent)"
+  value       = azurerm_network_security_group.alb_nsg.id
 }
 
-output "ecs_security_group_id" {
-  description = "Security group for ECS tasks"
-  value       = aws_security_group.ecs_tasks.id
+output "service_network_security_group_id" {
+  description = "Network Security Group ID for backend service containers"
+  value       = azurerm_network_security_group.service_nsg.id
 }
-
-
