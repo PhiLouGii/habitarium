@@ -1,4 +1,4 @@
-output "alb_dns_name" {
-  description = "DNS name of the Application Load Balancer"
-  value       = aws_lb.main.dns_name
+output "application_gateway_public_ip" {
+  description = "Public IP address of the Azure Application Gateway"
+  value       = azurerm_public_ip.appgw_public_ip.ip_address
 }
