@@ -1,14 +1,16 @@
 {
   "devDependencies": {
+    "@babel/preset-env": "^7.28.0",
+    "babel-jest": "^30.0.5"
   },
- "scripts": {
-  "start": "npm run start --prefix backend",
-  "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
+  "scripts": {
+    "start": "npm run start --prefix backend",
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
   },
   "dependencies": {
-     "concurrently": "^9.2.0",
     "@firebase/auth": "^1.11.0",
     "@firebase/firestore": "^4.9.0",
+    "concurrently": "^9.2.0",
     "date-fns": "^4.1.0",
     "firebase": "^12.0.0",
     "firebase-admin": "^13.4.0"

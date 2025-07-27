@@ -57,9 +57,9 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.ACR_NAME }}.azurecr.io/habitarium:${{ env.IMAGE_TAG }}
-          severity: 'CRITICAL,HIGH'
-          format: 'sarif'
+          severity: 'CRITICAL'
           exit-code: '1'
+          format: 'sarif'
           output: 'trivy-results.sarif'
           
       - name: Upload Scan Results

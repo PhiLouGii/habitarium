@@ -13,3 +13,4 @@ serviceAccountKey*.json
 
 #Terraform thing
 .terraform/appsettings.json
+.terraform/
