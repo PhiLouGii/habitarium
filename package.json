@@ -1,7 +1,9 @@
 {
   "devDependencies": {
     "@babel/preset-env": "^7.28.0",
-    "babel-jest": "^30.0.5"
+    "babel-jest": "^30.0.5",
+    "identity-obj-proxy": "^3.0.0",
+    "ts-jest": "^29.4.0"
   },
   "scripts": {
     "start": "npm run start --prefix backend",
