@@ -13,4 +13,12 @@ serviceAccountKey*.json
 
 #Terraform thing
 .terraform/appsettings.json
+
+
 .terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.backup
+*.log
+
