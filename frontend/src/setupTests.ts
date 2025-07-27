@@ -1,41 +1,34 @@
+// setupTests.ts
 import '@testing-library/jest-dom';
 
-// Extend global object with TextEncoder/TextDecoder
-declare global {
-  var TextEncoder: {
-    new (): TextEncoder;
-    prototype: TextEncoder;
-  };
-  var TextDecoder: {
-    new (label?: string, options?: TextDecoderOptions): TextDecoder;
-    prototype: TextDecoder;
-  };
+/// <reference lib="dom" />
+
+class PolyfillTextEncoder {
+  encode(str: string): Uint8Array {
+    const buf = new ArrayBuffer(str.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i < str.length; i++) {
+      view[i] = str.charCodeAt(i);
+    }
+    return view;
+  }
 }
 
-// Polyfill for TextEncoder/TextDecoder
-if (typeof window.TextEncoder === 'undefined') {
-  window.TextEncoder = class {
-    constructor() {}
-    encode(str: string) {
-      const buf = new ArrayBuffer(str.length);
-      const bufView = new Uint8Array(buf);
-      for (let i = 0; i < str.length; i++) {
-        bufView[i] = str.charCodeAt(i);
-      }
-      return bufView;
+class PolyfillTextDecoder {
+  decode(data: Uint8Array): string {
+    let str = '';
+    for (let i = 0; i < data.length; i++) {
+      str += String.fromCharCode(data[i]);
     }
-  } as never;
+    return str;
+  }
 }
 
-if (typeof window.TextDecoder === 'undefined') {
-  window.TextDecoder = class {
-    constructor(public label?: string, public options?: TextDecoderOptions) {}
-    decode(data: Uint8Array) {
-      let str = '';
-      for (let i = 0; i < data.length; i++) {
-        str += String.fromCharCode(data[i]);
-      }
-      return str;
-    }
-  } as never;
+// Use globalThis to support Node, jsdom, or browser environments
+if (typeof (globalThis as any).TextEncoder === 'undefined') {
+  (globalThis as any).TextEncoder = PolyfillTextEncoder;
+}
+
+if (typeof (globalThis as any).TextDecoder === 'undefined') {
+  (globalThis as any).TextDecoder = PolyfillTextDecoder;
 }
