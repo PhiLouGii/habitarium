@@ -190,3 +190,5 @@ Contributions from the community are welcome! Here's how to get involved:
 
 Made with ❤️ for better habits.
 Star ⭐ this repository if you find it helpful!
+
+Test CI/CD pipeline trigger.
