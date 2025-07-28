@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '../src/test-utils.js';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Dashboard from '../src/pages/Dashboard.tsx';
 
 // Mock Firebase hooks
