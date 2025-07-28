@@ -1,7 +1,7 @@
-export default {
-  getAuth: jest.fn(),
+module.exports = {
+  getAuth: jest.fn(() => ({})),
   onAuthStateChanged: jest.fn(),
   signInWithEmailAndPassword: jest.fn(),
   createUserWithEmailAndPassword: jest.fn(),
-  signOut: jest.fn(),
+  signOut: jest.fn()
 };

@@ -1,6 +1,7 @@
-export const getAuth = jest.fn(() => ({}));
-export const onAuthStateChanged = jest.fn();
-export const signInWithEmailAndPassword = jest.fn();
-export const createUserWithEmailAndPassword = jest.fn();
-export const signOut = jest.fn();
-export const User = jest.fn();
+module.exports = {
+  getAuth: jest.fn(() => ({})),
+  onAuthStateChanged: jest.fn(),
+  signInWithEmailAndPassword: jest.fn(),
+  createUserWithEmailAndPassword: jest.fn(),
+  signOut: jest.fn()
+};

@@ -1,28 +1,27 @@
 import '@testing-library/jest-dom';
 
-// Mock Firebase modules
-jest.mock('firebase/auth', () => ({
-  getAuth: jest.fn(() => ({})),
-  onAuthStateChanged: jest.fn(),
-  signInWithEmailAndPassword: jest.fn(),
-  createUserWithEmailAndPassword: jest.fn(),
-  signOut: jest.fn(),
-}));
+// Simple TextEncoder polyfill
+if (typeof global.TextEncoder === 'undefined') {
+  global.TextEncoder = class {
+    encode(str: string) {
+      const bytes = new Uint8Array(str.length);
+      for (let i = 0; i < str.length; i++) {
+        bytes[i] = str.charCodeAt(i);
+      }
+      return bytes;
+    }
+  } as any;
+}
 
-jest.mock('firebase/app', () => ({
-  initializeApp: jest.fn(() => ({})),
-  getApps: jest.fn(() => []),
-}));
-
-// Simple localStorage mock
-Object.defineProperty(window, 'localStorage', {
-  value: {
-    getItem: jest.fn(),
-    setItem: jest.fn(),
-    removeItem: jest.fn(),
-    clear: jest.fn(),
-    length: 0,
-    key: jest.fn(),
-  },
-  writable: true,
-});
+// Simple TextDecoder polyfill
+if (typeof global.TextDecoder === 'undefined') {
+  global.TextDecoder = class {
+    decode(data: Uint8Array) {
+      let str = '';
+      for (let i = 0; i < data.length; i++) {
+        str += String.fromCharCode(data[i]);
+      }
+      return str;
+    }
+  } as any;
+}

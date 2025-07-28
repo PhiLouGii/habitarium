@@ -1,14 +1,13 @@
-/* eslint-disable react-refresh/only-export-components */
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 interface AllProvidersProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
-const AllProviders = ({ children }: AllProvidersProps) => (
-  <MemoryRouter initialEntries={['/']}>
+const AllProviders: React.FC<AllProvidersProps> = ({ children }) => (
+  <MemoryRouter>
     {children}
   </MemoryRouter>
 );
@@ -18,6 +17,5 @@ const customRender = (
   options?: Omit<RenderOptions, 'wrapper'>
 ) => render(ui, { wrapper: AllProviders, ...options });
 
-// Re-export everything from testing library
 export * from '@testing-library/react';
 export { customRender as render };
