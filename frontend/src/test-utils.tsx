@@ -1,12 +1,14 @@
-/* eslint-disable react-refresh/only-export-components */
 import React, { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { FirestoreProvider } from './context/FirestoreContext';
 
 const AllProviders = ({ children }: { children: React.ReactNode }) => (
-  <MemoryRouter>
-    {children}
-  </MemoryRouter>
+  <AuthProvider>
+    <FirestoreProvider>
+      {children}
+    </FirestoreProvider>
+  </AuthProvider>
 );
 
 const customRender = (

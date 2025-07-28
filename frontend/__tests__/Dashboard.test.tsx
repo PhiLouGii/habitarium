@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import Dashboard from '../src/pages/Dashboard.tsx';
+import Dashboard from '../src/pages/Dashboard';
 
 // Mock Firebase hooks
 jest.mock('../src/hooks/useAuth', () => ({
