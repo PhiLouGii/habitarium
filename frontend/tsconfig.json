@@ -1,23 +1,22 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "NodeNext",
-    "jsx": "react-jsx",
+    "target": "ES2020",
+    "lib": ["dom", "dom.iterable", "ES2020"],
+    "module": "ESNext",
     "esModuleInterop": true,
-    "allowJs": true,
     "allowSyntheticDefaultImports": true,
+    "jsx": "react-jsx",
+    "allowJs": true,
     "resolveJsonModule": true,
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "node",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
+    "strict": true,
+    "outDir": "./dist",
     "noEmit": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    },
-    "types": ["jest", "node"],
-    "strict": true
+    "types": ["jest", "@testing-library/jest-dom"]
   },
-  "include": ["src", "src/setupTests.ts", "__tests__/**/*"]
+  "include": ["src", "__tests__", "setupTests.ts", "jest.setup.ts"],
+  "exclude": ["node_modules", "dist"]
 }

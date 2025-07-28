@@ -1,14 +1,16 @@
-import React, { ReactElement } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import React, { ReactElement, ReactNode } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
-import { AuthProvider } from './context/AuthContext';
-import { FirestoreProvider } from './context/FirestoreContext';
+import { MemoryRouter } from 'react-router-dom';
 
-const AllProviders = ({ children }: { children: React.ReactNode }) => (
-  <AuthProvider>
-    <FirestoreProvider>
-      {children}
-    </FirestoreProvider>
-  </AuthProvider>
+interface AllProvidersProps {
+  children: ReactNode;
+}
+
+const AllProviders = ({ children }: AllProvidersProps) => (
+  <MemoryRouter initialEntries={['/']}>
+    {children}
+  </MemoryRouter>
 );
 
 const customRender = (
@@ -16,5 +18,6 @@ const customRender = (
   options?: Omit<RenderOptions, 'wrapper'>
 ) => render(ui, { wrapper: AllProviders, ...options });
 
+// Re-export everything from testing library
 export * from '@testing-library/react';
 export { customRender as render };
