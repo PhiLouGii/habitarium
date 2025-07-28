@@ -1,0 +1,7 @@
+title = "Habitarium Secret Scanning"
+[allowlist]
+description = "Allowed patterns"
+paths = [
+  "frontend/public/**",
+  "*.md"
+]
