@@ -1,8 +1,7 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '../src/test-utils';
-import Dashboard from '../src/pages/Dashboard';
-import test, { describe } from 'node:test';
-import { jest } from '@jest/globals';
+import { render, screen, fireEvent, waitFor } from '../src/test-utils.js';
+import Dashboard from '../src/pages/Dashboard.tsx';
+
 // Mock Firebase hooks
 jest.mock('../src/hooks/useAuth', () => ({
   __esModule: true,
@@ -33,7 +32,7 @@ describe('Dashboard Component', () => {
   test('shows existing habits', async () => {
     render(<Dashboard />);
     await waitFor(() => {
-      expect(screen.getByText('Morning Workout')).toBeInTheDocument(); // This line is causing the error
+      expect(screen.getByText('Morning Workout')).toBeInTheDocument();
     });
   });
 
@@ -90,8 +89,24 @@ describe('Dashboard Component', () => {
       expect(screen.getAllByText(/Mark as Done/i)).toHaveLength(initialHabits.length);
     });
   });
-});
 
-function expect(arg0: any) {
-  throw new Error('Function not implemented.');
-}
+  test('highlights days with habits', async () => {
+    // Mock today's date
+    const mockToday = new Date(2025, 6, 26);
+    jest.useFakeTimers().setSystemTime(mockToday);
+    
+    render(<Dashboard />);
+    
+    // Wait for initial load
+    await screen.findByText('Morning Workout');
+    
+    // Get today's date element
+    const todayElement = screen.getByText(mockToday.getDate().toString());
+    
+    // Verify it has the highlight class
+    expect(todayElement).toHaveClass('highlighted-day');
+    
+    // Clean up
+    jest.useRealTimers();
+  });
+});

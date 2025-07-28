@@ -16,8 +16,8 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["vite/client"],
+    "types": ["jest", "node"],
     "strict": true
   },
-  "include": ["src", "src/setupTests.ts"]
+  "include": ["src", "src/setupTests.ts", "__tests__/**/*"]
 }
