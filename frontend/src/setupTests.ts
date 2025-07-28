@@ -1,7 +1,6 @@
-// setupTests.ts
-import '@testing-library/jest-dom';
-
 /// <reference lib="dom" />
+
+import '@testing-library/jest-dom';
 
 class PolyfillTextEncoder {
   encode(str: string): Uint8Array {
@@ -24,11 +23,16 @@ class PolyfillTextDecoder {
   }
 }
 
-// Use globalThis to support Node, jsdom, or browser environments
-if (typeof (globalThis as any).TextEncoder === 'undefined') {
-  (globalThis as any).TextEncoder = PolyfillTextEncoder;
+// Extend globalThis with TextEncoder/TextDecoder if missing
+declare global {
+  var TextEncoder: typeof globalThis.TextEncoder;
+  var TextDecoder: typeof globalThis.TextDecoder;
 }
 
-if (typeof (globalThis as any).TextDecoder === 'undefined') {
-  (globalThis as any).TextDecoder = PolyfillTextDecoder;
+if (typeof globalThis.TextEncoder === 'undefined') {
+  globalThis.TextEncoder = PolyfillTextEncoder as unknown as typeof TextEncoder;
+}
+
+if (typeof globalThis.TextDecoder === 'undefined') {
+  globalThis.TextDecoder = PolyfillTextDecoder as unknown as typeof TextDecoder;
 }

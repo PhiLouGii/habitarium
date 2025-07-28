@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ES2020",
+    "target": "ESNext",
+    "module": "NodeNext",
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "allowJs": true,
+    "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "NodeNext",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
@@ -18,5 +19,5 @@
     "types": ["vite/client"],
     "strict": true
   },
-  "include": ["src", "__tests__"]
+  "include": ["src", "src/setupTests.ts"]
 }
