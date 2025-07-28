@@ -8,6 +8,15 @@ jest.mock('react-calendar', () => ({
   default: () => <div>Calendar Mock</div>
 }));
 
+// Mock AuthContext
+jest.mock('../src/context/AuthContext', () => ({
+  useAuth: () => ({
+    currentUser: { uid: 'test-user' },
+    loading: false,
+    logout: jest.fn(),
+  }),
+}));
+
 test('renders dashboard title', () => {
   render(<Dashboard />);
   expect(screen.getByText(/Dashboard/i)).toBeInTheDocument();

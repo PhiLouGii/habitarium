@@ -1,5 +1,6 @@
 module.exports = {
   testEnvironment: 'jsdom',
+  setupFiles: ['dotenv/config'],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   transform: {
     '^.+\\.(ts|tsx)$': [
@@ -16,11 +17,13 @@ module.exports = {
     '\\.(css|less)$': 'identity-obj-proxy',
     '^firebase/app$': '<rootDir>/__mocks__/firebase/app.js',
     '^firebase/auth$': '<rootDir>/__mocks__/firebase/auth.js',
-    '^firebase/firestore$': '<rootDir>/__mocks__/firebase/firestore.js'
+    '^firebase/firestore$': '<rootDir>/__mocks__/firebase/firestore.js',
+    '^@/firebase$': '<rootDir>/src/__mocks__/firebase.ts',
+    '^src/firebase$': '<rootDir>/src/__mocks__/firebase.ts',
+    '^../firebase$': '<rootDir>/src/__mocks__/firebase.ts',
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!(react-calendar|firebase|@firebase)/)' 
+    '/node_modules/(?!(react-calendar|firebase|@firebase)/)'
   ],
-
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
-};
+}
