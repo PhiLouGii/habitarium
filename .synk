@@ -1,0 +1,8 @@
+# Snyk (https://snyk.io) policy file
+# patches vulnerabilities that have no direct upgrade
+version: v1.25.0
+ignore:
+  SNYK-JS-FORMDATA-10841150:
+    - '* > form-data':
+        reason: 'No fix available for transitive dependency'
+        expires: 2024-12-31T00:00:00.000Z

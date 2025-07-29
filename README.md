@@ -58,6 +58,13 @@ Habitarium is built with a modern, scalable architecture, leveraging the followi
   ```
 - **Reference**: [Snyk Vulnerability DB](https://security.snyk.io/vuln/SNYK-JS-FORMDATA-10841150)
 
+### Security Exceptions
+### Vulnerability: Predictable Value Range from Previous Values (CVE-2022-24767)
+- **Status**: Risk accepted
+- **Reason**: No direct upgrade path for transitive dependency
+- **Risk Assessment**: Low risk for our application as we don't use the vulnerable functionality
+- **Policy Exception**: Added to `.snyk` policy file
+
 ## 🔧 Prerequisites
 Ensure your development environment includes the following: 
 | Technology | Version   | Purpose                                     |
