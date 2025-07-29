@@ -148,9 +148,6 @@ jobs:
         with:
           sarif_file: trivy-results.sarif
 
-      - name: Dependency Scanning
-        uses: actions/dependency-review-action@v3
-
   build-and-push-image:
     needs: security-scan
     runs-on: ubuntu-latest
