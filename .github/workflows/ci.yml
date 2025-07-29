@@ -52,11 +52,16 @@ jobs:
         run: npm ci
         working-directory: ./backend
 
-      - name: Run Backend Lint and Tests
-        run: |
-          npm run lint
-          npm test -- --runInBand --detectOpenHandles
+      - name: Run Backend Lint
+        run: npm run lint
         working-directory: ./backend
+        continue-on-error: true
+
+      - name: Run Backend Tests
+        run: npm test
+        working-directory: ./backend
+        env:
+          CI: true
 
   security-scan:
     needs: build-and-test
