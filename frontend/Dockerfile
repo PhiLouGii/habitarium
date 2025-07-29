@@ -1,22 +1,15 @@
-# Stage 1: Build React app
+# Stage 1: Build the React app
 FROM node:20 AS build
 WORKDIR /app
-# Copy package.json and package-lock.json first to cache dependencies
 COPY package*.json ./
-# Install dependencies
-RUN npm install
-# Copy the rest of the source code
+RUN npm ci
 COPY . .
-# Build the app (CRA outputs to /build by default)
 RUN npm run build
 
 # Stage 2: Production image with Nginx
 FROM nginx:alpine
-# Install curl for healthchecks
 RUN apk add --no-cache curl
-# Copy built app from builder stage (CRA default build dir is /build)
 COPY --from=build /app/build /usr/share/nginx/html
-# Copy custom Nginx config (optional, remove if not needed)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Create non-root user for security
