@@ -253,12 +253,14 @@ jobs:
   production-approval:
     needs: deploy-to-staging
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
       - name: Create Deployment Approval
         uses: trstringer/manual-approval@v1
         with:
-          secret: ${{ github.token }}
-          approvers: ${{ github.actor }}
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: ${{ github.actor }} # Approve as the workflow initiator
           minimum-approvals: 1
 
   deploy-to-production:
