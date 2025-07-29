@@ -9,7 +9,7 @@ FROM node:20 AS build
 WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
-RUN tsc --noEmit || true && vite build
+RUN npx tsc --noEmit || true && npx vite build
 
 # Stage 3: Production
 FROM nginx:alpine
