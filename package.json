@@ -1,5 +1,26 @@
 {
+  "devDependencies": {
+    "@babel/preset-env": "^7.28.0",
+    "@sinonjs/fake-timers": "^14.0.0",
+    "@testing-library/jest-dom": "^6.6.4",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
+    "@types/testing-library__jest-dom": "^5.14.9",
+    "babel-jest": "^30.0.5",
+    "identity-obj-proxy": "^3.0.0",
+    "ts-jest": "^29.4.0"
+  },
+  "scripts": {
+    "start": "npm run start --prefix backend",
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
+  },
   "dependencies": {
-    "mongodb": "^6.17.0"
+    "@firebase/auth": "^1.11.0",
+    "@firebase/firestore": "^4.9.0",
+    "concurrently": "^9.2.0",
+    "date-fns": "^4.1.0",
+    "firebase": "^12.0.0",
+    "firebase-admin": "^13.4.0"
   }
 }
