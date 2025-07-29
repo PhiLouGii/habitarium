@@ -249,9 +249,9 @@ jobs:
 
       - name: Run integration tests
         run: |
-          # Create tests directory if missing
-          mkdir -p tests
-          cd tests
+          # Create tests directory in the root workspace
+          mkdir -p $GITHUB_WORKSPACE/tests
+          cd $GITHUB_WORKSPACE/tests
     
           # Initialize if package.json doesn't exist
           if [ ! -f "package.json" ]; then
@@ -264,12 +264,13 @@ jobs:
             echo '  const body = await response.json();' >> e2e.spec.js
             echo '  expect(body.status).toBe("OK");' >> e2e.spec.js
             echo '});' >> e2e.spec.js
-            jq '.scripts.test = "playwright test"' package.json > tmp.json && mv tmp.json package.json
+      
+            # Add test script to package.json
+            npm pkg set scripts.test:e2e="playwright test"
           fi
     
           # Run tests
           npm run test:e2e
-        working-directory: ./tests
 
   production-approval:
     needs: deploy-to-staging
