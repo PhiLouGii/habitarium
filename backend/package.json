@@ -19,6 +19,7 @@
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "firebase-admin": "^11.11.1",
+    "form-data": "^2.5.4",
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
