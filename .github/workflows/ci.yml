@@ -197,7 +197,7 @@ jobs:
           # Get the exact plan name
           PLAN_NAME=$(az appservice plan list \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --query "[?appServicePlanName=='${{ env.AZURE_WEBAPP_NAME }}'].name" \
+            --query "[].name" \
             --output tsv)
           
           # Verify we found a plan
@@ -205,6 +205,8 @@ jobs:
             echo "ERROR: No App Service Plan found!"
             exit 1
           fi
+
+          echo "Upgrading plan: $PLAN_NAME to S1"
 
           # Upgrade to S1 tier
           az appservice plan update \
