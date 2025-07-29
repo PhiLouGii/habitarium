@@ -1,0 +1,17 @@
+name: PR Security Checks
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Dependency Scanning
+        uses: actions/dependency-review-action@v3
