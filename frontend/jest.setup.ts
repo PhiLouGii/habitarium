@@ -1,10 +1,11 @@
 import '@testing-library/jest-dom';
 
-// Polyfill requestAnimationFrame
-global.requestAnimationFrame = (callback) => {
-  return setTimeout(callback, 0);
-};
+// Mock global objects for Jest
+global.afterEach(() => {
+  jest.clearAllMocks();
+});
 
-global.cancelAnimationFrame = (id) => {
-  clearTimeout(id);
-};
+global.beforeEach(() => {
+  jest.spyOn(console, 'warn').mockImplementation(() => {});
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
