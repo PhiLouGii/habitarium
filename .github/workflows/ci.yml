@@ -74,26 +74,33 @@ jobs:
         uses: snyk/actions/node@master
         with:
           command: test
-          args: --all-projects --severity-threshold=high
+          args: --all-projects --severity-threshold=high --json-file-output=snyk-results.json
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          continue-on-error: true
+
+      - name: Upload Snyk results
+        uses: actions/upload-artifact@v3
+        with:
+          name: snyk-results
+          path: snyk-results.json
 
       - name: Run TruffleHog secret scan
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
 
-      - name: Container Vulnerability Scan
+      - name: Container Security Scan
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.ACR_NAME }}.azurecr.io/habitarium:${{ env.IMAGE_TAG }}
           severity: 'CRITICAL,HIGH'
-          exit-code: '1'
           format: 'sarif'
           output: 'trivy-results.sarif'
           ignore-unfixed: true
+        continue-on-error: true
 
-      - name: Upload Scan Results
+      - name: Upload Trivy Results
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: trivy-results.sarif

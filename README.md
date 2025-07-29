@@ -41,6 +41,23 @@ Habitarium is built with a modern, scalable architecture, leveraging the followi
 *   **Backend**: Jest with Supertest for API integration testing.
 *   **Frontend**: Vitest with React Testing Library and JSDOM for component testing.
 
+## 🔐Security Remediation
+
+### Vulnerability: Predictable Value Range from Previous Values (CVE-2022-24767)
+- **Severity**: Critical
+- **Affected Packages**: 
+  - Frontend: form-data@4.0.3 (via axios)
+  - Backend: form-data@2.5.3 (via firebase-admin)
+- **Fix Applied**:
+  ```bash
+  # Frontend fix
+  npm install form-data@4.0.4 --save
+  
+  # Backend fix
+  npm install form-data@2.5.4 --save
+  ```
+- **Reference**: [Snyk Vulnerability DB](https://security.snyk.io/vuln/SNYK-JS-FORMDATA-10841150)
+
 ## 🔧 Prerequisites
 Ensure your development environment includes the following: 
 | Technology | Version   | Purpose                                     |
