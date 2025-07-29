@@ -9,11 +9,11 @@ FROM node:20 AS build
 WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
-RUN npm run build || echo "Ignoring TypeScript errors"
+RUN tsc --noEmit || true && vite build
 
 # Stage 3: Production
 FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
+COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
 

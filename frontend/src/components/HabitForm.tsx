@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext'; // Add this import
+import { useAuth } from '../context/AuthContext'; 
+import styles from './HabitForm.module.css';// Add this import
 
 interface HabitFormProps {
   onSubmit: (habit: any) => void;
