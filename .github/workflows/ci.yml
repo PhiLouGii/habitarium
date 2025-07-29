@@ -191,6 +191,18 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      # Upgrade plan first
+    - name: Upgrade App Service Plan
+      run: |
+        PLAN_NAME=$(az appservice plan list \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --query "[?appServicePlanName=='${{ env.AZURE_WEBAPP_NAME }}'].name" \
+          --output tsv)
+        az appservice plan update \
+          --name $PLAN_NAME \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --sku S1
+
       - name: Create staging slot if not exists
         run: |
           if ! az webapp deployment slot show \
