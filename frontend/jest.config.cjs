@@ -1,6 +1,9 @@
 module.exports = {
   testEnvironment: 'jsdom',
-  setupFiles: ['dotenv/config'],
+  setupFiles: [
+    'dotenv/config',
+    '<rootDir>/jest.polyfills.js'
+  ],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   transform: {
     '^.+\\.(ts|tsx)$': [

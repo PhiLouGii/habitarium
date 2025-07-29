@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { BrowserRouter as Router } from 'react-router-dom';
 import Dashboard from '../src/pages/Dashboard';
 
 // Mock react-calendar
@@ -18,6 +19,11 @@ jest.mock('../src/context/AuthContext', () => ({
 }));
 
 test('renders dashboard title', () => {
-  render(<Dashboard />);
+  render(
+    <Router>
+      <Dashboard />
+    </Router>
+  );
+  
   expect(screen.getByText(/Dashboard/i)).toBeInTheDocument();
 });

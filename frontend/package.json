@@ -4,15 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "vite",
-    "dev": "vite",
-    "test": "jest --config jest.config.cjs --runInBand --detectOpenHandles --no-cache",
-    "test:watch": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watch",
-    "test:coverage": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
+  "start": "vite",
+  "dev": "vite",
+  "test": "jest --config jest.config.cjs",
+  "test:watch": "jest --config jest.config.cjs --watch",
+  "test:coverage": "jest --config jest.config.cjs --coverage",
+  "build": "tsc -b && vite build",
+  "lint": "eslint .",
+  "preview": "vite preview"
+},
   "dependencies": {
     "@firebase/auth": "^1.11.0",
     "@firebase/firestore": "^4.9.0",
