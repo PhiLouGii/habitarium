@@ -7,3 +7,5 @@ README.md
 dist
 build
 .vscode
+build
+.DS_Store
