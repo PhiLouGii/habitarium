@@ -74,16 +74,30 @@ jobs:
         uses: snyk/actions/node@master
         with:
           command: test
-          args: --all-projects --severity-threshold=high --json-file-output=snyk-results.json
+          args: |
+            --severity-threshold=high 
+            --json-file-output=snyk-results.json
+            --policy-path=.snyk  
+            --project-name=frontend 
+            --file=frontend/package-lock.json
+            --project-name=backend 
+            --file=backend/package-lock.json
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          continue-on-error: true
+        continue-on-error: true
 
       - name: Upload Snyk results
         uses: actions/upload-artifact@v4
         with:
           name: snyk-results
           path: snyk-results.json
+
+      - name: Generate security report
+        run: |
+          echo "## Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "Found vulnerabilities:" >> $GITHUB_STEP_SUMMARY
+          jq '.vulnerabilities[] | "✗ \(.id) [\(.severity)] - \(.title)"' snyk-results.json >> $GITHUB_STEP_SUMMARY
+        if: always()
 
       - name: Run TruffleHog secret scan
         uses: trufflesecurity/trufflehog@main
