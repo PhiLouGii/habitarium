@@ -94,9 +94,8 @@ jobs:
 
       - name: Generate security report
         run: |
-          echo "## Security Scan Results" >> $GITHUB_STEP_SUMMARY
-          echo "Found vulnerabilities:" >> $GITHUB_STEP_SUMMARY
-          jq '.vulnerabilities[] | "✗ \(.id) [\(.severity)] - \(.title)"' snyk-results.json >> $GITHUB_STEP_SUMMARY
+          chmod +x ./scripts/security-report.sh
+          ./scripts/security-report.sh
         if: always()
 
       - name: Run TruffleHog secret scan
