@@ -194,12 +194,21 @@ jobs:
       # Upgrade plan first
       - name: Upgrade App Service Plan
         run: |
+          # Get the exact plan name
           PLAN_NAME=$(az appservice plan list \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --query "[?appServicePlanName=='${{ env.AZURE_WEBAPP_NAME }}'].name" \
             --output tsv)
+          
+          # Verify we found a plan
+          if [ -z "$PLAN_NAME" ]; then
+            echo "ERROR: No App Service Plan found!"
+            exit 1
+          fi
+
+          # Upgrade to S1 tier
           az appservice plan update \
-            --name $PLAN_NAME \
+            --name "$PLAN_NAME" \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --sku S1
 
