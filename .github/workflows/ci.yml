@@ -258,6 +258,18 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Wait for Staging Health Check
+        run: |
+          for i in {1..10}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://habitarium-staging.azurewebsites.net/api/health)
+            if [[ "$STATUS" == "200" ]]; then
+              echo "Staging slot is healthy"
+              break
+            fi
+            echo "Waiting for staging slot... ($i/10)"
+            sleep 10
+          done
+
       - name: Swap Slots (Promote to Production)
         run: |
           az webapp deployment slot swap \
@@ -269,3 +281,4 @@ jobs:
       - name: Verify Production Deployment
         run: |
           curl -s https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/api/health | grep '"status":"OK"'
+
