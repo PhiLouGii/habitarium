@@ -13,7 +13,7 @@ appInsights.setup(process.env.APPINSIGHTS_CONNECTION_STRING)
 // Express app setup
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 
 // Logging middleware
 app.use((req, res, next) => {
