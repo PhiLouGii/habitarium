@@ -1,16 +1,29 @@
 // Telemetry
 const appInsights = require('applicationinsights');
-appInsights.setup(process.env.APPINSIGHTS_CONNECTION_STRING).start();
+appInsights.setup(process.env.APPINSIGHTS_CONNECTION_STRING)
+           .setAutoDependencyCorrelation(true)
+           .setAutoCollectRequests(true)
+           .setAutoCollectPerformance(true)
+           .setAutoCollectExceptions(true)
+           .setAutoCollectDependencies(true)
+           .setAutoCollectConsole(true)
+           .setUseDiskRetryCaching(true)
+           .start();
 
-// Express setup
+// Express app setup
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Health check endpoint (for Azure slot swap)
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'OK' });
+// Logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
 });
+
+// Routes
+const healthRouter = require('./routes/health');
+app.use('/api', healthRouter);
 
 // Root route
 app.get('/', (req, res) => {
