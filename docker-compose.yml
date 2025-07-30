@@ -3,9 +3,7 @@ version: '3.8'
 services:
   # Reverse Proxy (entry point)
   reverse-proxy:
-    build:
-      context: .
-      dockerfile: proxy/Dockerfile
+    image: ${ACR_NAME}.azurecr.io/habitarium-proxy:${IMAGE_TAG}
     ports:
       - "8080:8080"  # Azure requires this
     depends_on:
