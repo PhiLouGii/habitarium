@@ -258,17 +258,34 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Wait for Staging Health Check
+      - name: Verify Staging Slot Health
         run: |
-          for i in {1..10}; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.AZURE_WEBAPP_NAME }}-${{ env.STAGING_SLOT }}.azurewebsites.net/api/health)
-            if [[ "$STATUS" == "200" ]]; then
-              echo "Staging slot health check failed after 10 attempts."
-              break
+          max_retries=10
+          retry_delay=15
+          url="https://${{ env.AZURE_WEBAPP_NAME }}-${{ env.STAGING_SLOT }}.azurewebsites.net/api/health"
+    
+          for i in $(seq 1 $max_retries); do
+            status_code=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+      
+            if [ "$status_code" -eq 200 ]; then
+              echo "Health check passed"
+              exit 0
             fi
-            echo "Waiting for staging slot... ($i/10)"
-            sleep 10
+      
+            echo "Health check failed (attempt $i/$max_retries): $status_code"
+            sleep $retry_delay
           done
+    
+          echo "Health check failed after $max_retries attempts"
+          exit 1
+
+      - name: Configure Health Check
+        run: |
+          az webapp config set \
+          --name ${{ env.AZURE_WEBAPP_NAME }} \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --slot ${{ env.STAGING_SLOT }} \
+          --generic-configurations '{"healthCheckPath": "/api/health"}'
 
       - name: Swap Slots (Promote to Production)
         run: |
