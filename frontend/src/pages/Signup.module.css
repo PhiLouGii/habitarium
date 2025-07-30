@@ -62,7 +62,7 @@ body {
 .button {
   padding: 0.75rem;
   font-size: 1rem;
-  background-color: #FFB915;
+  background-color: red;
   color: #011B2F;
   border: 3px solid #002A45;
   border-radius: 10px;
