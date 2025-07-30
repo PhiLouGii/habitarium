@@ -37,9 +37,10 @@ EXPOSE 8080
 # Set the PORT environment variable (good practice)
 ENV PORT=8080
 
-# Start the backend application; ensure your package.json start script runs your backend server
-CMD ["npm", "start"]
 
 # Health check for container monitoring
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:${PORT}/health || exit 1
+  CMD curl -f http://localhost:${PORT}/api/health || exit 1
+
+# Start the backend application; ensure your package.json start script runs your backend server
+CMD ["node", "index.js", "--port", "8080"]

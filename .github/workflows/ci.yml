@@ -210,64 +210,61 @@ jobs:
     needs: build-and-push-image
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # Upgrade plan first
-    - name: Upgrade App Service Plan
-      run: |
-          # Get the exact plan name
-          PLAN_NAME=$(az appservice plan list \
+      - name: Set ACR Credentials
+        run: |
+          az webapp config container set \
+            --name ${{ env.AZURE_WEBAPP_NAME }} \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --query "[].name" \
-            --output tsv)
-          
-          # Verify we found a plan
-          if [ -z "$PLAN_NAME" ]; then
-            echo "ERROR: No App Service Plan found!"
-            exit 1
-          fi
+            --slot ${{ env.STAGING_SLOT }} \
+            --docker-registry-server-url https://${{ secrets.ACR_NAME }}.azurecr.io \
+            --docker-registry-server-user ${{ secrets.ACR_USERNAME }} \
+            --docker-registry-server-password ${{ secrets.ACR_PASSWORD }}
 
-          echo "Upgrading plan: $PLAN_NAME to S1"
+      - name: Resolve Docker Compose variables
+        run: |
+          sudo apt-get install gettext-base -y
+          envsubst < docker-compose.yml > docker-compose-resolved.yml
+          cat docker-compose-resolved.yml
+        env:
+          ACR_NAME: ${{ secrets.ACR_NAME }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+          AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
+          STAGING_SLOT: ${{ env.STAGING_SLOT }}
 
-          # Upgrade to S1 tier
-          az appservice plan update \
-            --name "$PLAN_NAME" \
-            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --sku S1
-
-    - name: Skip slot creation (manual setup required)
-      run: echo "Skipping slot creation - ensure staging slot exists manually"
-
-    - name: Deploy multi-container to Staging Slot
-      run: |
-        # Verify docker-compose.yml exists
-        ls -la
+      - name: Deploy multi-container to Staging Slot
+        run: |
           az webapp config container set \
             --name ${{ env.AZURE_WEBAPP_NAME }} \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --slot ${{ env.STAGING_SLOT }} \
             --multicontainer-config-type compose \
-            --multicontainer-config-file docker-compose.yml
+            --multicontainer-config-file docker-compose-resolved.yml
 
-    - name: Warm up staging slot
-      run: |
+      - name: Configure Health Check
+        run: |
+          az webapp config set \
+            --name ${{ env.AZURE_WEBAPP_NAME }} \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --slot ${{ env.STAGING_SLOT }} \
+            --health-check-path /api/health
+
+      - name: Warm up staging slot
+        run: |
           curl -s -o /dev/null -w "%{http_code}" \
           https://${{ env.AZURE_WEBAPP_NAME }}-${{ env.STAGING_SLOT }}.azurewebsites.net/api/health
 
-    - name: Warm up staging slot
-      run: |
-          curl -s -o /dev/null -w "%{http_code}" https://${{ env.AZURE_WEBAPP_NAME }}-${{ env.STAGING_SLOT }}.azurewebsites.net/api/health
-
-    - name: Restart staging slot
-      run: |
+      - name: Restart staging slot
+        run: |
           az webapp restart --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --slot ${{ env.STAGING_SLOT }}
-
+          
   production-approval:
     needs: deploy-to-staging
     runs-on: ubuntu-latest
