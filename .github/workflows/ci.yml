@@ -259,6 +259,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Verify Staging Slot Health
+        if: false
         run: |
           max_retries=10
           retry_delay=15
@@ -280,6 +281,7 @@ jobs:
           exit 1
 
       - name: Configure Health Check
+        if: false
         run: |
           az webapp config set \
           --name ${{ env.AZURE_WEBAPP_NAME }} \
@@ -288,6 +290,7 @@ jobs:
           --generic-configurations '{"healthCheckPath": "/api/health"}'
 
       - name: Swap Slots (Promote to Production)
+        if: false
         run: |
           az webapp deployment slot swap \
             --name habitarium-webapp \
