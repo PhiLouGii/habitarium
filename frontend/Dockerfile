@@ -14,7 +14,7 @@ RUN npx tsc --noEmit || true && npx vite build
 # Stage 3: Production
 FROM nginx:alpine
 COPY --from=build /app/build /usr/share/nginx/html
-EXPOSE 8080
+EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 
 # Health check on the exposed port
