@@ -261,9 +261,9 @@ jobs:
       - name: Wait for Staging Health Check
         run: |
           for i in {1..10}; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://habitarium-staging.azurewebsites.net/api/health)
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.AZURE_WEBAPP_NAME }}-${{ env.STAGING_SLOT }}.azurewebsites.net/api/health)
             if [[ "$STATUS" == "200" ]]; then
-              echo "Staging slot is healthy"
+              echo "Staging slot health check failed after 10 attempts."
               break
             fi
             echo "Waiting for staging slot... ($i/10)"
