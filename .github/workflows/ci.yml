@@ -232,7 +232,7 @@ jobs:
         run: |
           sudo apt-get install gettext-base -y
           envsubst < docker-compose.yml > docker-compose-resolved.yml
-          cat docker-compose-resolved.yml
+          cat docker-compose-resolved.yml  # Verify output
         env:
           ACR_NAME: ${{ secrets.ACR_NAME }}
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
