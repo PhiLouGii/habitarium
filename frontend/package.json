@@ -9,7 +9,7 @@
     "test": "jest --config jest.config.cjs",
     "test:watch": "jest --config jest.config.cjs --watch",
     "test:coverage": "jest --config jest.config.cjs --coverage",
-    "build": "tsc && vite build",
+    "build": "vite build --outDir build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

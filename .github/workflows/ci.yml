@@ -207,10 +207,15 @@ jobs:
           docker push ${{ env.ACR_NAME }}.azurecr.io/habitarium-frontend:${{ env.IMAGE_TAG }}
           docker push ${{ env.ACR_NAME }}.azurecr.io/habitarium-frontend:latest
 
-      - name: Build and push reverse proxy image
+      - name: Build and tag reverse-proxy image
         run: |
           docker build -t ${{ env.ACR_NAME }}.azurecr.io/habitarium-proxy:${{ env.IMAGE_TAG }} -f proxy/Dockerfile .
+          docker tag ${{ env.ACR_NAME }}.azurecr.io/habitarium-proxy:${{ env.IMAGE_TAG }} ${{ env.ACR_NAME }}.azurecr.io/habitarium-proxy:latest
+
+      - name: Push reverse-proxy image
+        run: |
           docker push ${{ env.ACR_NAME }}.azurecr.io/habitarium-proxy:${{ env.IMAGE_TAG }}
+          docker push ${{ env.ACR_NAME }}.azurecr.io/habitarium-proxy:latest
 
 
   deploy-to-staging:
