@@ -117,9 +117,6 @@ To stop and remove the containers, networks, and volumes created by `docker-comp
 ## ☁️ Cloud Deployment
 Habitarium’s infrastructure is defined and provisioned using Terraform, targeting cloud environments on AWS, Google Cloud Platform, and Microsoft Azure. While initial provisioning attempts faced platform-specific challenges (as detailed in phase.md), the containerised application has been successfully deployed on Microsoft Azure Web App for Containers, demonstrating the full containerization and manual deployment workflow on a major cloud platform.
 
-### Live Public URL
-**Application URL**: [https://habitarium-webapp.azurewebsites.net/](https://habitarium-webapp.azurewebsites.net/)
-
 ## Testing 🧪
 Run automated tests for both your backend and frontend applications to ensure functionality and code quality.
 ### Backend Test Suite
@@ -133,13 +130,55 @@ cd frontend
 npm test
 ```
 
-## 📡 API Reference
-The Habitarium backend exposes the following RESTful API endpoints. The base URL for all endpoints is http://localhost:3001/api.
+## 🌐 Live URLs
 
-| Method | Endpoint         | Description                                | Auth | Request Body (Example)                                                                 | Response (Success Example)                                                                                                                                                 |
-|--------|------------------|--------------------------------------------|------|-----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| POST   | `/habits/log`    | Logs a new habit entry for a user.         | None | `{ "userId": "user123", "name": "Drink Water", "date": "2025-07-01T10:00:00Z" }`        | `{ "_id": "60c72b2f9f1b2c001c8e4d5f", "userId": "user123", "name": "Drink Water", "date": "2025-07-01T10:00:00.000Z", "completed": true, "createdAt": "...", "updatedAt": "..." }` |
-| GET    | `/habits/:userId`| Retrieves all habit entries for a user.    | None | _(None)_                                                                               | `[ { "_id": "...", "userId": "user123", "name": "Meditate", "date": "2025-06-30T08:00:00.000Z", ... }, { "_id": "...", "userId": "user123", "name": "Exercise", "date": "2025-07-01T07:00:00.000Z", ... } ]`     |
+- **Production**: https://habitarium-webapp.azurewebsites.net
+- **Staging**: https://habitarium-webapp-staging.azurewebsites.net
+
+## 🩺 Health Endpoints
+
+- `/api/health` — returns JSON `{ "status": "OK" }` when healthy
+
+## 🔁 CI/CD Pipeline (GitHub Actions)
+- ✅ Build frontend/backend
+- ✅ Run unit tests
+- ✅ Linting & formatting
+- ✅ Security scanning (Snyk, Trivy)
+- ✅ Docker image pushed to Azure Registry
+- ✅ Deploy to staging slot
+- ✅ Health check wait loop
+- ✅ Manual approval for prod deploy
+- ✅ Production slot-swap deployment
+
+## ⚙️ Deployment Overview
+
+### Trigger
+
+- Automatic on merge to `main`
+- Manual trigger via GitHub Actions “Run Workflow” button
+
+### Pipeline Stages
+
+1. Checkout code
+2. Install & test frontend and backend
+3. Run security scans (Snyk, Trivy)
+4. Build Docker image and push to Azure Container Registry
+5. Deploy to staging slot and run health check
+6. Manual approval required
+7. Swap staging slot to production
+
+## 🛡️ Security Scanning
+
+Security is built into the pipeline with:
+- **Snyk** for dependency vulnerability detection
+- **Trivy** for container image security scanning
+- CVE-2022-24767 mitigated (form-data patched)
+- Both scans upload results for visibility and compliance
+
+## 📈 Monitoring
+- Logging to Azure App Insights
+- Basic health dashboard
+- Alert rules pending final test
 
 ## 📁 Project Structure
 The Habitarium project is organized into backend and frontend directories, with a dedicated .github folder for CI/CD workflows.
@@ -149,40 +188,13 @@ habitarium/
 │ └── 📂 workflows/
 │ └── ci.yml 
 ├── 📂 backend/ 
-│ ├── 📂 models/
-│ │ └── Habit.js
-│ ├── 📂 routes/
-│ │ └── habits.js 
-│ ├── 📂 tests/
-│ │ └── habits.test.js 
-│ ├── Dockerfile
-│ ├── server.js 
-│ ├── package.json 
-│ └── .env 
 ├── 📂 frontend/ 
-│ ├── 📂 public/ 
-│ ├── 📂 src/
-│ │ ├── 📂 components/
-│ │ │ ├── StreakCounter.tsx 
-│ │ │ └── StreakCounter.css 
-│ │ ├── 📂 assets/ 
-│ │ ├── App.tsx 
-│ │ ├── App.css 
-│ │ ├── main.tsx 
-│ │ └── setupTests.ts 
-│ │ └── components/
-│ │ └── StreakCounter.test.tsx 
-│ ├── Dockerfile 
-│ ├── package.json 
-│ ├── vite.config.ts 
-│ └── .env 
 ├── 📂 terraform/
-│ └── main.tf 
-│ └── variables.tf 
-│ └── outputs.tf 
 ├── docker-compose.yml
 ├── Dockerfile
 ├── phase.md 
+├── SECURITY.md 
+├── CHANGELOG.md 
 └── README.md 
 ```
 
@@ -194,12 +206,22 @@ habitarium/
 | ✅     | CI Pipeline                   | Automated linting and unit tests on Pull Requests.  |
 | ✅   | Containerization              | Docker implementation for consistent environments.  |
 | ✅     | Infrastructure as Code (IaC)  | Automated infrastructure provisioning.              |
-| ❔     | Continuous Deployment Pipeline| Automation for deploying to cloud environments.     |
-| ❔     | Monitoring & Logging          | Application performance and error tracking.         |
-| ✏️     | Achievement System            | Implementation of gamified milestones.              |
-| ❔     | Habit Replacement Suggestions | AI-driven suggestions for replacing bad habits.     |
+| ✅     | Continuous Deployment Pipeline| Automation for deploying to cloud environments.     |
+| ✅     | Monitoring & Logging          | Application performance and error tracking.         |
+| ❔     | Achievement System            | Implementation of gamified milestones.              |
+| ✏️     | Habit Replacement Suggestions | AI-driven suggestions for replacing bad habits.     |
 
 **Key:** ✅ Complete | ❔ In Progress | ✏️ Planned  
+
+## 📄 Documentation
+
+- See [`CHANGELOG.md`](./CHANGELOG.md) maintained with version history
+- README includes deployment/health instructions
+
+## 🔮 Future Enhancemnets
+- Mobile PWA support
+- AI-driven habit suggestions
+- Advanced analytics filters
 
 ## 🤝 Contributing
 Contributions from the community are welcome! Here's how to get involved:
