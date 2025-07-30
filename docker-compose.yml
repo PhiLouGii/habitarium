@@ -1,18 +1,15 @@
 version: '3.8'
 
 services:
-  # Backend service
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ${ACR_NAME}.azurecr.io/habitarium-backend:${IMAGE_TAG}
     container_name: habitarium-backend
     ports:
       - "8080:8080"
     environment:
       - NODE_ENV=production
       - PORT=8080
-      # Add your Firebase environment variables here
+      # Add Firebase env vars here or configure them as App Settings in Azure
       - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
       - FIREBASE_PRIVATE_KEY_ID=${FIREBASE_PRIVATE_KEY_ID}
       - FIREBASE_PRIVATE_KEY=${FIREBASE_PRIVATE_KEY}
@@ -20,12 +17,6 @@ services:
       - FIREBASE_CLIENT_ID=${FIREBASE_CLIENT_ID}
       - FIREBASE_AUTH_URI=${FIREBASE_AUTH_URI}
       - FIREBASE_TOKEN_URI=${FIREBASE_TOKEN_URI}
-    env_file:
-      - backend/.env
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
       interval: 30s
@@ -35,31 +26,23 @@ services:
     networks:
       - habitarium-network
 
-  # Frontend service
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.frontend
+    image: ${ACR_NAME}.azurecr.io/habitarium-frontend:${IMAGE_TAG}
     container_name: habitarium-frontend
     ports:
-      - "5173:5173"
+      - "80:80"
     depends_on:
       backend:
         condition: service_healthy
     environment:
-      - VITE_API_BASE_URL=http://localhost:3001/api
-    env_file:
-      - frontend/.env
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    restart: unless-stopped
+      - VITE_API_BASE_URL=http://backend:8080/api
     networks:
       - habitarium-network
 
 networks:
   habitarium-network:
     driver: bridge
+
 
 # Optional: Add volumes for persistent data if needed
 volumes:

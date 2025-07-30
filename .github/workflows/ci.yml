@@ -163,24 +163,48 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Build and tag Docker image
+      # Build and tag backend image
+      - name: Build and tag backend image
         run: |
-          docker build -t ${{ env.ACR_NAME }}.azurecr.io/habitarium:${{ env.IMAGE_TAG }} -f frontend/Dockerfile ./frontend
-          docker tag ${{ env.ACR_NAME }}.azurecr.io/habitarium:${{ env.IMAGE_TAG }} ${{ env.ACR_NAME }}.azurecr.io/habitarium:latest
+          docker build -t ${{ env.ACR_NAME }}.azurecr.io/habitarium-backend:${{ env.IMAGE_TAG }} -f backend/Dockerfile ./backend
+          docker tag ${{ env.ACR_NAME }}.azurecr.io/habitarium-backend:${{ env.IMAGE_TAG }} ${{ env.ACR_NAME }}.azurecr.io/habitarium-backend:latest
 
-      - name: Scan container with Trivy
+      # Build and tag frontend image
+      - name: Build and tag frontend image
+        run: |
+          docker build -t ${{ env.ACR_NAME }}.azurecr.io/habitarium-frontend:${{ env.IMAGE_TAG }} -f frontend/Dockerfile ./frontend
+          docker tag ${{ env.ACR_NAME }}.azurecr.io/habitarium-frontend:${{ env.IMAGE_TAG }} ${{ env.ACR_NAME }}.azurecr.io/habitarium-frontend:latest
+
+      # Scan containers (optional)
+      - name: Scan backend image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.ACR_NAME }}.azurecr.io/habitarium:${{ env.IMAGE_TAG }}
+          image-ref: ${{ env.ACR_NAME }}.azurecr.io/habitarium-backend:${{ env.IMAGE_TAG }}
           severity: 'CRITICAL,HIGH'
           exit-code: '1'
           ignore-unfixed: true
         continue-on-error: true
 
-      - name: Push Docker images
+      - name: Scan frontend image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.ACR_NAME }}.azurecr.io/habitarium-frontend:${{ env.IMAGE_TAG }}
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          ignore-unfixed: true
+        continue-on-error: true
+
+      # Push backend image
+      - name: Push backend image
         run: |
-          docker push ${{ env.ACR_NAME }}.azurecr.io/habitarium:${{ env.IMAGE_TAG }}
-          docker push ${{ env.ACR_NAME }}.azurecr.io/habitarium:latest
+          docker push ${{ env.ACR_NAME }}.azurecr.io/habitarium-backend:${{ env.IMAGE_TAG }}
+          docker push ${{ env.ACR_NAME }}.azurecr.io/habitarium-backend:latest
+
+      # Push frontend image
+      - name: Push frontend image
+        run: |
+          docker push ${{ env.ACR_NAME }}.azurecr.io/habitarium-frontend:${{ env.IMAGE_TAG }}
+          docker push ${{ env.ACR_NAME }}.azurecr.io/habitarium-frontend:latest
 
   deploy-to-staging:
     needs: build-and-push-image
@@ -217,24 +241,27 @@ jobs:
       - name: Skip slot creation (manual setup required)
         run: echo "Skipping slot creation - ensure staging slot exists manually"
 
-      - name: Deploy to Staging Slot
+      - name: Deploy multi-container to Staging Slot
         run: |
           az webapp config container set \
             --name ${{ env.AZURE_WEBAPP_NAME }} \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --slot ${{ env.STAGING_SLOT }} \
-            --docker-registry-server-url https://${{ env.ACR_NAME }}.azurecr.io \
-            --docker-registry-server-user ${{ secrets.ACR_USERNAME }} \
-            --docker-registry-server-password ${{ secrets.ACR_PASSWORD }} \
-            --container-image-name ${{ env.ACR_NAME }}.azurecr.io/habitarium:${{ env.IMAGE_TAG }}
+            --multicontainer-config-type compose \
+            --multicontainer-config-file docker-compose.yml
 
       - name: Warm up staging slot
         run: |
           curl -s -o /dev/null -w "%{http_code}" \
           https://${{ env.AZURE_WEBAPP_NAME }}-${{ env.STAGING_SLOT }}.azurewebsites.net/api/health
 
-      - name: Skip integration tests
-        run: echo "Skipping integration tests for now - will implement properly later"
+      - name: Warm up staging slot
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" https://${{ env.AZURE_WEBAPP_NAME }}-${{ env.STAGING_SLOT }}.azurewebsites.net/api/health
+
+      - name: Restart staging slot
+        run: |
+          az webapp restart --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --slot ${{ env.STAGING_SLOT }}
 
   production-approval:
     needs: deploy-to-staging
