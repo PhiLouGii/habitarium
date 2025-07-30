@@ -1,6 +1,8 @@
 # Habitarium: Build Good, Break Bad
 *Take control of your habits, build positive routines, and track your progress towards a better you.*
 
+- YouTube Demo Video: https://youtu.be/WuvOKi_ZL9Y
+
 ## 📖 Overview
 Habitarium is a comprehensive web application designed to empower individuals in transforming their daily routines. It provides a dual-focus approach, assisting users in both kicking undesirable habits and forming healthy, positive ones. With Habitarium, you can meticulously track your journey, monitor "resistance days" for bad habits, celebrate "streaks" for good habits, and unlock rewarding "accomplishments" as you progress. Our goal is to provide a clear, motivating, and insightful platform for sustainable personal growth.
 
@@ -136,6 +138,7 @@ npm test
 - **Staging**: https://habitarium-webapp-staging.azurewebsites.net
 - Check the live uptime status of Habitarium:
 - [Habitarium Web App Status](https://stats.uptimerobot.com/Benz2STvzI)
+- YouTube Demo Video: https://youtu.be/WuvOKi_ZL9Y
 
 ## 🩺 Health Endpoints
 
