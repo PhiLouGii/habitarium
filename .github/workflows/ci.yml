@@ -218,6 +218,17 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Resolve Docker Compose variables
+        run: |
+          sudo apt-get install gettext-base -y
+          envsubst < docker-compose.yml > docker-compose-resolved.yml
+          cat docker-compose-resolved.yml
+        env:
+          ACR_NAME: ${{ secrets.ACR_NAME }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+          AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
+          STAGING_SLOT: ${{ env.STAGING_SLOT }}
+
       - name: Set ACR Credentials
         run: |
           az webapp config container set \
@@ -228,17 +239,6 @@ jobs:
             --docker-registry-server-user ${{ secrets.ACR_USERNAME }} \
             --docker-registry-server-password ${{ secrets.ACR_PASSWORD }}
 
-      - name: Resolve Docker Compose variables
-        run: |
-          sudo apt-get install gettext-base -y
-          envsubst < docker-compose.yml > docker-compose-resolved.yml
-          cat docker-compose-resolved.yml  # Verify output
-        env:
-          ACR_NAME: ${{ secrets.ACR_NAME }}
-          IMAGE_TAG: ${{ env.IMAGE_TAG }}
-          AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
-          STAGING_SLOT: ${{ env.STAGING_SLOT }}
-
       - name: Deploy multi-container to Staging Slot
         run: |
           az webapp config container set \
@@ -248,22 +248,25 @@ jobs:
             --multicontainer-config-type compose \
             --multicontainer-config-file docker-compose-resolved.yml
 
+      # CORRECTED HEALTH CHECK CONFIGURATION
       - name: Configure Health Check
         run: |
           az webapp config set \
             --name ${{ env.AZURE_WEBAPP_NAME }} \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --slot ${{ env.STAGING_SLOT }} \
-            --health-check-path /api/health
+            --generic-configurations '{"healthCheckPath": "/api/health"}'
 
       - name: Warm up staging slot
         run: |
-          curl -s -o /dev/null -w "%{http_code}" \
-          https://${{ env.AZURE_WEBAPP_NAME }}-${{ env.STAGING_SLOT }}.azurewebsites.net/api/health
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            https://${{ env.AZURE_WEBAPP_NAME }}-${{ env.STAGING_SLOT }}.azurewebsites.net/api/health)
+          echo "Health check status: $STATUS"
+          if [ "$STATUS" -ne 200 ]; then exit 1; fi
 
       - name: Restart staging slot
         run: |
-          az webapp restart --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --slot ${{ env.STAGING_SLOT }}
+          az webapp restart --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --slot ${{ env.STAGING_SLOT }} 
           
   production-approval:
     needs: deploy-to-staging
