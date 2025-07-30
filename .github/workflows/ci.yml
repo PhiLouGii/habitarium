@@ -210,14 +210,17 @@ jobs:
     needs: build-and-push-image
     runs-on: ubuntu-latest
     steps:
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       # Upgrade plan first
-      - name: Upgrade App Service Plan
-        run: |
+    - name: Upgrade App Service Plan
+      run: |
           # Get the exact plan name
           PLAN_NAME=$(az appservice plan list \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
@@ -238,11 +241,13 @@ jobs:
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --sku S1
 
-      - name: Skip slot creation (manual setup required)
-        run: echo "Skipping slot creation - ensure staging slot exists manually"
+    - name: Skip slot creation (manual setup required)
+      run: echo "Skipping slot creation - ensure staging slot exists manually"
 
-      - name: Deploy multi-container to Staging Slot
-        run: |
+    - name: Deploy multi-container to Staging Slot
+      run: |
+        # Verify docker-compose.yml exists
+        ls -la
           az webapp config container set \
             --name ${{ env.AZURE_WEBAPP_NAME }} \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
@@ -250,17 +255,17 @@ jobs:
             --multicontainer-config-type compose \
             --multicontainer-config-file docker-compose.yml
 
-      - name: Warm up staging slot
-        run: |
+    - name: Warm up staging slot
+      run: |
           curl -s -o /dev/null -w "%{http_code}" \
           https://${{ env.AZURE_WEBAPP_NAME }}-${{ env.STAGING_SLOT }}.azurewebsites.net/api/health
 
-      - name: Warm up staging slot
-        run: |
+    - name: Warm up staging slot
+      run: |
           curl -s -o /dev/null -w "%{http_code}" https://${{ env.AZURE_WEBAPP_NAME }}-${{ env.STAGING_SLOT }}.azurewebsites.net/api/health
 
-      - name: Restart staging slot
-        run: |
+    - name: Restart staging slot
+      run: |
           az webapp restart --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --slot ${{ env.STAGING_SLOT }}
 
   production-approval:
