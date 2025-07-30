@@ -1,14 +1,24 @@
 version: '3.8'
 
 services:
+  # Reverse Proxy (entry point)
+  reverse-proxy:
+    build:
+      context: .
+      dockerfile: proxy/Dockerfile
+    ports:
+      - "8080:8080"  # Azure requires this
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - habitarium-network
+
   backend:
     image: ${ACR_NAME}.azurecr.io/habitarium-backend:${IMAGE_TAG}
-    ports:
-      - "8081:8080"
     environment:
       - NODE_ENV=production
       - PORT=8080
-      # Add Firebase env vars here or configure them as App Settings in Azure
       - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
       - FIREBASE_PRIVATE_KEY_ID=${FIREBASE_PRIVATE_KEY_ID}
       - FIREBASE_PRIVATE_KEY=${FIREBASE_PRIVATE_KEY}
@@ -28,8 +38,6 @@ services:
   frontend:
     image: ${ACR_NAME}.azurecr.io/habitarium-frontend:${IMAGE_TAG}
     container_name: habitarium-frontend
-    ports:
-      - "8080:80"
     depends_on:
       backend:
         condition: service_healthy
@@ -41,9 +49,3 @@ services:
 networks:
   habitarium-network:
     driver: bridge
-
-
-# Optional: Add volumes for persistent data if needed
-volumes:
-  habitarium-data:
-    driver: local

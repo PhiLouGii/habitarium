@@ -166,7 +166,8 @@ jobs:
       # Build and tag backend image
       - name: Build and tag backend image
         run: |
-          docker build -t ${{ env.ACR_NAME }}.azurecr.io/habitarium-backend:${{ env.IMAGE_TAG }} -f backend/Dockerfile ./backend
+          docker build -t ${{ env.ACR_NAME }}.azurecr.io/habitarium-backend:${{ env.IMAGE_TAG }} \
+          -f backend/Dockerfile ./backend 
           docker tag ${{ env.ACR_NAME }}.azurecr.io/habitarium-backend:${{ env.IMAGE_TAG }} ${{ env.ACR_NAME }}.azurecr.io/habitarium-backend:latest
 
       # Build and tag frontend image
@@ -205,6 +206,12 @@ jobs:
         run: |
           docker push ${{ env.ACR_NAME }}.azurecr.io/habitarium-frontend:${{ env.IMAGE_TAG }}
           docker push ${{ env.ACR_NAME }}.azurecr.io/habitarium-frontend:latest
+
+      - name: Build and push reverse proxy image
+        run: |
+          docker build -t ${{ env.ACR_NAME }}.azurecr.io/habitarium-proxy:${{ env.IMAGE_TAG }} -f proxy/Dockerfile .
+          docker push ${{ env.ACR_NAME }}.azurecr.io/habitarium-proxy:${{ env.IMAGE_TAG }}
+
 
   deploy-to-staging:
     needs: build-and-push-image
@@ -267,7 +274,7 @@ jobs:
       - name: Restart staging slot
         run: |
           az webapp restart --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --slot ${{ env.STAGING_SLOT }} 
-          
+
   production-approval:
     needs: deploy-to-staging
     runs-on: ubuntu-latest
