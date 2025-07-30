@@ -1,20 +1,54 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+All notable changes to this project will be documented in this file.  
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),  
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.0.0] - 2025-07-30
-### Added
-- Full CI/CD pipeline with GitHub Actions
-- Snyk and Trivy security scanning
-- Docker image build and push to Azure Container Registry
-- Automated deploy to staging and production slots in Azure Web App
-- Manual approval gate before production release
 
-### Changed
-- Migrated manual deployment scripts into automated GitHub workflows
-- Upgraded Azure App Service Plan to S1 for staging
+### Added
+- Full CI/CD pipeline implemented with GitHub Actions for automated build, test, Docker image build, and deployment.
+- Integration of automated security scanning tools Snyk and Trivy in CI/CD workflows.
+- Docker image build and push automation to Azure Container Registry.
+- Automated deployments to Azure Web App, including staging and production slots.
+- Manual approval gate workflow established before production releases.
+- Comprehensive Application Insights integration for telemetry, logging, and performance monitoring.
+- UptimeRobot monitoring set up for production and staging URLs with public status page.
+- Operational alert configured on uptime and error conditions for production environment.
+
+### Security
+- Automated dependency vulnerability scanning using Snyk during CI/CD.
+- Container image security scans performed with Trivy at build time.
+- Secure environment variable and secrets management within GitHub Actions and Azure portal.
+- Manual approval configured to reduce risks before production deployment.
+
+### Monitoring
+- Application Insights telemetry configured for detailed application logging and performance metrics.
+- UptimeRobot monitors configured for uptime and response time tracking on both production and staging endpoints.
+- Public status page created for transparency on application availability ([Habitarium Web App Status](https://stats.uptimerobot.com/Benz2STvzI)).
+- Alerts and notifications established for downtime and critical error events.
+
+### Infrastructure
+- Azure App Service Plan upgraded to S1 tier to support staging and production scaling.
+- Network and health check URL configurations optimized for reliable deployments.
+- Instrumentation key and connection strings correctly configured for telemetry data flow.
+
+### Containerization
+- Multi-stage Dockerfile used to optimize image sizes and build caching.
+- Docker Compose used locally for multi-service orchestration during development.
+- Health checks configured in Docker containers to ensure app resilience and restart on failure.
+
+### Deployment
+- CI/CD pipeline automates build, testing, security scanning, container publishing, and deployment tasks.
+- Separate staging and production deployment slots maintained with smooth promotion flow.
+- Live URLs available for both staging and production environments.
+- Environment-specific configuration files and secrets managed securely.
 
 ### Fixed
-- Corrected staging health check URL to avoid DNS errors during deploy
+- Corrected staging health check URL to prevent DNS errors during deployment.
+- Resolved app startup hang related to Application Insights SDK initialization and configuration issues.
+
+### Documentation
+- Updated README file with detailed setup, deployment, and monitoring instructions.
+- Added screenshots of monitoring dashboards and public status page for proof.
+- Maintained CHANGELOG and usage of conventional commits for clear project history.
