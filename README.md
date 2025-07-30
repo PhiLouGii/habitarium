@@ -134,6 +134,8 @@ npm test
 
 - **Production**: https://habitarium-webapp.azurewebsites.net
 - **Staging**: https://habitarium-webapp-staging.azurewebsites.net
+- Check the live uptime status of Habitarium:
+- [Habitarium Web App Status](https://stats.uptimerobot.com/Benz2STvzI)
 
 ## 🩺 Health Endpoints
 
